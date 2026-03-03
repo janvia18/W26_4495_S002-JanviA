@@ -4,100 +4,77 @@ import { readProfile, readProgress, writeProgress, readPoints, writePoints } fro
 
 const LESSON = [
   {
-    title: "What phishing is",
+    title: "What social engineering is",
     body:
-      "Phishing is when someone pretends to be a trusted person or company to trick you into clicking a link, sharing credentials, or sending money.",
+      "Social engineering is when attackers manipulate people to reveal information, approve actions, or bypass normal security steps. The goal is to trigger trust, fear, urgency, or curiosity.",
   },
   {
-    title: "Common red flags",
+    title: "Common tactics",
     body:
-      "Urgency, threats, unexpected attachments, suspicious links, look-alike domains, and requests for passwords or MFA codes.",
+      "Impersonation, pretexting, urgency, authority pressure, fake support calls, baiting with attachments, and requests for codes or access.",
   },
   {
-    title: "What to do",
+    title: "Safe response",
     body:
-      "Do not click. Verify using the official website/app. Report it to your organization. If you clicked, change passwords and notify IT/security.",
+      "Pause, verify identity using official channels, never share passwords or MFA codes, and report suspicious requests to your organization’s security team.",
   },
 ];
 
-const SPOT = [
+const SCENARIOS = [
   {
-    id: "p1",
-    title: "Email: Payroll Update Required",
-    from: "Payroll Team <payroll@company-payroll-support.com>",
-    subject: "Action Required: Confirm your direct deposit info",
-    body:
-      "Hi,\n\nYour payroll will be paused unless you confirm your direct deposit within 2 hours.\n\nConfirm here: http://company-payroll-support.com/verify\n\nThanks,\nPayroll Team",
-    answer: "phish",
-    why: "Urgency, suspicious domain, and request for sensitive action via link.",
+    id: "s1",
+    title: "IT Support Call",
+    prompt:
+      "Someone calls claiming to be IT. They say your laptop is infected and ask for your MFA code to “confirm your identity” while they fix it.",
+    safe: "refuse_report",
+    why:
+      "IT should never ask for MFA codes or passwords. Verify using official support channels and report the attempt.",
   },
   {
-    id: "p2",
-    title: "SMS: Bank Alert",
-    from: "+1 (604) 555-0188",
-    subject: "Security Alert",
-    body:
-      "Your account is locked. Verify now: bit.ly/verify-now\nReply with the code you receive to unlock.",
-    answer: "phish",
-    why: "Shortened link and request for codes are common phishing tactics.",
+    id: "s2",
+    title: "Urgent Manager Request",
+    prompt:
+      "You receive a message: “I’m in a meeting. Buy gift cards right now and send me the codes. Don’t tell anyone.” The sender name matches your manager.",
+    safe: "verify",
+    why:
+      "Urgency + secrecy + gift cards are classic fraud signals. Verify via a trusted channel using known contact info.",
   },
   {
-    id: "p3",
-    title: "Email: Shared Document",
-    from: "Docs <no-reply@googIe-docs.com>",
-    subject: "A document has been shared with you",
-    body:
-      "A document has been shared with you.\nOpen to view: https://googIe-docs.com/share\n\nIf you weren’t expecting this, ignore.",
-    answer: "phish",
-    why: "Look-alike domain using a capital I instead of lowercase L.",
+    id: "s3",
+    title: "Visitor Tailgating",
+    prompt:
+      "A person behind you says: “My badge isn’t working, can you hold the door? I’m late.” They look stressed and friendly.",
+    safe: "policy",
+    why:
+      "Tailgating bypasses physical security. Follow policy: ask them to badge in or escort them to reception.",
   },
 ];
 
 const QUIZ = [
-  {
-    q: "Which is a strong phishing indicator?",
-    options: ["A branded logo", "Urgency + threats", "A friendly greeting", "A long email"],
-    a: 1,
-  },
-  {
-    q: "If a message asks for your MFA code, you should:",
-    options: ["Share it", "Share only with a manager", "Never share it and report", "Send your password instead"],
-    a: 2,
-  },
-  {
-    q: "Safest way to verify a suspicious link is:",
-    options: ["Click in incognito", "Open on phone", "Type the official site manually", "Forward to friends"],
-    a: 2,
-  },
-  {
-    q: "Look-alike domains are used to:",
-    options: ["Improve encryption", "Impersonate trusted brands", "Speed up internet", "Block malware"],
-    a: 1,
-  },
-  {
-    q: "If you clicked a suspicious link, best next step is:",
-    options: ["Do nothing", "Change passwords and report", "Delete email only", "Restart laptop"],
-    a: 1,
-  },
+  { q: "Social engineering mainly targets:", options: ["Firewalls", "People and behavior", "Encryption algorithms", "Wi-Fi speed"], a: 1 },
+  { q: "Which is a strong red flag in a request?", options: ["Clear verification steps", "Urgency + secrecy", "Official ticket number", "Normal tone"], a: 1 },
+  { q: "If someone asks for your MFA code, you should:", options: ["Share it if they sound official", "Share it only once", "Never share it and verify identity", "Text it later"], a: 2 },
+  { q: "Best way to verify an unusual request is:", options: ["Reply to the same email thread", "Use a trusted official channel", "Click the link they sent", "Ask a stranger"], a: 1 },
+  { q: "Tailgating is when:", options: ["Someone follows you through a secure door", "You forget your password", "A device runs out of battery", "A link is shortened"], a: 0 },
 ];
 
-export default function ModulePhishing() {
+export default function ModuleSocial() {
   const navigate = useNavigate();
   const profile = useMemo(() => readProfile(), []);
 
   const [step, setStep] = useState(0);
-  const [spotIndex, setSpotIndex] = useState(0);
-  const [spotAnswers, setSpotAnswers] = useState({});
+  const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [scenarioAnswers, setScenarioAnswers] = useState({});
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [msg, setMsg] = useState("");
 
   const results = useMemo(() => {
-    let spotCorrect = 0;
-    for (const item of SPOT) {
-      if (spotAnswers[item.id] === item.answer) spotCorrect += 1;
+    let scenarioCorrect = 0;
+    for (const s of SCENARIOS) {
+      if (scenarioAnswers[s.id] === s.safe) scenarioCorrect += 1;
     }
-    const spotPct = Math.round((spotCorrect / SPOT.length) * 100);
+    const scenarioPct = Math.round((scenarioCorrect / SCENARIOS.length) * 100);
 
     let quizCorrect = 0;
     for (let i = 0; i < QUIZ.length; i++) {
@@ -105,16 +82,16 @@ export default function ModulePhishing() {
     }
     const quizPct = Math.round((quizCorrect / QUIZ.length) * 100);
 
-    const totalPct = Math.round(0.45 * spotPct + 0.55 * quizPct);
-    const pointsEarned = 120 + Math.round(totalPct * 1.2);
+    const totalPct = Math.round(0.5 * scenarioPct + 0.5 * quizPct);
+    const pointsEarned = 100 + Math.round(totalPct * 1.0);
 
-    return { spotCorrect, spotPct, quizCorrect, quizPct, totalPct, pointsEarned };
-  }, [spotAnswers, quizAnswers]);
+    return { scenarioCorrect, scenarioPct, quizCorrect, quizPct, totalPct, pointsEarned };
+  }, [scenarioAnswers, quizAnswers]);
 
-  function answerSpot(value) {
-    const item = SPOT[spotIndex];
-    setSpotAnswers((prev) => ({ ...prev, [item.id]: value }));
-    if (spotIndex < SPOT.length - 1) setSpotIndex((i) => i + 1);
+  function answerScenario(value) {
+    const s = SCENARIOS[scenarioIndex];
+    setScenarioAnswers((p) => ({ ...p, [s.id]: value }));
+    if (scenarioIndex < SCENARIOS.length - 1) setScenarioIndex((i) => i + 1);
     else setStep(2);
   }
 
@@ -130,10 +107,16 @@ export default function ModulePhishing() {
 
   function finishModule() {
     const prog = readProgress();
-    const already = !!prog.completed?.phishing;
+
+    if (!prog.completed?.password) {
+      navigate("/modules");
+      return;
+    }
+
+    const already = !!prog.completed?.social;
 
     prog.completed = prog.completed || {};
-    prog.completed.phishing = true;
+    prog.completed.social = true;
     writeProgress(prog);
 
     if (!already) {
@@ -158,8 +141,8 @@ export default function ModulePhishing() {
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div>
-            <h1 style={{ margin: 0 }}>Phishing Awareness</h1>
-            <p style={{ marginTop: 8, color: "#444" }}>Learn the red flags, spot suspicious messages, and pass a quick quiz.</p>
+            <h1 style={{ margin: 0 }}>Social Engineering</h1>
+            <p style={{ marginTop: 8, color: "#444" }}>Practice safe responses to manipulation tactics.</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontWeight: 600 }}>Hi, {profile?.name || "Learner"}</div>
@@ -183,34 +166,30 @@ export default function ModulePhishing() {
               ))}
             </div>
             <button onClick={() => setStep(1)} style={{ marginTop: 18 }}>
-              Start “Spot the Phish”
+              Start Scenarios
             </button>
           </div>
         )}
 
         {step === 1 && (
           <div>
-            <h2>Part 2: Spot the Phish</h2>
-            <p style={{ color: "#444" }}>Read the message. Decide if it’s Phish or Safe.</p>
+            <h2>Part 2: Choose the safest response</h2>
+            <p style={{ color: "#444" }}>Pick the best action. Focus on verifying identity and following policy.</p>
 
             <div style={{ padding: 16, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>
-              <div style={{ fontWeight: 700 }}>{SPOT[spotIndex].title}</div>
-              <div style={{ marginTop: 8, fontSize: 14, color: "#444" }}>
-                <div><b>From:</b> {SPOT[spotIndex].from}</div>
-                <div><b>Subject:</b> {SPOT[spotIndex].subject}</div>
-              </div>
-              <pre style={{ marginTop: 12, whiteSpace: "pre-wrap", fontFamily: "inherit", color: "#222" }}>
-                {SPOT[spotIndex].body}
-              </pre>
+              <div style={{ fontWeight: 800 }}>{SCENARIOS[scenarioIndex].title}</div>
+              <div style={{ marginTop: 10, color: "#222", lineHeight: 1.6 }}>{SCENARIOS[scenarioIndex].prompt}</div>
             </div>
 
-            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-              <button onClick={() => answerSpot("phish")}>🚩 Phish</button>
-              <button onClick={() => answerSpot("safe")}>✅ Safe</button>
+            <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+              <button onClick={() => answerScenario("refuse_report")}>Refuse, report, and verify through official support</button>
+              <button onClick={() => answerScenario("verify")}>Verify identity using a trusted channel before acting</button>
+              <button onClick={() => answerScenario("policy")}>Follow policy and route the person to the proper process</button>
+              <button onClick={() => answerScenario("comply")}>Comply quickly to avoid trouble</button>
             </div>
 
             <div style={{ marginTop: 10, color: "#666" }}>
-              Item {spotIndex + 1} / {SPOT.length}
+              Scenario {scenarioIndex + 1} / {SCENARIOS.length}
             </div>
           </div>
         )}
@@ -257,9 +236,9 @@ export default function ModulePhishing() {
 
             <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
               <div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>
-                <div style={{ fontWeight: 700 }}>Spot the Phish</div>
-                <div style={{ fontSize: 28, fontWeight: 800 }}>{results.spotPct}%</div>
-                <div style={{ color: "#555" }}>{results.spotCorrect} / {SPOT.length} correct</div>
+                <div style={{ fontWeight: 700 }}>Scenarios</div>
+                <div style={{ fontSize: 28, fontWeight: 800 }}>{results.scenarioPct}%</div>
+                <div style={{ color: "#555" }}>{results.scenarioCorrect} / {SCENARIOS.length} correct</div>
               </div>
 
               <div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>
@@ -277,10 +256,10 @@ export default function ModulePhishing() {
 
             <h3 style={{ marginTop: 16 }}>What to remember</h3>
             <div style={{ display: "grid", gap: 10 }}>
-              {SPOT.map((it) => (
-                <div key={it.id} style={{ padding: 12, borderRadius: 14, border: "1px solid rgba(0,0,0,0.08)" }}>
-                  <div style={{ fontWeight: 700 }}>{it.title}</div>
-                  <div style={{ marginTop: 6, color: "#333" }}>{it.why}</div>
+              {SCENARIOS.map((s) => (
+                <div key={s.id} style={{ padding: 12, borderRadius: 14, border: "1px solid rgba(0,0,0,0.08)" }}>
+                  <div style={{ fontWeight: 800 }}>{s.title}</div>
+                  <div style={{ marginTop: 6, color: "#333" }}>{s.why}</div>
                 </div>
               ))}
             </div>

@@ -12,13 +12,14 @@ function scorePassphrase(text) {
   const t = (text || "").trim();
   const length = t.length;
   const words = t.split(/\s+/).filter(Boolean).length;
+
   const hasNumber = /\d/.test(t);
   const hasSymbol = /[^a-zA-Z0-9\s]/.test(t);
   const hasUpper = /[A-Z]/.test(t);
+
   const looksCommon = /(password|qwerty|12345|letmein)/i.test(t);
 
   let score = 0;
-
   if (length >= 14) score += 40;
   else score += Math.max(0, Math.round((length / 14) * 40));
 
@@ -63,7 +64,7 @@ const QUIZ = [
   },
 ];
 
-export default function ModulePasswords() {
+export default function ModulesPasswords() {
   const navigate = useNavigate();
   const profile = useMemo(() => readProfile(), []);
 
@@ -246,9 +247,7 @@ export default function ModulePasswords() {
               <div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>
                 <div style={{ fontWeight: 700 }}>Quiz</div>
                 <div style={{ fontSize: 28, fontWeight: 800 }}>{results.quizPct}%</div>
-                <div style={{ color: "#555" }}>
-                  {results.quizCorrect} / {QUIZ.length} correct
-                </div>
+                <div style={{ color: "#555" }}>{results.quizCorrect} / {QUIZ.length} correct</div>
               </div>
 
               <div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>

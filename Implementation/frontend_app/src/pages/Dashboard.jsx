@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { NavLink } from "react-router-dom";
-import "../App.css";
-
+import { useNavigate } from "react-router-dom";
+import { readProfile, readPoints, readProgress, writePoints, writeProgress } from "../lib/storage";
 
 const avatarEmoji = {
   bear: "🐻",
@@ -22,121 +21,187 @@ const avatarEmoji = {
   dragon: "🐲",
 };
 
+function calcLevel(points) {
+  if (points >= 400) return 3;
+  if (points >= 200) return 2;
+  return 1;
+}
+
+function calcCompletedCount(progress) {
+  const completed = progress?.completed || {};
+  return Object.values(completed).filter(Boolean).length;
+}
+
 export default function Dashboard() {
-  const [profile, setProfile] = useState(null);
+  const navigate = useNavigate();
+
+  const [profile, setProfile] = useState(readProfile());
+  const [points, setPoints] = useState(readPoints());
+  const [progress, setProgress] = useState(readProgress());
 
   useEffect(() => {
-    const saved = localStorage.getItem("profile");
-    setProfile(saved ? JSON.parse(saved) : null);
+    setProfile(readProfile());
+    setPoints(readPoints());
+    setProgress(readProgress());
   }, []);
 
-  const stats = useMemo(() => {
-  const points = 215;
+  const totalModules = 3;
 
-  const level = Math.floor(points / 200) + 1;
+  const completedCount = useMemo(() => calcCompletedCount(progress), [progress]);
+  const progressText = `${completedCount}/${totalModules}`;
+  const progressPct = useMemo(() => Math.round((completedCount / totalModules) * 100), [completedCount]);
 
-  const completed = 2;
-  const total = 6;
-  const percent = Math.round((completed / total) * 100);
+  const level = useMemo(() => calcLevel(points), [points]);
 
-  return { points, level, completed, total, percent };
-}, []);
+  const nextRecommended = useMemo(() => {
+    const c = progress?.completed || {};
+    if (!c.phishing) return "Start with Phishing Awareness";
+    if (!c.password) return "Next: Password Security";
+    if (!c.social) return "Next: Social Engineering";
+    return "All modules completed. Review any module to refresh your skills.";
+  }, [progress]);
 
-
-
-  if (!profile) {
-    return (
-      <div className="cardWide">
-        <h1 className="title">Learner Dashboard</h1>
-        <p className="text">No profile found. Please create your profile first.</p>
-        <NavLink to="/" className="btnPrimaryLink">
-          Go to Home
-        </NavLink>
-      </div>
-    );
+  function resetProgress() {
+    const next = { completed: { phishing: false, password: false, social: false } };
+    writeProgress(next);
+    setProgress(next);
   }
 
+  function resetProfile() {
+    localStorage.removeItem("profile");
+    setProfile(readProfile());
+    navigate("/profile");
+  }
+
+  function resetPoints() {
+    writePoints(0);
+    setPoints(0);
+  }
+
+  const emoji = avatarEmoji[profile?.avatar] || "👤";
+
   return (
-    <div className="dashWrap">
-      <div className="dashHeader">
-        <div>
-          <h1 className="title" style={{ marginBottom: 4 }}>
-            CyberAware
-          </h1>
-          <p className="mutedText">Learner Dashboard</p>
-        </div>
-
-        <div className="profileChip">
-          <span className="chipEmoji">{avatarEmoji[profile.avatar] || "🙂"}</span>
-          <span>{profile.name}</span>
-        </div>
-      </div>
-
-      <div className="dashGrid">
-        <div className="dashCard">
-          <h2 className="dashCardTitle">
-            Welcome {avatarEmoji[profile.avatar] || "🙂"}{" "}
-            <span>{profile.name}</span>
-          </h2>
-          <p className="text">
-            Learn through comic modules, quick activities, and short quizzes.
-          </p>
-
-          <div className="btnRow" style={{ marginTop: 10 }}>
-           <NavLink to="/modules" className="btnPrimaryLink">
-            Start Module
-            </NavLink>
-            <button className="btnSecondary" disabled>
-            Quick Quiz (soon)
-            </button>
+    <div style={{ padding: "40px 20px" }}>
+      <div
+        style={{
+          maxWidth: 1100,
+          margin: "0 auto",
+          padding: 24,
+          background: "rgba(255,255,255,0.92)",
+          borderRadius: 18,
+          boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <div>
+            <h1 style={{ margin: 0 }}>CyberAware</h1>
+            <div style={{ marginTop: 8, color: "#555" }}>Learner Dashboard</div>
           </div>
 
-          <div className="progressArea">
-            <div className="progressTop">
-              <span className="mutedText">Progress</span>
-              <span className="mutedText">
-                {stats.completed}/{stats.total}
-              </span>
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                padding: "10px 14px",
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.85)",
+                border: "1px solid rgba(0,0,0,0.06)",
+              }}
+            >
+              <span style={{ fontWeight: 700 }}>{emoji}</span>
+              <span style={{ fontWeight: 700 }}>{profile?.name || "Learner"}</span>
             </div>
 
-            <div className="progressBar">
+            <button onClick={resetProfile}>Reset Profile</button>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gap: 16, marginTop: 18, gridTemplateColumns: "1.6fr 1fr" }}>
+          <div
+            style={{
+              padding: 18,
+              borderRadius: 16,
+              border: "1px solid rgba(0,0,0,0.06)",
+              background: "rgba(255,255,255,0.85)",
+            }}
+          >
+            <h2 style={{ marginTop: 0 }}>Welcome {profile?.name ? `👋 ${profile.name}` : "👋"}</h2>
+            <div style={{ color: "#444", marginTop: 8 }}>
+              Learn through short modules, quick activities, and mini quizzes.
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+              <button onClick={() => navigate("/modules")}>Go to Modules</button>
+              <button disabled style={{ opacity: 0.6, cursor: "not-allowed" }}>Quick Quiz (soon)</button>
+            </div>
+
+            <div style={{ marginTop: 18, color: "#555", display: "flex", justifyContent: "space-between" }}>
+              <div style={{ fontWeight: 700 }}>Progress</div>
+              <div style={{ color: "#666" }}>{progressText}</div>
+            </div>
+
+            <div
+              style={{
+                marginTop: 8,
+                height: 12,
+                borderRadius: 999,
+                background: "rgba(0,0,0,0.08)",
+                overflow: "hidden",
+              }}
+            >
               <div
-                className="progressFill"
-                style={{ width: `${stats.percent}%` }}
+                style={{
+                  width: `${progressPct}%`,
+                  height: "100%",
+                  background: "rgba(70,130,255,0.9)",
+                }}
               />
             </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ fontWeight: 700 }}>
+                Level {level} · {points} points
+              </div>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button onClick={resetProgress}>Reset Progress</button>
+                <button onClick={resetPoints}>Reset Points</button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              padding: 18,
+              borderRadius: 16,
+              border: "1px solid rgba(0,0,0,0.06)",
+              background: "rgba(255,255,255,0.85)",
+            }}
+          >
+            <div style={{ fontWeight: 800, color: "#444" }}>Points</div>
+            <div style={{ fontSize: 36, fontWeight: 900, marginTop: 8 }}>{points}</div>
+
+            <div style={{ marginTop: 14, fontWeight: 800, color: "#444" }}>Level</div>
+            <div style={{ fontSize: 28, fontWeight: 900, marginTop: 6 }}>Level {level}</div>
+
+            <div style={{ marginTop: 16, color: "#666" }}>
+              Complete modules to earn points and unlock the next topic.
+            </div>
           </div>
         </div>
 
-        <div className="dashCard">
-          <h3 className="dashSmallTitle">Points</h3>
-          <div className="bigNumber">{stats.points}</div>
-
-          <h3 className="dashSmallTitle" style={{ marginTop: 14 }}>
-            Level
-          </h3>
-          <div className="bigNumber">Level {stats.level}</div>
-        </div>
-      </div>
-
-      <div className="dashCard" style={{ marginTop: 16 }}>
-        <h3 className="dashSmallTitle">Modules</h3>
-
-        <div className="moduleGrid">
-          <div className="moduleCard">
-            <div className="moduleTitle">Phishing Awareness 📧</div>
-            <div className="mutedText">Status: In Progress</div>
-          </div>
-
-          <div className="moduleCard">
-            <div className="moduleTitle">Password Security 🔐</div>
-            <div className="mutedText">Status: Not Started</div>
-          </div>
-
-          <div className="moduleCard locked">
-            <div className="moduleTitle">Social Engineering 🕵️</div>
-            <div className="mutedText">Locked (Coming Soon)</div>
-          </div>
+        <div
+          style={{
+            marginTop: 16,
+            padding: 16,
+            borderRadius: 16,
+            border: "1px solid rgba(0,0,0,0.06)",
+            background: "rgba(255,255,255,0.85)",
+          }}
+        >
+          <div style={{ fontWeight: 800, color: "#444" }}>Next Recommended</div>
+          <div style={{ marginTop: 6, color: "#444" }}>{nextRecommended}</div>
         </div>
       </div>
     </div>

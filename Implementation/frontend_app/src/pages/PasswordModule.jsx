@@ -1,24 +1,66 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { readProgress, writeProgress, readPoints, writePoints } from "../lib/storage";
+
+function finishPassword(pointsEarned = 140) {
+  const navigate = useNavigate();
+
+  const prog = readProgress();
+
+  if (!prog.completed?.phishing) {
+    navigate("/modules");
+    return;
+  }
+
+  const already = !!prog.completed?.password;
+
+  prog.completed.password = true;
+  writeProgress(prog);
+
+  if (!already) {
+    const current = readPoints();
+    writePoints(current + pointsEarned);
+  }
+
+  navigate("/modules");
+}
+
 import { readProfile, readProgress, writeProgress, readPoints, writePoints } from "../lib/storage";
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+function readProfile() {
+  return safeJson(localStorage.getItem(LS_PROFILE), { name: "Learner", avatar: "horse" });
+}
+function defaultProgress() {
+  return { points: 0, completed: {}, quizScores: {}, lastCompletedAt: {} };
+}
+function readProgress() {
+  return safeJson(localStorage.getItem(LS_PROGRESS), defaultProgress());
+}
+function writeProgress(next) {
+  localStorage.setItem(LS_PROGRESS, JSON.stringify(next));
+}
+
 const LESSON = [
-  { title: "Strong password basics", body: "Use long passphrases (14+ characters). Length plus uniqueness is the goal." },
-  { title: "Never reuse passwords", body: "Reused passwords make credential stuffing attacks easy after a breach." },
-  { title: "Password managers + MFA", body: "Password managers help generate unique passwords. MFA adds an extra layer of protection." },
+  { title: "Strong password basics", body: "Best practice: use long passphrases (14+ characters). Length beats complexity when it’s meaningful and unique." },
+  { title: "Never reuse passwords", body: "If one site is breached, reused passwords let attackers access your other accounts (credential stuffing)." },
+  { title: "Password managers + MFA", body: "A password manager creates and stores unique passwords. MFA adds a second check so a stolen password alone isn’t enough." },
 ];
 
 function scorePassphrase(text) {
   const t = (text || "").trim();
   const length = t.length;
   const words = t.split(/\s+/).filter(Boolean).length;
+
   const hasNumber = /\d/.test(t);
   const hasSymbol = /[^a-zA-Z0-9\s]/.test(t);
   const hasUpper = /[A-Z]/.test(t);
+
   const looksCommon = /(password|qwerty|12345|letmein)/i.test(t);
 
   let score = 0;
-
   if (length >= 14) score += 40;
   else score += Math.max(0, Math.round((length / 14) * 40));
 
@@ -40,30 +82,35 @@ const QUIZ = [
     q: "What is the best general approach for passwords?",
     options: ["Short and complex", "Long and unique (passphrases)", "Same password everywhere", "Only symbols"],
     a: 1,
+    explain: "Long + unique is easiest to remember and hardest to crack when done as a passphrase.",
   },
   {
     q: "Why is password reuse dangerous?",
     options: ["It isn’t", "It makes login faster", "Breaches on one site can unlock your other accounts", "It improves encryption"],
     a: 2,
+    explain: "Attackers try leaked passwords on many services (credential stuffing).",
   },
   {
     q: "A password manager helps by:",
     options: ["Sharing passwords with friends", "Generating and storing unique passwords", "Removing MFA", "Making passwords shorter"],
     a: 1,
+    explain: "It reduces reuse and makes strong passwords practical.",
   },
   {
     q: "MFA protects you when:",
     options: ["Your password is stolen", "Your laptop is fast", "You use emojis", "You click every link"],
     a: 0,
+    explain: "MFA adds an extra factor, so a password alone is not enough.",
   },
   {
     q: "Which passphrase is strongest?",
     options: ["Password123!", "Janvi2001", "Correct Horse Battery Staple", "qwerty!"],
     a: 2,
+    explain: "Long, multi-word passphrases are strong and memorable.",
   },
 ];
 
-export default function ModulePasswords() {
+export default function PasswordModule() {
   const navigate = useNavigate();
   const profile = useMemo(() => readProfile(), []);
 
@@ -74,6 +121,16 @@ export default function ModulePasswords() {
   const [msg, setMsg] = useState("");
 
   const analysis = useMemo(() => scorePassphrase(phrase), [phrase]);
+
+  function nextQuiz() {
+    if (quizAnswers[quizIndex] === undefined) {
+      setMsg("Please select an answer to continue.");
+      return;
+    }
+    setMsg("");
+    if (quizIndex < QUIZ.length - 1) setQuizIndex((i) => i + 1);
+    else setStep(3);
+  }
 
   const results = useMemo(() => {
     let quizCorrect = 0;
@@ -89,53 +146,44 @@ export default function ModulePasswords() {
     return { quizCorrect, quizPct, builderPct, totalPct, pointsEarned };
   }, [quizAnswers, analysis.score]);
 
-  function nextQuiz() {
-    if (quizAnswers[quizIndex] === undefined) {
-      setMsg("Please select an answer to continue.");
-      return;
-    }
-    setMsg("");
-    if (quizIndex < QUIZ.length - 1) setQuizIndex((i) => i + 1);
-    else setStep(3);
-  }
-
   function finishModule() {
-    const prog = readProgress();
+    const prev = readProgress();
 
-    if (!prog.completed?.phishing) {
+    if (!prev?.completed?.phishing) {
+      alert("Complete Phishing Awareness first.");
       navigate("/modules");
       return;
     }
 
-    const already = !!prog.completed?.password;
+    const alreadyCompleted = !!prev.completed?.password;
 
-    prog.completed.password = true;
-    writeProgress(prog);
+    const next = { ...prev };
+    next.completed = { ...(prev.completed || {}), password: true };
+    next.quizScores = { ...(prev.quizScores || {}), password: results.totalPct };
+    next.lastCompletedAt = { ...(prev.lastCompletedAt || {}), password: new Date().toISOString() };
 
-    if (!already) {
-      const current = readPoints();
-      writePoints(current + results.pointsEarned);
-    }
+    if (!alreadyCompleted) next.points = (prev.points || 0) + results.pointsEarned;
 
+    writeProgress(next);
     navigate("/modules");
   }
 
   return (
     <div style={{ padding: "40px 20px" }}>
-      <div
-        style={{
-          background: "rgba(255,255,255,0.92)",
-          borderRadius: 18,
-          padding: 24,
-          boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-          maxWidth: 980,
-          margin: "0 auto",
-        }}
-      >
+      <div style={{
+        background: "rgba(255,255,255,0.92)",
+        borderRadius: 18,
+        padding: 24,
+        boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+        maxWidth: 980,
+        margin: "0 auto",
+      }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div>
-            <h1 style={{ margin: 0 }}>Passwords & Passphrases</h1>
-            <p style={{ marginTop: 8, color: "#444" }}>Build safer passwords, avoid reuse, and use MFA.</p>
+            <h1 style={{ margin: 0 }}>Password Security</h1>
+            <p style={{ marginTop: 8, color: "#444" }}>
+              Build safer passwords, avoid reuse, and use MFA like a pro.
+            </p>
           </div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontWeight: 600 }}>Hi, {profile?.name || "Learner"}</div>
@@ -158,7 +206,6 @@ export default function ModulePasswords() {
                 </div>
               ))}
             </div>
-
             <button onClick={() => setStep(1)} style={{ marginTop: 18 }}>
               Start Passphrase Builder
             </button>
@@ -168,7 +215,9 @@ export default function ModulePasswords() {
         {step === 1 && (
           <div>
             <h2>Part 2: Passphrase Builder</h2>
-            <p style={{ color: "#444" }}>Create a passphrase (4+ words). Avoid names and birthdays.</p>
+            <p style={{ color: "#444" }}>
+              Create a passphrase (4+ words). Avoid names, birthdays, and common patterns.
+            </p>
 
             <input
               value={phrase}
@@ -191,13 +240,26 @@ export default function ModulePasswords() {
                 <div style={{ color: analysis.length >= 14 ? "#1a7f37" : "#555" }}>• 14+ characters</div>
                 <div style={{ color: analysis.hasNumber ? "#1a7f37" : "#555" }}>• Includes a number</div>
                 <div style={{ color: analysis.hasSymbol ? "#1a7f37" : "#555" }}>• Includes a symbol</div>
-                <div style={{ color: analysis.looksCommon ? "#b00020" : "#1a7f37" }}>• Avoid common patterns</div>
+                <div style={{ color: analysis.looksCommon ? "#b00020" : "#1a7f37" }}>
+                  • Avoid common patterns
+                </div>
               </div>
             </div>
 
-            <button onClick={() => setStep(2)} style={{ marginTop: 16 }} disabled={analysis.score < 50}>
+            <button
+              onClick={() => setStep(2)}
+              style={{ marginTop: 16 }}
+              disabled={analysis.score < 50}
+              title={analysis.score < 50 ? "Try making it longer (4+ words)" : "Continue"}
+            >
               Continue to Quiz
             </button>
+
+            {analysis.score < 50 && (
+              <div style={{ marginTop: 10, color: "#666" }}>
+                Tip: aim for 4+ words and 14+ characters. Length is your superpower.
+              </div>
+            )}
           </div>
         )}
 
@@ -229,6 +291,10 @@ export default function ModulePasswords() {
               <button onClick={nextQuiz} style={{ marginTop: 14 }}>
                 {quizIndex < QUIZ.length - 1 ? "Next" : "Finish Quiz"}
               </button>
+
+              <div style={{ marginTop: 10, color: "#666" }}>
+                Question {quizIndex + 1} / {QUIZ.length}
+              </div>
             </div>
           </div>
         )}
@@ -258,9 +324,7 @@ export default function ModulePasswords() {
               </div>
             </div>
 
-            <button onClick={finishModule} style={{ marginTop: 18 }}>
-              Save & Mark Completed
-            </button>
+            <button onClick={() => finishPassword(160)}>Save & Mark Completed</button>
           </div>
         )}
       </div>

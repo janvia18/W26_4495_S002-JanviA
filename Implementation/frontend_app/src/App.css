@@ -63,10 +63,16 @@ body {
 
 .link {
   text-decoration: none;
-  padding: 10px 14px;
-  border-radius: 14px;
-  color: var(--text);
-  border: 1px solid transparent;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.link.active {
+  background: rgba(108, 99, 255, 0.18);
+  border: 1px solid rgba(108, 99, 255, 0.25);
+  color: #1f2a44;
 }
 
 .link:hover {

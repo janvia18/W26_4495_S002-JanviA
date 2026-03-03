@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
-import { supabase } from "../lib/supabaseClient";
 
 const avatars = [
   { id: "bear", label: "Bear", emoji: "🐻" },
@@ -22,6 +21,23 @@ const avatars = [
   { id: "dragon", label: "Dragon", emoji: "🐲" },
 ];
 
+function safeJson(raw, fallback) {
+  try {
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function getSupabase() {
+  try {
+    const mod = await import("../lib/supabaseClient");
+    return mod?.supabase || null;
+  } catch {
+    return null;
+  }
+}
+
 export default function Home() {
   const navigate = useNavigate();
 
@@ -30,19 +46,21 @@ export default function Home() {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    const loadProfile = async () => {
+    const saved = safeJson(localStorage.getItem("profile"), null);
+    if (saved) {
+      setName(saved?.name || "");
+      setAvatar(saved?.avatar || "");
+    }
 
-      const saved = localStorage.getItem("profile");
-      if (saved) {
-        const p = JSON.parse(saved);
-        setName(p?.name || "");
-        setAvatar(p?.avatar || "");
-      }
+    const loadRemote = async () => {
+      const supabase = await getSupabase();
+      if (!supabase) return;
 
-      const { data } = await supabase.auth.getSession();
-      const session = data.session;
+      try {
+        const { data } = await supabase.auth.getSession();
+        const session = data?.session;
+        if (!session) return;
 
-      if (session) {
         const { data: row } = await supabase
           .from("profiles")
           .select("name, avatar")
@@ -50,49 +68,53 @@ export default function Home() {
           .single();
 
         if (row) {
-          setName(row.name);
-          setAvatar(row.avatar);
-          localStorage.setItem("profile", JSON.stringify(row));
+          setName(row.name || "");
+          setAvatar(row.avatar || "");
+          localStorage.setItem("profile", JSON.stringify({ name: row.name || "", avatar: row.avatar || "" }));
         }
+      } catch {
+        return;
       }
     };
 
-    loadProfile();
+    loadRemote();
   }, []);
 
   const handleSave = async () => {
     if (!name.trim() || !avatar) return;
 
-    const profileData = {
-      name: name.trim(),
-      avatar,
-    };
-
+    const profileData = { name: name.trim(), avatar };
     localStorage.setItem("profile", JSON.stringify(profileData));
 
-    setMsg("Saving...");
+    setMsg("Saved locally ✅");
 
-    const { data } = await supabase.auth.getSession();
-    const session = data.session;
+    const supabase = await getSupabase();
+    if (supabase) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const session = data?.session;
 
-    if (session) {
-      const { error } = await supabase.from("profiles").upsert(
-        {
-          user_id: session.user.id,
-          name: profileData.name,
-          avatar: profileData.avatar,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
+        if (session) {
+          const { error } = await supabase.from("profiles").upsert(
+            {
+              user_id: session.user.id,
+              name: profileData.name,
+              avatar: profileData.avatar,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" }
+          );
 
-      if (error) {
-        setMsg("Saved locally only ❗");
-      } else {
-        setMsg("Saved to database");
+          if (error) setMsg("Saved locally (sync failed)");
+          else setMsg("Saved and synced ✅");
+        } else {
+          setMsg("Saved locally (login to sync)");
+        }
+      } catch {
+        setMsg("Saved locally (sync unavailable)");
       }
     } else {
-      setMsg("Saved locally  (Login to sync)");
+      setMsg("Saved locally (sync unavailable)");
     }
 
     navigate("/dashboard");
@@ -104,11 +126,17 @@ export default function Home() {
     setMsg("");
     localStorage.removeItem("profile");
 
-    const { data } = await supabase.auth.getSession();
-    const session = data.session;
-
-    if (session) {
-      await supabase.from("profiles").delete().eq("user_id", session.user.id);
+    const supabase = await getSupabase();
+    if (supabase) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const session = data?.session;
+        if (session) {
+          await supabase.from("profiles").delete().eq("user_id", session.user.id);
+        }
+      } catch {
+        return;
+      }
     }
   };
 
@@ -147,11 +175,7 @@ export default function Home() {
           </div>
 
           <div className="btnRow">
-            <button
-              className="btnPrimary"
-              onClick={handleSave}
-              disabled={!name.trim() || !avatar}
-            >
+            <button className="btnPrimary" onClick={handleSave} disabled={!name.trim() || !avatar}>
               Save
             </button>
 
