@@ -25,17 +25,23 @@ export default function Modules() {
   }
 
   function getStatus(moduleKey) {
-    if (moduleKey === "phishing") return phishingDone ? "Completed ✅" : "Not Started";
+    if (moduleKey === "phishing") return phishingDone ? "Completed ✅" : "Ready to Start";
     if (moduleKey === "password") return passwordDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
     if (moduleKey === "social") return socialDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
     return "Locked";
   }
 
   function getButtonText(moduleKey) {
-    if (moduleKey === "phishing") return phishingDone ? "Review" : "Start";
-    if (moduleKey === "password") return passwordDone ? "Review" : "Start";
-    if (moduleKey === "social") return socialDone ? "Review" : "Start";
-    return "Start";
+    if (moduleKey === "phishing") return phishingDone ? "Review Module" : "Start Module";
+    if (moduleKey === "password") return passwordDone ? "Review Module" : "Start Module";
+    if (moduleKey === "social") return socialDone ? "Review Module" : "Start Module";
+    return "Start Module";
+  }
+
+  function getLockedText(moduleKey) {
+    if (moduleKey === "password") return "Complete Phishing First";
+    if (moduleKey === "social") return "Complete Password First";
+    return "Locked";
   }
 
   return (
@@ -80,13 +86,13 @@ export default function Modules() {
                   flexWrap: "wrap",
                 }}
               >
-                <div>
+                <div style={{ flex: "1 1 320px" }}>
                   <h3 style={{ margin: 0 }}>{module.title}</h3>
-                  <p style={{ margin: "8px 0 0", color: "#444" }}>{module.desc}</p>
-                  <div style={{ marginTop: 8, color: "#666", fontSize: 14 }}>Time: {module.time}</div>
+                  <p style={{ margin: "8px 0 0", color: "#444", lineHeight: 1.5 }}>{module.desc}</p>
+                  <div style={{ marginTop: 8, color: "#666", fontSize: 14 }}>Estimated Time: {module.time}</div>
                 </div>
 
-                <div style={{ textAlign: "right" }}>
+                <div style={{ textAlign: "right", minWidth: 180 }}>
                   <div style={{ fontWeight: 700, marginBottom: 10 }}>{getStatus(module.key)}</div>
                   <button
                     type="button"
@@ -94,7 +100,7 @@ export default function Modules() {
                     disabled={locked}
                     style={locked ? { opacity: 0.6, cursor: "not-allowed" } : {}}
                   >
-                    {locked ? "Locked" : getButtonText(module.key)}
+                    {locked ? getLockedText(module.key) : getButtonText(module.key)}
                   </button>
                 </div>
               </div>
