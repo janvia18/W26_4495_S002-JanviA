@@ -5,15 +5,13 @@ export const MODULES = [
     desc: "Spot urgency tricks, fake senders, and suspicious links.",
     time: "10 min",
     route: "/modules/phishing",
-    locked: false,
   },
   {
-    key: "passwords",
+    key: "password",
     title: "Password Security 🔐",
     desc: "Passphrases, unique passwords, and password managers.",
     time: "8 min",
-    route: "/modules/passwords",
-    locked: false,
+    route: "/modules/password",
   },
   {
     key: "social",
@@ -21,6 +19,5 @@ export const MODULES = [
     desc: "How attackers manipulate people, not systems.",
     time: "9 min",
     route: "/modules/social",
-    locked: true,
   },
 ];
