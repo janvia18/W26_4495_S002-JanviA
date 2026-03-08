@@ -20,4 +20,24 @@ export const MODULES = [
     time: "9 min",
     route: "/modules/social",
   },
+  {
+    key: "mfa",
+    title: "Multi-Factor Authentication 🔑",
+    desc: "Learn how MFA protects accounts and how to use it safely.",
+    time: "7 min",
+    route: "/modules/mfa",
+  },
+  {
+    key: "browsing",
+    title: "Safe Browsing 🌐",
+    desc: "Identify risky websites, unsafe downloads, and browser security habits.",
+    time: "7 min",
+    route: "/modules/browsing",
+
+    key: "incident_response",
+    title: "Incident Response 🚨",
+    desc: "Learn how to respond to security incidents and minimize their impact.",
+    time: "10 min",
+    route: "/modules/incident-response",
+  },
 ];

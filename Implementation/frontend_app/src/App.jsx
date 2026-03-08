@@ -11,6 +11,9 @@ import ModulePasswords from "./pages/ModulePasswords";
 import ModuleSocial from "./pages/ModuleSocial";
 import ProfileSetup from "./pages/ProfileSetup";
 import Login from "./pages/LoginPage";
+import ModuleMFA from "./pages/ModuleMFA";
+import ModuleBrowsing from "./pages/ModuleBrowsing";
+import ModuleIncident from "./pages/ModuleIncident";
 
 const avatarEmoji = {
   bear: "🐻",
@@ -92,6 +95,9 @@ export default function App() {
           <Route path="/modules/phishing" element={<ModulePhishing />} />
           <Route path="/modules/password" element={<ModulePasswords />} />
           <Route path="/modules/social" element={<ModuleSocial />} />
+          <Route path="/modules/mfa" element={<ModuleMFA />} />
+          <Route path="/modules/browsing" element={<ModuleBrowsing />} />
+          <Route path="/modules/incident_response" element={<ModuleIncident />} />
         </Routes>
       </div>
     </div>

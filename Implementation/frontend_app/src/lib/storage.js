@@ -30,6 +30,9 @@ export function defaultProgress() {
       phishing: false,
       password: false,
       social: false,
+      mfa: false,
+      browsing: false,
+      incident_response: false,
     },
   };
 }

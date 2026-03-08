@@ -55,14 +55,18 @@ export default function Dashboard() {
 
   const nextRecommended = useMemo(() => {
     const c = progress?.completed || {};
+    const totalModules = 6;
     if (!c.phishing) return "Start with Phishing Awareness";
     if (!c.password) return "Next: Password Security";
     if (!c.social) return "Next: Social Engineering";
-    return "All modules completed. Review any module to refresh your skills.";
+    if (!c.mfa) return "Next: Multi-Factor Authentication (MFA)";
+    if (!c.browsing) return "Next: Safe Browsing Habits";
+    if (!c.incident_response) return "Next: Incident Response";
+    return "All modules completed! Great job! 🎉";
   }, [progress]);
 
   function resetProgress() {
-    const next = { completed: { phishing: false, password: false, social: false } };
+    const next = { completed: { phishing: false, password: false, social: false, mfa: false } };
     writeProgress(next);
     setProgress(next);
   }

@@ -16,11 +16,21 @@ export default function Modules() {
   const phishingDone = !!progress.completed?.phishing;
   const passwordDone = !!progress.completed?.password;
   const socialDone = !!progress.completed?.social;
-
+  const mfaDone = !!progress.completed?.mfa;
+  const browsingDone = !!progress.completed?.browsing;
+  if (!c.phishing) return "Start with Phishing Awareness";
+if (!c.password) return "Next: Password Security";
+if (!c.social) return "Next: Social Engineering";
+if (!c.mfa) return "Next: Multi-Factor Authentication";
+if (!c.browsing) return "Next: Safe Browsing";
+return "All modules completed. Review any module to refresh your skills.";
   function isLocked(moduleKey) {
     if (moduleKey === "phishing") return false;
     if (moduleKey === "password") return !phishingDone;
     if (moduleKey === "social") return !passwordDone;
+    if (moduleKey === "mfa") return !socialDone;
+    if (moduleKey === "browsing") return !mfaDone;
+    if (moduleKey === "incident_response") return !browsingDone;
     return true;
   }
 
@@ -28,6 +38,9 @@ export default function Modules() {
     if (moduleKey === "phishing") return phishingDone ? "Completed ✅" : "Ready to Start";
     if (moduleKey === "password") return passwordDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
     if (moduleKey === "social") return socialDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
+    if (moduleKey === "mfa") return mfaDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
+    if (moduleKey === "browsing") return browsingDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
+    if (moduleKey === "incident_response") return incidentResponseDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
     return "Locked";
   }
 
@@ -35,12 +48,17 @@ export default function Modules() {
     if (moduleKey === "phishing") return phishingDone ? "Review Module" : "Start Module";
     if (moduleKey === "password") return passwordDone ? "Review Module" : "Start Module";
     if (moduleKey === "social") return socialDone ? "Review Module" : "Start Module";
+    if (moduleKey === "mfa") return mfaDone ? "Review Module" : "Start Module";
+    if (moduleKey === "browsing") return browsingDone ? "Review Module" : "Start Module";
     return "Start Module";
   }
 
   function getLockedText(moduleKey) {
     if (moduleKey === "password") return "Complete Phishing First";
     if (moduleKey === "social") return "Complete Password First";
+    if (moduleKey === "mfa") return "Complete Social First";
+    if (moduleKey === "browsing") return "Complete MFA First";
+    if (moduleKey === "incident_response") return "Complete Browsing First";
     return "Locked";
   }
 
