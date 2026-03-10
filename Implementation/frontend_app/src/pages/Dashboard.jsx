@@ -45,7 +45,7 @@ export default function Dashboard() {
     setProgress(readProgress());
   }, []);
 
-  const totalModules = 3;
+  const totalModules = 6;
 
   const completedCount = useMemo(() => calcCompletedCount(progress), [progress]);
   const progressText = `${completedCount}/${totalModules}`;
@@ -55,18 +55,26 @@ export default function Dashboard() {
 
   const nextRecommended = useMemo(() => {
     const c = progress?.completed || {};
-    const totalModules = 6;
     if (!c.phishing) return "Start with Phishing Awareness";
     if (!c.password) return "Next: Password Security";
     if (!c.social) return "Next: Social Engineering";
     if (!c.mfa) return "Next: Multi-Factor Authentication (MFA)";
-    if (!c.browsing) return "Next: Safe Browsing Habits";
-    if (!c.incident_response) return "Next: Incident Response";
-    return "All modules completed! Great job! 🎉";
+    if (!c.browsing) return "Next: Safe Browsing";
+    if (!c.incident) return "Next: Incident Reporting";
+    return "All modules completed. Great job! 🎉";
   }, [progress]);
 
   function resetProgress() {
-    const next = { completed: { phishing: false, password: false, social: false, mfa: false } };
+    const next = {
+      completed: {
+        phishing: false,
+        password: false,
+        social: false,
+        mfa: false,
+        browsing: false,
+        incident: false,
+      },
+    };
     writeProgress(next);
     setProgress(next);
   }
@@ -96,13 +104,29 @@ export default function Dashboard() {
           boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 12,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
           <div>
             <h1 style={{ margin: 0 }}>CyberAware</h1>
             <div style={{ marginTop: 8, color: "#555" }}>Learner Dashboard</div>
           </div>
 
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              flexWrap: "wrap",
+              justifyContent: "flex-end",
+            }}
+          >
             <div
               style={{
                 display: "flex",
@@ -122,7 +146,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gap: 16, marginTop: 18, gridTemplateColumns: "1.6fr 1fr" }}>
+        <div
+          style={{
+            display: "grid",
+            gap: 16,
+            marginTop: 18,
+            gridTemplateColumns: "1.6fr 1fr",
+          }}
+        >
           <div
             style={{
               padding: 18,
@@ -133,15 +164,24 @@ export default function Dashboard() {
           >
             <h2 style={{ marginTop: 0 }}>Welcome {profile?.name ? `👋 ${profile.name}` : "👋"}</h2>
             <div style={{ color: "#444", marginTop: 8 }}>
-              Learn through short modules, quick activities, and mini quizzes.
+              Learn through short modules, scenario-based activities, and quick quizzes.
             </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
               <button onClick={() => navigate("/modules")}>Go to Modules</button>
-              <button disabled style={{ opacity: 0.6, cursor: "not-allowed" }}>Quick Quiz (soon)</button>
+              <button disabled style={{ opacity: 0.6, cursor: "not-allowed" }}>
+                More features coming soon
+              </button>
             </div>
 
-            <div style={{ marginTop: 18, color: "#555", display: "flex", justifyContent: "space-between" }}>
+            <div
+              style={{
+                marginTop: 18,
+                color: "#555",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
               <div style={{ fontWeight: 700 }}>Progress</div>
               <div style={{ color: "#666" }}>{progressText}</div>
             </div>
@@ -164,7 +204,16 @@ export default function Dashboard() {
               />
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12, alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: 12,
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 10,
+              }}
+            >
               <div style={{ fontWeight: 700 }}>
                 Level {level} · {points} points
               </div>

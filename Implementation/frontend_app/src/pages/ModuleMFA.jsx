@@ -53,28 +53,53 @@ const SCENARIOS = [
 const QUIZ = [
   {
     q: "What is the main purpose of MFA?",
-    options: ["To replace passwords", "To add an extra layer of protection", "To speed up login", "To remove usernames"],
+    options: [
+      "To replace passwords",
+      "To add an extra layer of protection",
+      "To speed up login",
+      "To remove usernames",
+    ],
     a: 1,
+    explain:
+      "MFA adds another layer of security so a password alone is not enough for an attacker to access an account.",
   },
   {
     q: "If you receive an MFA prompt you did not request, you should:",
-    options: ["Approve it quickly", "Ignore it forever", "Deny it and secure your account", "Share it with IT"],
+    options: [
+      "Approve it quickly",
+      "Ignore it forever",
+      "Deny it and secure your account",
+      "Share it with IT",
+    ],
     a: 2,
+    explain:
+      "Unexpected MFA prompts can mean someone is trying to log in using your password. Deny the request and secure the account immediately.",
   },
   {
     q: "Which option is usually safer than SMS MFA?",
     options: ["Authenticator app", "Email login", "Browser history", "Public Wi-Fi"],
     a: 0,
+    explain:
+      "Authenticator apps are generally safer than SMS because SMS can be vulnerable to SIM swap attacks and message interception.",
   },
   {
     q: "An MFA fatigue attack tries to:",
-    options: ["Improve your login speed", "Pressure you into approving a request", "Change your email", "Delete your account"],
+    options: [
+      "Improve your login speed",
+      "Pressure you into approving a request",
+      "Change your email",
+      "Delete your account",
+    ],
     a: 1,
+    explain:
+      "MFA fatigue attacks work by sending repeated login requests until a user becomes annoyed or confused and approves one by mistake.",
   },
   {
     q: "You should share an MFA code when:",
     options: ["Your manager asks", "IT support asks", "A website asks by email", "Never"],
     a: 3,
+    explain:
+      "MFA codes should never be shared. Legitimate support staff and trusted services should not ask you to send them your code.",
   },
 ];
 
@@ -85,8 +110,14 @@ export default function ModuleMFA() {
   const [step, setStep] = useState(0);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [scenarioAnswers, setScenarioAnswers] = useState({});
+  const [selectedScenarioAnswer, setSelectedScenarioAnswer] = useState(null);
+  const [showScenarioFeedback, setShowScenarioFeedback] = useState(false);
+
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState(null);
+  const [showQuizFeedback, setShowQuizFeedback] = useState(false);
+
   const [msg, setMsg] = useState("");
 
   const results = useMemo(() => {
@@ -108,21 +139,51 @@ export default function ModuleMFA() {
     return { scenarioCorrect, scenarioPct, quizCorrect, quizPct, totalPct, pointsEarned };
   }, [scenarioAnswers, quizAnswers]);
 
-  function answerScenario(value) {
+  function handleScenarioAnswer(value) {
     const item = SCENARIOS[scenarioIndex];
     setScenarioAnswers((prev) => ({ ...prev, [item.id]: value }));
-    if (scenarioIndex < SCENARIOS.length - 1) setScenarioIndex((i) => i + 1);
-    else setStep(2);
+    setSelectedScenarioAnswer(value);
+    setShowScenarioFeedback(true);
   }
 
-  function nextQuiz() {
-    if (quizAnswers[quizIndex] === undefined) {
+  function nextScenario() {
+    if (selectedScenarioAnswer === null) {
       setMsg("Please select an answer to continue.");
       return;
     }
+
     setMsg("");
-    if (quizIndex < QUIZ.length - 1) setQuizIndex((i) => i + 1);
-    else setStep(3);
+    setSelectedScenarioAnswer(null);
+    setShowScenarioFeedback(false);
+
+    if (scenarioIndex < SCENARIOS.length - 1) {
+      setScenarioIndex((i) => i + 1);
+    } else {
+      setStep(2);
+    }
+  }
+
+  function handleQuizAnswer(idx) {
+    setQuizAnswers((prev) => ({ ...prev, [quizIndex]: idx }));
+    setSelectedQuizAnswer(idx);
+    setShowQuizFeedback(true);
+  }
+
+  function nextQuiz() {
+    if (selectedQuizAnswer === null) {
+      setMsg("Please select an answer to continue.");
+      return;
+    }
+
+    setMsg("");
+    setSelectedQuizAnswer(null);
+    setShowQuizFeedback(false);
+
+    if (quizIndex < QUIZ.length - 1) {
+      setQuizIndex((i) => i + 1);
+    } else {
+      setStep(3);
+    }
   }
 
   function finishModule() {
@@ -206,11 +267,71 @@ export default function ModuleMFA() {
             </div>
 
             <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-              <button onClick={() => answerScenario("deny")}>Deny the request and secure the account</button>
-              <button onClick={() => answerScenario("never-share")}>Never share the code</button>
-              <button onClick={() => answerScenario("app")}>Choose an authenticator app</button>
-              <button onClick={() => answerScenario("approve")}>Approve it to make it stop</button>
+              {[
+                { value: "deny", label: "Deny the request and secure the account" },
+                { value: "never-share", label: "Never share the code" },
+                { value: "app", label: "Choose an authenticator app" },
+                { value: "approve", label: "Approve it to make it stop" },
+              ].map((option) => {
+                const isSelected = selectedScenarioAnswer === option.value;
+                const isCorrect = option.value === SCENARIOS[scenarioIndex].correct;
+
+                let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                if (showScenarioFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                if (showScenarioFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleScenarioAnswer(option.value)}
+                    style={{
+                      textAlign: "left",
+                      padding: 12,
+                      borderRadius: 12,
+                      border: borderStyle,
+                      background: "rgba(255,255,255,0.9)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
+
+            {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+            {showScenarioFeedback && selectedScenarioAnswer && (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 12,
+                  borderRadius: 12,
+                  background:
+                    selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                      ? "rgba(26,127,55,0.10)"
+                      : "rgba(176,0,32,0.10)",
+                  border:
+                    selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                      ? "1px solid rgba(26,127,55,0.25)"
+                      : "1px solid rgba(176,0,32,0.25)",
+                }}
+              >
+                <div style={{ fontWeight: 800 }}>
+                  {selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct ? "Correct ✅" : "Incorrect ❌"}
+                </div>
+                <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                  {selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                    ? `Correct. ${SCENARIOS[scenarioIndex].why}`
+                    : `The safest answer is different for this situation. ${SCENARIOS[scenarioIndex].why}`}
+                </div>
+              </div>
+            )}
+
+            <button onClick={nextScenario} style={{ marginTop: 14 }}>
+              {scenarioIndex < SCENARIOS.length - 1 ? "Next Scenario" : "Continue to Quiz"}
+            </button>
 
             <div style={{ marginTop: 10, color: "#666" }}>
               Scenario {scenarioIndex + 1} / {SCENARIOS.length}
@@ -228,20 +349,63 @@ export default function ModuleMFA() {
               </div>
 
               <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                {QUIZ[quizIndex].options.map((opt, idx) => (
-                  <label key={opt} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <input
-                      type="radio"
-                      name={`q-${quizIndex}`}
-                      checked={quizAnswers[quizIndex] === idx}
-                      onChange={() => setQuizAnswers((p) => ({ ...p, [quizIndex]: idx }))}
-                    />
-                    <span>{opt}</span>
-                  </label>
-                ))}
+                {QUIZ[quizIndex].options.map((opt, idx) => {
+                  const isSelected = selectedQuizAnswer === idx;
+                  const isCorrect = idx === QUIZ[quizIndex].a;
+
+                  let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                  if (showQuizFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                  if (showQuizFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => handleQuizAnswer(idx)}
+                      style={{
+                        textAlign: "left",
+                        padding: 12,
+                        borderRadius: 12,
+                        border: borderStyle,
+                        background: "rgba(255,255,255,0.9)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
               </div>
 
               {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+              {showQuizFeedback && selectedQuizAnswer !== null && (
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: 12,
+                    borderRadius: 12,
+                    background:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "rgba(26,127,55,0.10)"
+                        : "rgba(176,0,32,0.10)",
+                    border:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "1px solid rgba(26,127,55,0.25)"
+                        : "1px solid rgba(176,0,32,0.25)",
+                  }}
+                >
+                  <div style={{ fontWeight: 800 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a ? "Correct ✅" : "Incorrect ❌"}
+                  </div>
+
+                  <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a
+                      ? `Good choice. ${QUIZ[quizIndex].explain}`
+                      : `The correct answer is: ${QUIZ[quizIndex].options[QUIZ[quizIndex].a]}. ${QUIZ[quizIndex].explain}`}
+                  </div>
+                </div>
+              )}
 
               <button onClick={nextQuiz} style={{ marginTop: 14 }}>
                 {quizIndex < QUIZ.length - 1 ? "Next" : "Finish Quiz"}

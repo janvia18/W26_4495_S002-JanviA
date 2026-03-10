@@ -41,26 +41,36 @@ const QUIZ = [
     q: "What is the best general approach for passwords?",
     options: ["Short and complex", "Long and unique passphrases", "Same password everywhere", "Only symbols"],
     a: 1,
+    explain:
+      "Long and unique passphrases are stronger and easier to remember than short predictable passwords.",
   },
   {
     q: "Why is password reuse dangerous?",
     options: ["It is not dangerous", "It makes login faster", "A breach on one site can affect other accounts", "It improves security"],
     a: 2,
+    explain:
+      "If one password is exposed in a breach, attackers often try the same password on other websites and accounts.",
   },
   {
     q: "A password manager helps by:",
     options: ["Sharing passwords", "Generating and storing unique passwords", "Removing MFA", "Making passwords shorter"],
     a: 1,
+    explain:
+      "Password managers help you create strong unique passwords and store them securely so you do not need to remember every one.",
   },
   {
     q: "MFA is useful because:",
     options: ["It protects if a password is stolen", "It makes passwords optional", "It replaces usernames", "It hides your email"],
     a: 0,
+    explain:
+      "MFA adds another step to login, which helps protect the account even if someone steals your password.",
   },
   {
     q: "Which passphrase is strongest?",
     options: ["Password123!", "janvi2001", "Blue Train Mango River 2026!", "qwerty!"],
     a: 2,
+    explain:
+      "A long multi-word passphrase is much stronger than short, common, or personal-information-based passwords.",
   },
 ];
 
@@ -107,6 +117,8 @@ export default function ModulePasswords() {
   const [phrase, setPhrase] = useState("");
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState(null);
+  const [showQuizFeedback, setShowQuizFeedback] = useState(false);
   const [msg, setMsg] = useState("");
 
   const analysis = useMemo(() => scorePassphrase(phrase), [phrase]);
@@ -131,13 +143,21 @@ export default function ModulePasswords() {
     };
   }, [quizAnswers, analysis.score]);
 
+  function handleQuizAnswer(idx) {
+    setQuizAnswers((prev) => ({ ...prev, [quizIndex]: idx }));
+    setSelectedQuizAnswer(idx);
+    setShowQuizFeedback(true);
+  }
+
   function nextQuiz() {
-    if (quizAnswers[quizIndex] === undefined) {
+    if (selectedQuizAnswer === null) {
       setMsg("Please select an answer to continue.");
       return;
     }
 
     setMsg("");
+    setSelectedQuizAnswer(null);
+    setShowQuizFeedback(false);
 
     if (quizIndex < QUIZ.length - 1) {
       setQuizIndex((prev) => prev + 1);
@@ -298,11 +318,7 @@ export default function ModulePasswords() {
               </div>
             </div>
 
-            <button
-              onClick={() => setStep(2)}
-              style={{ marginTop: 18 }}
-              disabled={analysis.score < 50}
-            >
+            <button onClick={() => setStep(2)} style={{ marginTop: 18 }} disabled={analysis.score < 50}>
               Continue to Quiz
             </button>
           </div>
@@ -325,20 +341,63 @@ export default function ModulePasswords() {
               </div>
 
               <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-                {QUIZ[quizIndex].options.map((opt, idx) => (
-                  <label key={opt} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <input
-                      type="radio"
-                      name={`q-${quizIndex}`}
-                      checked={quizAnswers[quizIndex] === idx}
-                      onChange={() => setQuizAnswers((prev) => ({ ...prev, [quizIndex]: idx }))}
-                    />
-                    <span>{opt}</span>
-                  </label>
-                ))}
+                {QUIZ[quizIndex].options.map((opt, idx) => {
+                  const isSelected = selectedQuizAnswer === idx;
+                  const isCorrect = idx === QUIZ[quizIndex].a;
+
+                  let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                  if (showQuizFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                  if (showQuizFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => handleQuizAnswer(idx)}
+                      style={{
+                        textAlign: "left",
+                        padding: 12,
+                        borderRadius: 12,
+                        border: borderStyle,
+                        background: "rgba(255,255,255,0.9)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
               </div>
 
               {msg && <div style={{ marginTop: 12, color: "#b00020" }}>{msg}</div>}
+
+              {showQuizFeedback && selectedQuizAnswer !== null && (
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: 12,
+                    borderRadius: 12,
+                    background:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "rgba(26,127,55,0.10)"
+                        : "rgba(176,0,32,0.10)",
+                    border:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "1px solid rgba(26,127,55,0.25)"
+                        : "1px solid rgba(176,0,32,0.25)",
+                  }}
+                >
+                  <div style={{ fontWeight: 800 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a ? "Correct ✅" : "Incorrect ❌"}
+                  </div>
+
+                  <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a
+                      ? `Good choice. ${QUIZ[quizIndex].explain}`
+                      : `The correct answer is: ${QUIZ[quizIndex].options[QUIZ[quizIndex].a]}. ${QUIZ[quizIndex].explain}`}
+                  </div>
+                </div>
+              )}
 
               <button onClick={nextQuiz} style={{ marginTop: 16 }}>
                 {quizIndex < QUIZ.length - 1 ? "Next" : "Finish Quiz"}
@@ -399,12 +458,14 @@ export default function ModulePasswords() {
               </div>
             </div>
 
-            <button onClick={finishModule} style={{ marginTop: 18 }}>
-              Save & Mark Completed
-            </button>
-            <button type="button" onClick={() => navigate("/modules")}>
-               Back to Modules
-            </button>
+            <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+              <button onClick={finishModule}>
+                Save & Mark Completed
+              </button>
+              <button type="button" onClick={() => navigate("/modules")}>
+                Back to Modules
+              </button>
+            </div>
           </div>
         )}
       </div>

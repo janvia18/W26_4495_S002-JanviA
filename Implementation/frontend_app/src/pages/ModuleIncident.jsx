@@ -53,28 +53,58 @@ const SCENARIOS = [
 const QUIZ = [
   {
     q: "What is the best reason to report a security incident quickly?",
-    options: ["To create more paperwork", "To contain damage and respond sooner", "To avoid logging out", "To improve internet speed"],
+    options: [
+      "To create more paperwork",
+      "To contain damage and respond sooner",
+      "To avoid logging out",
+      "To improve internet speed",
+    ],
     a: 1,
+    explain:
+      "The main reason to report quickly is to reduce harm and allow the security team to respond before the issue gets worse.",
   },
   {
     q: "Which of the following should be reported?",
-    options: ["Only confirmed attacks", "Only large incidents", "Suspicious activity and accidental mistakes", "Only phishing emails"],
+    options: [
+      "Only confirmed attacks",
+      "Only large incidents",
+      "Suspicious activity and accidental mistakes",
+      "Only phishing emails",
+    ],
     a: 2,
+    explain:
+      "Security reporting is not only for confirmed attacks. Suspicious activity and accidental mistakes should also be reported promptly.",
   },
   {
     q: "A useful incident report should include:",
-    options: ["Only your opinion", "What happened, when, and what was affected", "Just a screenshot with no context", "A guess about who caused it"],
+    options: [
+      "Only your opinion",
+      "What happened, when, and what was affected",
+      "Just a screenshot with no context",
+      "A guess about who caused it",
+    ],
     a: 1,
+    explain:
+      "Clear details such as what happened, when it happened, and what was affected help responders investigate quickly and accurately.",
   },
   {
     q: "If you clicked a suspicious link but nothing happened, you should:",
     options: ["Ignore it", "Wait a week", "Report it anyway", "Delete your browser"],
     a: 2,
+    explain:
+      "Not every compromise shows immediate signs. Reporting it right away gives the security team a chance to investigate early.",
   },
   {
     q: "A lost work laptop should be:",
-    options: ["Reported immediately", "Ignored until tomorrow", "Mentioned only if found", "Reset remotely by guessing"],
+    options: [
+      "Reported immediately",
+      "Ignored until tomorrow",
+      "Mentioned only if found",
+      "Reset remotely by guessing",
+    ],
     a: 0,
+    explain:
+      "A lost work device can create security and privacy risks, so it should be reported as soon as possible.",
   },
 ];
 
@@ -85,8 +115,14 @@ export default function ModuleIncident() {
   const [step, setStep] = useState(0);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [scenarioAnswers, setScenarioAnswers] = useState({});
+  const [selectedScenarioAnswer, setSelectedScenarioAnswer] = useState(null);
+  const [showScenarioFeedback, setShowScenarioFeedback] = useState(false);
+
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState(null);
+  const [showQuizFeedback, setShowQuizFeedback] = useState(false);
+
   const [msg, setMsg] = useState("");
 
   const results = useMemo(() => {
@@ -108,21 +144,51 @@ export default function ModuleIncident() {
     return { scenarioCorrect, scenarioPct, quizCorrect, quizPct, totalPct, pointsEarned };
   }, [scenarioAnswers, quizAnswers]);
 
-  function answerScenario(value) {
+  function handleScenarioAnswer(value) {
     const item = SCENARIOS[scenarioIndex];
     setScenarioAnswers((prev) => ({ ...prev, [item.id]: value }));
-    if (scenarioIndex < SCENARIOS.length - 1) setScenarioIndex((i) => i + 1);
-    else setStep(2);
+    setSelectedScenarioAnswer(value);
+    setShowScenarioFeedback(true);
   }
 
-  function nextQuiz() {
-    if (quizAnswers[quizIndex] === undefined) {
+  function nextScenario() {
+    if (selectedScenarioAnswer === null) {
       setMsg("Please select an answer to continue.");
       return;
     }
+
     setMsg("");
-    if (quizIndex < QUIZ.length - 1) setQuizIndex((i) => i + 1);
-    else setStep(3);
+    setSelectedScenarioAnswer(null);
+    setShowScenarioFeedback(false);
+
+    if (scenarioIndex < SCENARIOS.length - 1) {
+      setScenarioIndex((i) => i + 1);
+    } else {
+      setStep(2);
+    }
+  }
+
+  function handleQuizAnswer(idx) {
+    setQuizAnswers((prev) => ({ ...prev, [quizIndex]: idx }));
+    setSelectedQuizAnswer(idx);
+    setShowQuizFeedback(true);
+  }
+
+  function nextQuiz() {
+    if (selectedQuizAnswer === null) {
+      setMsg("Please select an answer to continue.");
+      return;
+    }
+
+    setMsg("");
+    setSelectedQuizAnswer(null);
+    setShowQuizFeedback(false);
+
+    if (quizIndex < QUIZ.length - 1) {
+      setQuizIndex((i) => i + 1);
+    } else {
+      setStep(3);
+    }
   }
 
   function finishModule() {
@@ -206,11 +272,71 @@ export default function ModuleIncident() {
             </div>
 
             <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-              <button onClick={() => answerScenario("report-now")}>Report it immediately</button>
-              <button onClick={() => answerScenario("report-device")}>Report the lost device right away</button>
-              <button onClick={() => answerScenario("report-data")}>Report the accidental data disclosure</button>
-              <button onClick={() => answerScenario("ignore")}>Wait and see if it becomes serious</button>
+              {[
+                { value: "report-now", label: "Report it immediately" },
+                { value: "report-device", label: "Report the lost device right away" },
+                { value: "report-data", label: "Report the accidental data disclosure" },
+                { value: "ignore", label: "Wait and see if it becomes serious" },
+              ].map((option) => {
+                const isSelected = selectedScenarioAnswer === option.value;
+                const isCorrect = option.value === SCENARIOS[scenarioIndex].correct;
+
+                let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                if (showScenarioFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                if (showScenarioFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleScenarioAnswer(option.value)}
+                    style={{
+                      textAlign: "left",
+                      padding: 12,
+                      borderRadius: 12,
+                      border: borderStyle,
+                      background: "rgba(255,255,255,0.9)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
+
+            {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+            {showScenarioFeedback && selectedScenarioAnswer && (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 12,
+                  borderRadius: 12,
+                  background:
+                    selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                      ? "rgba(26,127,55,0.10)"
+                      : "rgba(176,0,32,0.10)",
+                  border:
+                    selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                      ? "1px solid rgba(26,127,55,0.25)"
+                      : "1px solid rgba(176,0,32,0.25)",
+                }}
+              >
+                <div style={{ fontWeight: 800 }}>
+                  {selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct ? "Correct ✅" : "Incorrect ❌"}
+                </div>
+                <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                  {selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                    ? `Correct. ${SCENARIOS[scenarioIndex].why}`
+                    : `The safest answer is different for this situation. ${SCENARIOS[scenarioIndex].why}`}
+                </div>
+              </div>
+            )}
+
+            <button onClick={nextScenario} style={{ marginTop: 14 }}>
+              {scenarioIndex < SCENARIOS.length - 1 ? "Next Scenario" : "Continue to Quiz"}
+            </button>
 
             <div style={{ marginTop: 10, color: "#666" }}>
               Scenario {scenarioIndex + 1} / {SCENARIOS.length}
@@ -228,20 +354,63 @@ export default function ModuleIncident() {
               </div>
 
               <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                {QUIZ[quizIndex].options.map((opt, idx) => (
-                  <label key={opt} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <input
-                      type="radio"
-                      name={`q-${quizIndex}`}
-                      checked={quizAnswers[quizIndex] === idx}
-                      onChange={() => setQuizAnswers((p) => ({ ...p, [quizIndex]: idx }))}
-                    />
-                    <span>{opt}</span>
-                  </label>
-                ))}
+                {QUIZ[quizIndex].options.map((opt, idx) => {
+                  const isSelected = selectedQuizAnswer === idx;
+                  const isCorrect = idx === QUIZ[quizIndex].a;
+
+                  let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                  if (showQuizFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                  if (showQuizFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => handleQuizAnswer(idx)}
+                      style={{
+                        textAlign: "left",
+                        padding: 12,
+                        borderRadius: 12,
+                        border: borderStyle,
+                        background: "rgba(255,255,255,0.9)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
               </div>
 
               {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+              {showQuizFeedback && selectedQuizAnswer !== null && (
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: 12,
+                    borderRadius: 12,
+                    background:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "rgba(26,127,55,0.10)"
+                        : "rgba(176,0,32,0.10)",
+                    border:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "1px solid rgba(26,127,55,0.25)"
+                        : "1px solid rgba(176,0,32,0.25)",
+                  }}
+                >
+                  <div style={{ fontWeight: 800 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a ? "Correct ✅" : "Incorrect ❌"}
+                  </div>
+
+                  <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a
+                      ? `Good choice. ${QUIZ[quizIndex].explain}`
+                      : `The correct answer is: ${QUIZ[quizIndex].options[QUIZ[quizIndex].a]}. ${QUIZ[quizIndex].explain}`}
+                  </div>
+                </div>
+              )}
 
               <button onClick={nextQuiz} style={{ marginTop: 14 }}>
                 {quizIndex < QUIZ.length - 1 ? "Next" : "Finish Quiz"}

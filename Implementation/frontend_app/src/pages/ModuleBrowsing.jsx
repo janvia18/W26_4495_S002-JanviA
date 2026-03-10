@@ -53,28 +53,63 @@ const SCENARIOS = [
 const QUIZ = [
   {
     q: "Which is a common safe browsing habit?",
-    options: ["Download files from unknown pop-ups", "Check the website address carefully", "Ignore browser updates forever", "Approve every browser permission"],
+    options: [
+      "Download files from unknown pop-ups",
+      "Check the website address carefully",
+      "Ignore browser updates forever",
+      "Approve every browser permission",
+    ],
     a: 1,
+    explain:
+      "Checking the website address helps you spot fake or look-alike domains before entering sensitive information.",
   },
   {
     q: "A misspelled website address may indicate:",
-    options: ["Better performance", "A legitimate redesign", "A look-alike or malicious website", "A faster server"],
+    options: [
+      "Better performance",
+      "A legitimate redesign",
+      "A look-alike or malicious website",
+      "A faster server",
+    ],
     a: 2,
+    explain:
+      "Look-alike domains are commonly used to trick users into visiting fake websites that steal credentials or payment information.",
   },
   {
     q: "If a page suddenly asks you to install software, you should:",
-    options: ["Install it immediately", "Use only official sources for software", "Send it to friends", "Turn off antivirus"],
+    options: [
+      "Install it immediately",
+      "Use only official sources for software",
+      "Send it to friends",
+      "Turn off antivirus",
+    ],
     a: 1,
+    explain:
+      "Unexpected download prompts are risky. Software updates and downloads should come from official, trusted sources only.",
   },
   {
     q: "A website asking for unnecessary camera or notification access should be:",
-    options: ["Allowed by default", "Denied unless truly needed", "Ignored forever", "Approved if it looks modern"],
+    options: [
+      "Allowed by default",
+      "Denied unless truly needed",
+      "Ignored forever",
+      "Approved if it looks modern",
+    ],
     a: 1,
+    explain:
+      "Permissions should only be granted when they are clearly necessary for the site’s function. Unneeded permissions increase risk.",
   },
   {
     q: "One good way to reduce browser-based risk is:",
-    options: ["Using outdated browsers", "Keeping browser software updated", "Clicking shortened links", "Disabling all security warnings"],
+    options: [
+      "Using outdated browsers",
+      "Keeping browser software updated",
+      "Clicking shortened links",
+      "Disabling all security warnings",
+    ],
     a: 1,
+    explain:
+      "Browser updates often include security patches that fix known vulnerabilities and reduce the risk of exploitation.",
   },
 ];
 
@@ -85,8 +120,14 @@ export default function ModuleBrowsing() {
   const [step, setStep] = useState(0);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [scenarioAnswers, setScenarioAnswers] = useState({});
+  const [selectedScenarioAnswer, setSelectedScenarioAnswer] = useState(null);
+  const [showScenarioFeedback, setShowScenarioFeedback] = useState(false);
+
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState(null);
+  const [showQuizFeedback, setShowQuizFeedback] = useState(false);
+
   const [msg, setMsg] = useState("");
 
   const results = useMemo(() => {
@@ -108,21 +149,51 @@ export default function ModuleBrowsing() {
     return { scenarioCorrect, scenarioPct, quizCorrect, quizPct, totalPct, pointsEarned };
   }, [scenarioAnswers, quizAnswers]);
 
-  function answerScenario(value) {
+  function handleScenarioAnswer(value) {
     const item = SCENARIOS[scenarioIndex];
     setScenarioAnswers((prev) => ({ ...prev, [item.id]: value }));
-    if (scenarioIndex < SCENARIOS.length - 1) setScenarioIndex((i) => i + 1);
-    else setStep(2);
+    setSelectedScenarioAnswer(value);
+    setShowScenarioFeedback(true);
   }
 
-  function nextQuiz() {
-    if (quizAnswers[quizIndex] === undefined) {
+  function nextScenario() {
+    if (selectedScenarioAnswer === null) {
       setMsg("Please select an answer to continue.");
       return;
     }
+
     setMsg("");
-    if (quizIndex < QUIZ.length - 1) setQuizIndex((i) => i + 1);
-    else setStep(3);
+    setSelectedScenarioAnswer(null);
+    setShowScenarioFeedback(false);
+
+    if (scenarioIndex < SCENARIOS.length - 1) {
+      setScenarioIndex((i) => i + 1);
+    } else {
+      setStep(2);
+    }
+  }
+
+  function handleQuizAnswer(idx) {
+    setQuizAnswers((prev) => ({ ...prev, [quizIndex]: idx }));
+    setSelectedQuizAnswer(idx);
+    setShowQuizFeedback(true);
+  }
+
+  function nextQuiz() {
+    if (selectedQuizAnswer === null) {
+      setMsg("Please select an answer to continue.");
+      return;
+    }
+
+    setMsg("");
+    setSelectedQuizAnswer(null);
+    setShowQuizFeedback(false);
+
+    if (quizIndex < QUIZ.length - 1) {
+      setQuizIndex((i) => i + 1);
+    } else {
+      setStep(3);
+    }
   }
 
   function finishModule() {
@@ -181,7 +252,10 @@ export default function ModuleBrowsing() {
             <h2>Part 1: Learn</h2>
             <div style={{ display: "grid", gap: 14 }}>
               {LESSON.map((c) => (
-                <div key={c.title} style={{ padding: 16, borderRadius: 14, border: "1px solid rgba(0,0,0,0.08)" }}>
+                <div
+                  key={c.title}
+                  style={{ padding: 16, borderRadius: 14, border: "1px solid rgba(0,0,0,0.08)" }}
+                >
                   <div style={{ fontWeight: 700 }}>{c.title}</div>
                   <div style={{ marginTop: 6, color: "#333" }}>{c.body}</div>
                 </div>
@@ -206,11 +280,71 @@ export default function ModuleBrowsing() {
             </div>
 
             <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-              <button onClick={() => answerScenario("avoid-download")}>Avoid the download and use official sources</button>
-              <button onClick={() => answerScenario("check-url")}>Check the URL carefully before continuing</button>
-              <button onClick={() => answerScenario("deny-unneeded")}>Deny unnecessary permissions</button>
-              <button onClick={() => answerScenario("allow-all")}>Allow everything to continue faster</button>
+              {[
+                { value: "avoid-download", label: "Avoid the download and use official sources" },
+                { value: "check-url", label: "Check the URL carefully before continuing" },
+                { value: "deny-unneeded", label: "Deny unnecessary permissions" },
+                { value: "allow-all", label: "Allow everything to continue faster" },
+              ].map((option) => {
+                const isSelected = selectedScenarioAnswer === option.value;
+                const isCorrect = option.value === SCENARIOS[scenarioIndex].correct;
+
+                let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                if (showScenarioFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                if (showScenarioFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleScenarioAnswer(option.value)}
+                    style={{
+                      textAlign: "left",
+                      padding: 12,
+                      borderRadius: 12,
+                      border: borderStyle,
+                      background: "rgba(255,255,255,0.9)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
+
+            {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+            {showScenarioFeedback && selectedScenarioAnswer && (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 12,
+                  borderRadius: 12,
+                  background:
+                    selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                      ? "rgba(26,127,55,0.10)"
+                      : "rgba(176,0,32,0.10)",
+                  border:
+                    selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                      ? "1px solid rgba(26,127,55,0.25)"
+                      : "1px solid rgba(176,0,32,0.25)",
+                }}
+              >
+                <div style={{ fontWeight: 800 }}>
+                  {selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct ? "Correct ✅" : "Incorrect ❌"}
+                </div>
+                <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                  {selectedScenarioAnswer === SCENARIOS[scenarioIndex].correct
+                    ? `Correct. ${SCENARIOS[scenarioIndex].why}`
+                    : `The safest answer is different for this situation. ${SCENARIOS[scenarioIndex].why}`}
+                </div>
+              </div>
+            )}
+
+            <button onClick={nextScenario} style={{ marginTop: 14 }}>
+              {scenarioIndex < SCENARIOS.length - 1 ? "Next Scenario" : "Continue to Quiz"}
+            </button>
 
             <div style={{ marginTop: 10, color: "#666" }}>
               Scenario {scenarioIndex + 1} / {SCENARIOS.length}
@@ -228,20 +362,63 @@ export default function ModuleBrowsing() {
               </div>
 
               <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                {QUIZ[quizIndex].options.map((opt, idx) => (
-                  <label key={opt} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <input
-                      type="radio"
-                      name={`q-${quizIndex}`}
-                      checked={quizAnswers[quizIndex] === idx}
-                      onChange={() => setQuizAnswers((p) => ({ ...p, [quizIndex]: idx }))}
-                    />
-                    <span>{opt}</span>
-                  </label>
-                ))}
+                {QUIZ[quizIndex].options.map((opt, idx) => {
+                  const isSelected = selectedQuizAnswer === idx;
+                  const isCorrect = idx === QUIZ[quizIndex].a;
+
+                  let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                  if (showQuizFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                  if (showQuizFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => handleQuizAnswer(idx)}
+                      style={{
+                        textAlign: "left",
+                        padding: 12,
+                        borderRadius: 12,
+                        border: borderStyle,
+                        background: "rgba(255,255,255,0.9)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
               </div>
 
               {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+              {showQuizFeedback && selectedQuizAnswer !== null && (
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: 12,
+                    borderRadius: 12,
+                    background:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "rgba(26,127,55,0.10)"
+                        : "rgba(176,0,32,0.10)",
+                    border:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "1px solid rgba(26,127,55,0.25)"
+                        : "1px solid rgba(176,0,32,0.25)",
+                  }}
+                >
+                  <div style={{ fontWeight: 800 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a ? "Correct ✅" : "Incorrect ❌"}
+                  </div>
+
+                  <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a
+                      ? `Good choice. ${QUIZ[quizIndex].explain}`
+                      : `The correct answer is: ${QUIZ[quizIndex].options[QUIZ[quizIndex].a]}. ${QUIZ[quizIndex].explain}`}
+                  </div>
+                </div>
+              )}
 
               <button onClick={nextQuiz} style={{ marginTop: 14 }}>
                 {quizIndex < QUIZ.length - 1 ? "Next" : "Finish Quiz"}

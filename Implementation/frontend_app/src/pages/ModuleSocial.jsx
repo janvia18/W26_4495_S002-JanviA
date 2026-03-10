@@ -4,77 +4,119 @@ import { readProfile, readProgress, writeProgress, readPoints, writePoints } fro
 
 const LESSON = [
   {
-    title: "What social engineering is",
+    title: "What phishing is",
     body:
-      "Social engineering is when attackers manipulate people to reveal information, approve actions, or bypass normal security steps. The goal is to trigger trust, fear, urgency, or curiosity.",
+      "Phishing is when someone pretends to be a trusted person or company to trick you into clicking a link, sharing credentials, or sending money.",
   },
   {
-    title: "Common tactics",
+    title: "Common red flags",
     body:
-      "Impersonation, pretexting, urgency, authority pressure, fake support calls, baiting with attachments, and requests for codes or access.",
+      "Urgency, threats, unexpected attachments, suspicious links, look-alike domains, and requests for passwords or MFA codes.",
   },
   {
-    title: "Safe response",
+    title: "What to do",
     body:
-      "Pause, verify identity using official channels, never share passwords or MFA codes, and report suspicious requests to your organization’s security team.",
+      "Do not click. Verify using the official website or app. Report it to your organization. If you clicked, change passwords and notify IT or security.",
   },
 ];
 
-const SCENARIOS = [
+const SPOT = [
   {
-    id: "s1",
-    title: "IT Support Call",
-    prompt:
-      "Someone calls claiming to be IT. They say your laptop is infected and ask for your MFA code to “confirm your identity” while they fix it.",
-    safe: "refuse_report",
+    id: "p1",
+    title: "Email: Payroll Update Required",
+    from: "Payroll Team <payroll@company-payroll-support.com>",
+    subject: "Action Required: Confirm your direct deposit info",
+    body:
+      "Hi,\n\nYour payroll will be paused unless you confirm your direct deposit within 2 hours.\n\nConfirm here: http://company-payroll-support.com/verify\n\nThanks,\nPayroll Team",
+    answer: "phish",
     why:
-      "IT should never ask for MFA codes or passwords. Verify using official support channels and report the attempt.",
+      "This is phishing because it creates urgency, uses a suspicious domain, and asks you to complete a sensitive action through a link.",
   },
   {
-    id: "s2",
-    title: "Urgent Manager Request",
-    prompt:
-      "You receive a message: “I’m in a meeting. Buy gift cards right now and send me the codes. Don’t tell anyone.” The sender name matches your manager.",
-    safe: "verify",
+    id: "p2",
+    title: "SMS: Bank Alert",
+    from: "+1 (604) 555-0188",
+    subject: "Security Alert",
+    body:
+      "Your account is locked. Verify now: bit.ly/verify-now\nReply with the code you receive to unlock.",
+    answer: "phish",
     why:
-      "Urgency + secrecy + gift cards are classic fraud signals. Verify via a trusted channel using known contact info.",
+      "This is phishing because it uses a shortened link and asks for a security code, which should never be shared.",
   },
   {
-    id: "s3",
-    title: "Visitor Tailgating",
-    prompt:
-      "A person behind you says: “My badge isn’t working, can you hold the door? I’m late.” They look stressed and friendly.",
-    safe: "policy",
+    id: "p3",
+    title: "Email: Shared Document",
+    from: "Docs <no-reply@googIe-docs.com>",
+    subject: "A document has been shared with you",
+    body:
+      "A document has been shared with you.\nOpen to view: https://googIe-docs.com/share\n\nIf you weren’t expecting this, ignore.",
+    answer: "phish",
     why:
-      "Tailgating bypasses physical security. Follow policy: ask them to badge in or escort them to reception.",
+      "This is phishing because the domain is a look-alike. It uses a capital I to imitate a lowercase l in the brand name.",
   },
 ];
 
 const QUIZ = [
-  { q: "Social engineering mainly targets:", options: ["Firewalls", "People and behavior", "Encryption algorithms", "Wi-Fi speed"], a: 1 },
-  { q: "Which is a strong red flag in a request?", options: ["Clear verification steps", "Urgency + secrecy", "Official ticket number", "Normal tone"], a: 1 },
-  { q: "If someone asks for your MFA code, you should:", options: ["Share it if they sound official", "Share it only once", "Never share it and verify identity", "Text it later"], a: 2 },
-  { q: "Best way to verify an unusual request is:", options: ["Reply to the same email thread", "Use a trusted official channel", "Click the link they sent", "Ask a stranger"], a: 1 },
-  { q: "Tailgating is when:", options: ["Someone follows you through a secure door", "You forget your password", "A device runs out of battery", "A link is shortened"], a: 0 },
+  {
+    q: "Which is a strong phishing indicator?",
+    options: ["A branded logo", "Urgency + threats", "A friendly greeting", "A long email"],
+    a: 1,
+    explain:
+      "Urgency and threats are common phishing tactics because attackers want you to panic and act without verifying the message.",
+  },
+  {
+    q: "If a message asks for your MFA code, you should:",
+    options: ["Share it", "Share only with a manager", "Never share it and report", "Send your password instead"],
+    a: 2,
+    explain:
+      "MFA codes should never be shared. A request for your code is a serious red flag and should be reported.",
+  },
+  {
+    q: "Safest way to verify a suspicious link is:",
+    options: ["Click in incognito", "Open on phone", "Type the official site manually", "Forward to friends"],
+    a: 2,
+    explain:
+      "Typing the official site manually is safer because it avoids interacting with the suspicious link entirely.",
+  },
+  {
+    q: "Look-alike domains are used to:",
+    options: ["Improve encryption", "Impersonate trusted brands", "Speed up internet", "Block malware"],
+    a: 1,
+    explain:
+      "Look-alike domains are designed to trick users into thinking they are on a trusted site when they are not.",
+  },
+  {
+    q: "If you clicked a suspicious link, best next step is:",
+    options: ["Do nothing", "Change passwords and report", "Delete email only", "Restart laptop"],
+    a: 1,
+    explain:
+      "If you clicked a suspicious link, you should act quickly by changing passwords and reporting the incident so it can be investigated.",
+  },
 ];
 
-export default function ModuleSocial() {
+export default function ModulePhishing() {
   const navigate = useNavigate();
   const profile = useMemo(() => readProfile(), []);
 
   const [step, setStep] = useState(0);
-  const [scenarioIndex, setScenarioIndex] = useState(0);
-  const [scenarioAnswers, setScenarioAnswers] = useState({});
+  const [spotIndex, setSpotIndex] = useState(0);
+  const [spotAnswers, setSpotAnswers] = useState({});
+  const [selectedSpotAnswer, setSelectedSpotAnswer] = useState(null);
+  const [showSpotFeedback, setShowSpotFeedback] = useState(false);
+
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState(null);
+  const [showQuizFeedback, setShowQuizFeedback] = useState(false);
+
   const [msg, setMsg] = useState("");
 
   const results = useMemo(() => {
-    let scenarioCorrect = 0;
-    for (const s of SCENARIOS) {
-      if (scenarioAnswers[s.id] === s.safe) scenarioCorrect += 1;
+    let spotCorrect = 0;
+    for (const item of SPOT) {
+      if (spotAnswers[item.id] === item.answer) spotCorrect += 1;
     }
-    const scenarioPct = Math.round((scenarioCorrect / SCENARIOS.length) * 100);
+    const spotPct = Math.round((spotCorrect / SPOT.length) * 100);
 
     let quizCorrect = 0;
     for (let i = 0; i < QUIZ.length; i++) {
@@ -82,41 +124,65 @@ export default function ModuleSocial() {
     }
     const quizPct = Math.round((quizCorrect / QUIZ.length) * 100);
 
-    const totalPct = Math.round(0.5 * scenarioPct + 0.5 * quizPct);
-    const pointsEarned = 100 + Math.round(totalPct * 1.0);
+    const totalPct = Math.round(0.45 * spotPct + 0.55 * quizPct);
+    const pointsEarned = 120 + Math.round(totalPct * 1.2);
 
-    return { scenarioCorrect, scenarioPct, quizCorrect, quizPct, totalPct, pointsEarned };
-  }, [scenarioAnswers, quizAnswers]);
+    return { spotCorrect, spotPct, quizCorrect, quizPct, totalPct, pointsEarned };
+  }, [spotAnswers, quizAnswers]);
 
-  function answerScenario(value) {
-    const s = SCENARIOS[scenarioIndex];
-    setScenarioAnswers((p) => ({ ...p, [s.id]: value }));
-    if (scenarioIndex < SCENARIOS.length - 1) setScenarioIndex((i) => i + 1);
-    else setStep(2);
+  function handleSpotAnswer(value) {
+    const item = SPOT[spotIndex];
+    setSpotAnswers((prev) => ({ ...prev, [item.id]: value }));
+    setSelectedSpotAnswer(value);
+    setShowSpotFeedback(true);
   }
 
-  function nextQuiz() {
-    if (quizAnswers[quizIndex] === undefined) {
+  function nextSpot() {
+    if (selectedSpotAnswer === null) {
       setMsg("Please select an answer to continue.");
       return;
     }
+
     setMsg("");
-    if (quizIndex < QUIZ.length - 1) setQuizIndex((i) => i + 1);
-    else setStep(3);
+    setSelectedSpotAnswer(null);
+    setShowSpotFeedback(false);
+
+    if (spotIndex < SPOT.length - 1) {
+      setSpotIndex((i) => i + 1);
+    } else {
+      setStep(2);
+    }
+  }
+
+  function handleQuizAnswer(idx) {
+    setQuizAnswers((prev) => ({ ...prev, [quizIndex]: idx }));
+    setSelectedQuizAnswer(idx);
+    setShowQuizFeedback(true);
+  }
+
+  function nextQuiz() {
+    if (selectedQuizAnswer === null) {
+      setMsg("Please select an answer to continue.");
+      return;
+    }
+
+    setMsg("");
+    setSelectedQuizAnswer(null);
+    setShowQuizFeedback(false);
+
+    if (quizIndex < QUIZ.length - 1) {
+      setQuizIndex((i) => i + 1);
+    } else {
+      setStep(3);
+    }
   }
 
   function finishModule() {
     const prog = readProgress();
-
-    if (!prog.completed?.password) {
-      navigate("/modules");
-      return;
-    }
-
-    const already = !!prog.completed?.social;
+    const already = !!prog.completed?.phishing;
 
     prog.completed = prog.completed || {};
-    prog.completed.social = true;
+    prog.completed.phishing = true;
     writeProgress(prog);
 
     if (!already) {
@@ -141,8 +207,10 @@ export default function ModuleSocial() {
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div>
-            <h1 style={{ margin: 0 }}>Social Engineering</h1>
-            <p style={{ marginTop: 8, color: "#444" }}>Practice safe responses to manipulation tactics.</p>
+            <h1 style={{ margin: 0 }}>Phishing Awareness</h1>
+            <p style={{ marginTop: 8, color: "#444" }}>
+              Learn the red flags, spot suspicious messages, and pass a quick quiz.
+            </p>
           </div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontWeight: 600 }}>Hi, {profile?.name || "Learner"}</div>
@@ -166,30 +234,93 @@ export default function ModuleSocial() {
               ))}
             </div>
             <button onClick={() => setStep(1)} style={{ marginTop: 18 }}>
-              Start Scenarios
+              Start Spot the Phish
             </button>
           </div>
         )}
 
         {step === 1 && (
           <div>
-            <h2>Part 2: Choose the safest response</h2>
-            <p style={{ color: "#444" }}>Pick the best action. Focus on verifying identity and following policy.</p>
+            <h2>Part 2: Spot the Phish</h2>
+            <p style={{ color: "#444" }}>Read the message. Decide if it’s phishing or safe.</p>
 
             <div style={{ padding: 16, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>
-              <div style={{ fontWeight: 800 }}>{SCENARIOS[scenarioIndex].title}</div>
-              <div style={{ marginTop: 10, color: "#222", lineHeight: 1.6 }}>{SCENARIOS[scenarioIndex].prompt}</div>
+              <div style={{ fontWeight: 700 }}>{SPOT[spotIndex].title}</div>
+              <div style={{ marginTop: 8, fontSize: 14, color: "#444" }}>
+                <div><b>From:</b> {SPOT[spotIndex].from}</div>
+                <div><b>Subject:</b> {SPOT[spotIndex].subject}</div>
+              </div>
+              <pre style={{ marginTop: 12, whiteSpace: "pre-wrap", fontFamily: "inherit", color: "#222" }}>
+                {SPOT[spotIndex].body}
+              </pre>
             </div>
 
-            <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-              <button onClick={() => answerScenario("refuse_report")}>Refuse, report, and verify through official support</button>
-              <button onClick={() => answerScenario("verify")}>Verify identity using a trusted channel before acting</button>
-              <button onClick={() => answerScenario("policy")}>Follow policy and route the person to the proper process</button>
-              <button onClick={() => answerScenario("comply")}>Comply quickly to avoid trouble</button>
+            <div style={{ display: "flex", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+              {[
+                { value: "phish", label: "🚩 Phish" },
+                { value: "safe", label: "✅ Safe" },
+              ].map((option) => {
+                const isSelected = selectedSpotAnswer === option.value;
+                const isCorrect = option.value === SPOT[spotIndex].answer;
+
+                let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                if (showSpotFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                if (showSpotFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleSpotAnswer(option.value)}
+                    style={{
+                      padding: 12,
+                      borderRadius: 12,
+                      border: borderStyle,
+                      background: "rgba(255,255,255,0.9)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
+
+            {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+            {showSpotFeedback && selectedSpotAnswer && (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 12,
+                  borderRadius: 12,
+                  background:
+                    selectedSpotAnswer === SPOT[spotIndex].answer
+                      ? "rgba(26,127,55,0.10)"
+                      : "rgba(176,0,32,0.10)",
+                  border:
+                    selectedSpotAnswer === SPOT[spotIndex].answer
+                      ? "1px solid rgba(26,127,55,0.25)"
+                      : "1px solid rgba(176,0,32,0.25)",
+                }}
+              >
+                <div style={{ fontWeight: 800 }}>
+                  {selectedSpotAnswer === SPOT[spotIndex].answer ? "Correct ✅" : "Incorrect ❌"}
+                </div>
+                <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                  {selectedSpotAnswer === SPOT[spotIndex].answer
+                    ? `Correct. ${SPOT[spotIndex].why}`
+                    : `The correct answer is: ${SPOT[spotIndex].answer === "phish" ? "Phish" : "Safe"}. ${SPOT[spotIndex].why}`}
+                </div>
+              </div>
+            )}
+
+            <button onClick={nextSpot} style={{ marginTop: 14 }}>
+              {spotIndex < SPOT.length - 1 ? "Next Message" : "Continue to Quiz"}
+            </button>
 
             <div style={{ marginTop: 10, color: "#666" }}>
-              Scenario {scenarioIndex + 1} / {SCENARIOS.length}
+              Item {spotIndex + 1} / {SPOT.length}
             </div>
           </div>
         )}
@@ -204,20 +335,63 @@ export default function ModuleSocial() {
               </div>
 
               <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                {QUIZ[quizIndex].options.map((opt, idx) => (
-                  <label key={opt} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <input
-                      type="radio"
-                      name={`q-${quizIndex}`}
-                      checked={quizAnswers[quizIndex] === idx}
-                      onChange={() => setQuizAnswers((p) => ({ ...p, [quizIndex]: idx }))}
-                    />
-                    <span>{opt}</span>
-                  </label>
-                ))}
+                {QUIZ[quizIndex].options.map((opt, idx) => {
+                  const isSelected = selectedQuizAnswer === idx;
+                  const isCorrect = idx === QUIZ[quizIndex].a;
+
+                  let borderStyle = "1px solid rgba(0,0,0,0.12)";
+                  if (showQuizFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
+                  if (showQuizFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
+
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => handleQuizAnswer(idx)}
+                      style={{
+                        textAlign: "left",
+                        padding: 12,
+                        borderRadius: 12,
+                        border: borderStyle,
+                        background: "rgba(255,255,255,0.9)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
               </div>
 
               {msg && <div style={{ marginTop: 10, color: "#b00020" }}>{msg}</div>}
+
+              {showQuizFeedback && selectedQuizAnswer !== null && (
+                <div
+                  style={{
+                    marginTop: 14,
+                    padding: 12,
+                    borderRadius: 12,
+                    background:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "rgba(26,127,55,0.10)"
+                        : "rgba(176,0,32,0.10)",
+                    border:
+                      selectedQuizAnswer === QUIZ[quizIndex].a
+                        ? "1px solid rgba(26,127,55,0.25)"
+                        : "1px solid rgba(176,0,32,0.25)",
+                  }}
+                >
+                  <div style={{ fontWeight: 800 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a ? "Correct ✅" : "Incorrect ❌"}
+                  </div>
+
+                  <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
+                    {selectedQuizAnswer === QUIZ[quizIndex].a
+                      ? `Good choice. ${QUIZ[quizIndex].explain}`
+                      : `The correct answer is: ${QUIZ[quizIndex].options[QUIZ[quizIndex].a]}. ${QUIZ[quizIndex].explain}`}
+                  </div>
+                </div>
+              )}
 
               <button onClick={nextQuiz} style={{ marginTop: 14 }}>
                 {quizIndex < QUIZ.length - 1 ? "Next" : "Finish Quiz"}
@@ -236,9 +410,9 @@ export default function ModuleSocial() {
 
             <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
               <div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>
-                <div style={{ fontWeight: 700 }}>Scenarios</div>
-                <div style={{ fontSize: 28, fontWeight: 800 }}>{results.scenarioPct}%</div>
-                <div style={{ color: "#555" }}>{results.scenarioCorrect} / {SCENARIOS.length} correct</div>
+                <div style={{ fontWeight: 700 }}>Spot the Phish</div>
+                <div style={{ fontSize: 28, fontWeight: 800 }}>{results.spotPct}%</div>
+                <div style={{ color: "#555" }}>{results.spotCorrect} / {SPOT.length} correct</div>
               </div>
 
               <div style={{ padding: 14, borderRadius: 14, border: "1px solid rgba(0,0,0,0.12)" }}>
@@ -256,10 +430,10 @@ export default function ModuleSocial() {
 
             <h3 style={{ marginTop: 16 }}>What to remember</h3>
             <div style={{ display: "grid", gap: 10 }}>
-              {SCENARIOS.map((s) => (
-                <div key={s.id} style={{ padding: 12, borderRadius: 14, border: "1px solid rgba(0,0,0,0.08)" }}>
-                  <div style={{ fontWeight: 800 }}>{s.title}</div>
-                  <div style={{ marginTop: 6, color: "#333" }}>{s.why}</div>
+              {SPOT.map((it) => (
+                <div key={it.id} style={{ padding: 12, borderRadius: 14, border: "1px solid rgba(0,0,0,0.08)" }}>
+                  <div style={{ fontWeight: 700 }}>{it.title}</div>
+                  <div style={{ marginTop: 6, color: "#333" }}>{it.why}</div>
                 </div>
               ))}
             </div>

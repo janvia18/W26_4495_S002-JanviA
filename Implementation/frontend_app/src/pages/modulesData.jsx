@@ -33,11 +33,12 @@ export const MODULES = [
     desc: "Identify risky websites, unsafe downloads, and browser security habits.",
     time: "7 min",
     route: "/modules/browsing",
-
-    key: "incident_response",
-    title: "Incident Response 🚨",
-    desc: "Learn how to respond to security incidents and minimize their impact.",
-    time: "10 min",
-    route: "/modules/incident-response",
+  },
+  {
+    key: "incident",
+    title: "Incident Reporting 🚨",
+    desc: "Learn when and how to report suspicious activity or security incidents.",
+    time: "6 min",
+    route: "/modules/incident",
   },
 ];

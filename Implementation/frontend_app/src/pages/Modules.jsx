@@ -18,19 +18,15 @@ export default function Modules() {
   const socialDone = !!progress.completed?.social;
   const mfaDone = !!progress.completed?.mfa;
   const browsingDone = !!progress.completed?.browsing;
-  if (!c.phishing) return "Start with Phishing Awareness";
-if (!c.password) return "Next: Password Security";
-if (!c.social) return "Next: Social Engineering";
-if (!c.mfa) return "Next: Multi-Factor Authentication";
-if (!c.browsing) return "Next: Safe Browsing";
-return "All modules completed. Review any module to refresh your skills.";
+  const incidentDone = !!progress.completed?.incident;
+
   function isLocked(moduleKey) {
     if (moduleKey === "phishing") return false;
     if (moduleKey === "password") return !phishingDone;
     if (moduleKey === "social") return !passwordDone;
     if (moduleKey === "mfa") return !socialDone;
     if (moduleKey === "browsing") return !mfaDone;
-    if (moduleKey === "incident_response") return !browsingDone;
+    if (moduleKey === "incident") return !browsingDone;
     return true;
   }
 
@@ -40,7 +36,7 @@ return "All modules completed. Review any module to refresh your skills.";
     if (moduleKey === "social") return socialDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
     if (moduleKey === "mfa") return mfaDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
     if (moduleKey === "browsing") return browsingDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
-    if (moduleKey === "incident_response") return incidentResponseDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
+    if (moduleKey === "incident") return incidentDone ? "Completed ✅" : isLocked(moduleKey) ? "Locked" : "Unlocked ✅";
     return "Locked";
   }
 
@@ -50,6 +46,7 @@ return "All modules completed. Review any module to refresh your skills.";
     if (moduleKey === "social") return socialDone ? "Review Module" : "Start Module";
     if (moduleKey === "mfa") return mfaDone ? "Review Module" : "Start Module";
     if (moduleKey === "browsing") return browsingDone ? "Review Module" : "Start Module";
+    if (moduleKey === "incident") return incidentDone ? "Review Module" : "Start Module";
     return "Start Module";
   }
 
@@ -58,7 +55,7 @@ return "All modules completed. Review any module to refresh your skills.";
     if (moduleKey === "social") return "Complete Password First";
     if (moduleKey === "mfa") return "Complete Social First";
     if (moduleKey === "browsing") return "Complete MFA First";
-    if (moduleKey === "incident_response") return "Complete Browsing First";
+    if (moduleKey === "incident") return "Complete Safe Browsing First";
     return "Locked";
   }
 
@@ -74,7 +71,15 @@ return "All modules completed. Review any module to refresh your skills.";
           boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
           <div>
             <h1 style={{ margin: 0 }}>Modules</h1>
             <div style={{ marginTop: 8, color: "#444" }}>Points: {points}</div>
@@ -106,12 +111,18 @@ return "All modules completed. Review any module to refresh your skills.";
               >
                 <div style={{ flex: "1 1 320px" }}>
                   <h3 style={{ margin: 0 }}>{module.title}</h3>
-                  <p style={{ margin: "8px 0 0", color: "#444", lineHeight: 1.5 }}>{module.desc}</p>
-                  <div style={{ marginTop: 8, color: "#666", fontSize: 14 }}>Estimated Time: {module.time}</div>
+                  <p style={{ margin: "8px 0 0", color: "#444", lineHeight: 1.5 }}>
+                    {module.desc}
+                  </p>
+                  <div style={{ marginTop: 8, color: "#666", fontSize: 14 }}>
+                    Estimated Time: {module.time}
+                  </div>
                 </div>
 
                 <div style={{ textAlign: "right", minWidth: 180 }}>
-                  <div style={{ fontWeight: 700, marginBottom: 10 }}>{getStatus(module.key)}</div>
+                  <div style={{ fontWeight: 700, marginBottom: 10 }}>
+                    {getStatus(module.key)}
+                  </div>
                   <button
                     type="button"
                     onClick={() => navigate(module.route)}
