@@ -31,40 +31,55 @@ function safeJson(raw, fallback) {
 
 function ensureDefaults() {
   const pts = localStorage.getItem("points");
-  if (pts === null) localStorage.setItem("points", "0");
+  if (pts === null) {
+    localStorage.setItem("points", "0");
+  }
 
   const prog = safeJson(localStorage.getItem("progress"), null);
   if (!prog) {
     localStorage.setItem(
       "progress",
-      JSON.stringify({ completed: { phishing: false, password: false, social: false } })
+      JSON.stringify({
+        completed: {
+          phishing: false,
+          password: false,
+          mfa: false,
+          social: false,
+          incident: false,
+        },
+      })
     );
   }
 }
 
-export default function ProfileSetup() {
-  const nav = useNavigate();
+function ProfileSetup() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState("cat");
 
   useEffect(() => {
     const saved = safeJson(localStorage.getItem("profile"), null);
+
     if (saved?.name && saved?.avatar) {
       ensureDefaults();
-      nav("/dashboard");
+      navigate("/dashboard");
       return;
     }
+
     ensureDefaults();
-  }, [nav]);
+  }, [navigate]);
 
   const handleSave = (e) => {
     e.preventDefault();
 
-    const profile = { name: name.trim(), avatar };
-    localStorage.setItem("profile", JSON.stringify(profile));
+    const profile = {
+      name: name.trim(),
+      avatar,
+    };
 
+    localStorage.setItem("profile", JSON.stringify(profile));
     ensureDefaults();
-    nav("/dashboard");
+    navigate("/dashboard");
   };
 
   const handleReset = () => {
@@ -74,60 +89,71 @@ export default function ProfileSetup() {
   };
 
   return (
-    <div className="shell">
-      <div className="heroCard">
-        <div className="cardWide" style={{ maxWidth: 520 }}>
-          <h1 className="title">Create Your Profile</h1>
-          <p className="text">Profile and progress are saved locally for this prototype. Server sync is planned.</p>
+    <div className="page-container">
+      <div className="form-container">
+        <h1>Create Your Profile</h1>
+        <p>
+          Set up your name and avatar to personalize your CyberAware experience.
+        </p>
 
-          <form onSubmit={handleSave} style={{ marginTop: 16 }}>
-            <div className="field">
-              <label className="label">Name</label>
-              <input
-                className="input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Janvi"
-                required
-              />
+        <form onSubmit={handleSave}>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              className="input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Janvi"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Choose an Avatar</label>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "10px",
+                marginTop: "10px",
+              }}
+            >
+              {Object.keys(avatarEmoji).map((key) => {
+                const selected = avatar === key;
+
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setAvatar(key)}
+                    className={selected ? "primary-btn" : "secondary-btn"}
+                    style={{ padding: "10px" }}
+                  >
+                    <span style={{ fontSize: "1.4rem" }}>{avatarEmoji[key]}</span>
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
-            <div className="field">
-              <label className="label">Avatar</label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-                {Object.keys(avatarEmoji).map((key) => {
-                  const selected = avatar === key;
-                  return (
-                    <button
-                      type="button"
-                      key={key}
-                      className={selected ? "btnPrimary" : "btnSecondary"}
-                      onClick={() => setAvatar(key)}
-                      style={{ padding: 10 }}
-                    >
-                      <span style={{ fontSize: 20 }}>{avatarEmoji[key]}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          <div style={{ display: "flex", gap: "12px", marginTop: "16px", flexWrap: "wrap" }}>
+            <button className="primary-btn" type="submit">
+              Save Profile
+            </button>
 
-            <div className="btnRow" style={{ marginTop: 14 }}>
-              <button className="btnPrimary" type="submit">
-                Save Profile
-              </button>
+            <button className="secondary-btn" type="button" onClick={handleReset}>
+              Reset
+            </button>
+          </div>
+        </form>
 
-              <button className="btnSecondary" type="button" onClick={handleReset}>
-                Reset
-              </button>
-            </div>
-          </form>
-
-          <p style={{ marginTop: 12 }} className="mutedText">
-            Preview: {avatarEmoji[avatar]} {name || "Your Name"}
-          </p>
-        </div>
+        <p style={{ marginTop: "16px" }}>
+          <strong>Preview:</strong> {avatarEmoji[avatar]} {name || "Your Name"}
+        </p>
       </div>
     </div>
   );
 }
+
+export default ProfileSetup;

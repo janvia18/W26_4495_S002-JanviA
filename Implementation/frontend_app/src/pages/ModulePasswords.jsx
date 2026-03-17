@@ -1,474 +1,219 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { readProfile, readProgress, writeProgress, readPoints, writePoints } from "../lib/storage";
+import React, { useState } from "react";
+import { useProgress } from "../lib/ProgressContext";
+import { useBadges } from "../lib/BadgeContext";
 
-const avatarEmoji = {
-  bear: "🐻",
-  horse: "🐴",
-  cat: "🐱",
-  dog: "🐶",
-  fox: "🦊",
-  panda: "🐼",
-  rabbit: "🐰",
-  tiger: "🐯",
-  lion: "🦁",
-  monkey: "🐵",
-  koala: "🐨",
-  penguin: "🐧",
-  frog: "🐸",
-  owl: "🦉",
-  unicorn: "🦄",
-  dragon: "🐲",
-};
-
-const LESSON = [
+const questions = [
   {
-    title: "Strong password basics",
-    body: "Use long passphrases. Length and uniqueness matter more than trying to make a very short password look complicated.",
+    question: "What makes a password strong?",
+    options: [
+      "It is long, unique, and hard to guess",
+      "It uses only your first name",
+      "It is the same on every website",
+      "It is easy for friends to remember",
+    ],
+    correctAnswer: "It is long, unique, and hard to guess",
+    explanation:
+      "A strong password should be long, unique for each account, and difficult for attackers to guess.",
   },
   {
-    title: "Never reuse passwords",
-    body: "If one site is breached, reused passwords can be tried on your other accounts. This is called credential stuffing.",
+    question: "Why should you avoid reusing passwords?",
+    options: [
+      "Because if one account is breached, other accounts can also be accessed",
+      "Because websites do not allow repeated passwords",
+      "Because reused passwords make the internet slower",
+      "Because only banks require unique passwords",
+    ],
+    correctAnswer: "Because if one account is breached, other accounts can also be accessed",
+    explanation:
+      "If attackers steal one reused password, they often try it on email, shopping, banking, and social media accounts.",
   },
   {
-    title: "Password managers and MFA",
-    body: "A password manager helps create unique passwords. MFA adds another layer of protection if a password is stolen.",
+    question: "Which of these is the best example of a passphrase?",
+    options: [
+      "BlueCoffeeRiver7!Leaves",
+      "janvi123",
+      "password",
+      "abc12345",
+    ],
+    correctAnswer: "BlueCoffeeRiver7!Leaves",
+    explanation:
+      "Passphrases use multiple words and are usually longer, making them stronger and easier to remember than short weak passwords.",
+  },
+  {
+    question: "What is a password manager used for?",
+    options: [
+      "To securely store and generate passwords",
+      "To increase Wi-Fi signal strength",
+      "To scan for viruses in emails",
+      "To disable multi-factor authentication",
+    ],
+    correctAnswer: "To securely store and generate passwords",
+    explanation:
+      "A password manager helps create strong unique passwords and stores them securely so you do not need to memorize all of them.",
+  },
+  {
+    question: "Which password is the weakest?",
+    options: [
+      "123456",
+      "Rain!Forest92Moon",
+      "TeaHorse!Window44",
+      "MapleRiver#Cloud81",
+    ],
+    correctAnswer: "123456",
+    explanation:
+      "Simple and common passwords like 123456 are among the first passwords attackers try.",
+  },
+  {
+    question: "What should you do if a website says your password was exposed in a breach?",
+    options: [
+      "Change it immediately and update any reused versions elsewhere",
+      "Ignore it if the password is easy to remember",
+      "Keep using it until next year",
+      "Send the password to support for verification",
+    ],
+    correctAnswer: "Change it immediately and update any reused versions elsewhere",
+    explanation:
+      "A breached password should be changed right away, and any other account using the same password should also be updated.",
   },
 ];
 
-const QUIZ = [
-  {
-    q: "What is the best general approach for passwords?",
-    options: ["Short and complex", "Long and unique passphrases", "Same password everywhere", "Only symbols"],
-    a: 1,
-    explain:
-      "Long and unique passphrases are stronger and easier to remember than short predictable passwords.",
-  },
-  {
-    q: "Why is password reuse dangerous?",
-    options: ["It is not dangerous", "It makes login faster", "A breach on one site can affect other accounts", "It improves security"],
-    a: 2,
-    explain:
-      "If one password is exposed in a breach, attackers often try the same password on other websites and accounts.",
-  },
-  {
-    q: "A password manager helps by:",
-    options: ["Sharing passwords", "Generating and storing unique passwords", "Removing MFA", "Making passwords shorter"],
-    a: 1,
-    explain:
-      "Password managers help you create strong unique passwords and store them securely so you do not need to remember every one.",
-  },
-  {
-    q: "MFA is useful because:",
-    options: ["It protects if a password is stolen", "It makes passwords optional", "It replaces usernames", "It hides your email"],
-    a: 0,
-    explain:
-      "MFA adds another step to login, which helps protect the account even if someone steals your password.",
-  },
-  {
-    q: "Which passphrase is strongest?",
-    options: ["Password123!", "janvi2001", "Blue Train Mango River 2026!", "qwerty!"],
-    a: 2,
-    explain:
-      "A long multi-word passphrase is much stronger than short, common, or personal-information-based passwords.",
-  },
-];
+function ModulePasswords() {
+  const { completeModule } = useProgress();
+  const { unlockBadge } = useBadges();
 
-function scorePassphrase(text) {
-  const t = (text || "").trim();
-  const length = t.length;
-  const words = t.split(/\s+/).filter(Boolean).length;
-  const hasNumber = /\d/.test(t);
-  const hasSymbol = /[^a-zA-Z0-9\s]/.test(t);
-  const hasUpper = /[A-Z]/.test(t);
-  const looksCommon = /(password|qwerty|12345|letmein)/i.test(t);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [isCorrect, setIsCorrect] = useState(null);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [answered, setAnswered] = useState(false);
+  const [moduleRewarded, setModuleRewarded] = useState(false);
 
-  let score = 0;
+  const handleAnswerClick = (option) => {
+    if (answered) return;
 
-  if (length >= 14) score += 40;
-  else score += Math.max(0, Math.round((length / 14) * 40));
+    const correct = option === questions[currentQuestion].correctAnswer;
+    setSelectedAnswer(option);
+    setIsCorrect(correct);
+    setAnswered(true);
 
-  if (words >= 4) score += 25;
-  else score += Math.round((words / 4) * 25);
-
-  if (hasUpper) score += 10;
-  if (hasNumber) score += 10;
-  if (hasSymbol) score += 10;
-  if (looksCommon) score -= 25;
-
-  score = Math.max(0, Math.min(100, score));
-
-  return {
-    score,
-    length,
-    words,
-    hasUpper,
-    hasNumber,
-    hasSymbol,
-    looksCommon,
+    if (correct) {
+      setScore((prev) => prev + 1);
+    }
   };
-}
 
-export default function ModulePasswords() {
-  const navigate = useNavigate();
-  const profile = useMemo(() => readProfile(), []);
-
-  const [step, setStep] = useState(0);
-  const [phrase, setPhrase] = useState("");
-  const [quizIndex, setQuizIndex] = useState(0);
-  const [quizAnswers, setQuizAnswers] = useState({});
-  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState(null);
-  const [showQuizFeedback, setShowQuizFeedback] = useState(false);
-  const [msg, setMsg] = useState("");
-
-  const analysis = useMemo(() => scorePassphrase(phrase), [phrase]);
-
-  const results = useMemo(() => {
-    let quizCorrect = 0;
-    for (let i = 0; i < QUIZ.length; i++) {
-      if (quizAnswers[i] === QUIZ[i].a) quizCorrect += 1;
-    }
-
-    const quizPct = Math.round((quizCorrect / QUIZ.length) * 100);
-    const builderPct = analysis.score;
-    const totalPct = Math.round((quizPct + builderPct) / 2);
-    const pointsEarned = 110 + Math.round(totalPct * 1.1);
-
-    return {
-      quizCorrect,
-      quizPct,
-      builderPct,
-      totalPct,
-      pointsEarned,
-    };
-  }, [quizAnswers, analysis.score]);
-
-  function handleQuizAnswer(idx) {
-    setQuizAnswers((prev) => ({ ...prev, [quizIndex]: idx }));
-    setSelectedQuizAnswer(idx);
-    setShowQuizFeedback(true);
-  }
-
-  function nextQuiz() {
-    if (selectedQuizAnswer === null) {
-      setMsg("Please select an answer to continue.");
-      return;
-    }
-
-    setMsg("");
-    setSelectedQuizAnswer(null);
-    setShowQuizFeedback(false);
-
-    if (quizIndex < QUIZ.length - 1) {
-      setQuizIndex((prev) => prev + 1);
+  const handleNext = () => {
+    if (currentQuestion + 1 < questions.length) {
+      setCurrentQuestion((prev) => prev + 1);
+      setSelectedAnswer("");
+      setIsCorrect(null);
+      setAnswered(false);
     } else {
-      setStep(3);
+      if (!moduleRewarded) {
+        completeModule("password", 10);
+
+        unlockBadge({
+          id: "password-badge",
+          icon: "🔐",
+          title: "Password Pro",
+          description: "Completed the Password Security module.",
+        });
+
+        setModuleRewarded(true);
+      }
+
+      setShowResult(true);
     }
-  }
+  };
 
-  function finishModule() {
-    const prog = readProgress();
+  const handleRestart = () => {
+    setCurrentQuestion(0);
+    setSelectedAnswer("");
+    setIsCorrect(null);
+    setScore(0);
+    setShowResult(false);
+    setAnswered(false);
+  };
 
-    if (!prog.completed?.phishing) {
-      navigate("/modules");
-      return;
-    }
+  if (showResult) {
+    return (
+      <div className="page-container">
+        <h1>Password Security 🔐</h1>
+        <h2>Quiz Complete</h2>
+        <p>
+          You scored <strong>{score}</strong> out of <strong>{questions.length}</strong>.
+        </p>
+        <p>
+          Strong passwords and passphrases are one of the first locks on your
+          digital front door. The key idea is simple: long, unique, and never reused.
+        </p>
 
-    const alreadyCompleted = !!prog.completed?.password;
-
-    prog.completed.password = true;
-    writeProgress(prog);
-
-    if (!alreadyCompleted) {
-      const current = readPoints();
-      writePoints(current + results.pointsEarned);
-    }
-
-    navigate("/modules");
-  }
-
-  const emoji = avatarEmoji[profile?.avatar] || "🙂";
-
-  return (
-    <div style={{ padding: "40px 20px" }}>
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 980,
-          margin: "0 auto",
-          background: "rgba(255,255,255,0.92)",
-          borderRadius: 22,
-          padding: 24,
-          boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-          border: "1px solid rgba(0,0,0,0.06)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ flex: "1 1 420px", minWidth: 280 }}>
-            <h1 style={{ margin: 0 }}>Passwords & Passphrases</h1>
-            <p style={{ marginTop: 8, color: "#444", lineHeight: 1.6 }}>
-              Learn how to create stronger passwords, avoid reuse, and protect accounts with better habits.
-            </p>
-          </div>
-
-          <div style={{ textAlign: "right", minWidth: 180 }}>
-            <div style={{ fontWeight: 700 }}>
-              {emoji} Hi, {profile?.name || "Learner"}
-            </div>
-            <button onClick={() => navigate("/modules")} style={{ marginTop: 10 }}>
-              Back to Modules
-            </button>
-          </div>
+        <div className="answer-note" style={{ marginTop: "1rem" }}>
+          <p><strong>Module completed.</strong></p>
+          <p>You earned progress and moved one step further in CyberAware.</p>
         </div>
 
-        <hr style={{ margin: "20px 0", opacity: 0.2 }} />
+        <button onClick={handleRestart} className="primary-btn">
+          Restart Quiz
+        </button>
+      </div>
+    );
+  }
 
-        {step === 0 && (
-          <div>
-            <h2 style={{ marginTop: 0 }}>Part 1: Learn</h2>
+  const current = questions[currentQuestion];
 
-            <div style={{ display: "grid", gap: 14 }}>
-              {LESSON.map((item) => (
-                <div
-                  key={item.title}
-                  style={{
-                    padding: 16,
-                    borderRadius: 16,
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    background: "rgba(255,255,255,0.85)",
-                  }}
-                >
-                  <div style={{ fontWeight: 800 }}>{item.title}</div>
-                  <div style={{ marginTop: 6, color: "#333", lineHeight: 1.6 }}>{item.body}</div>
-                </div>
-              ))}
-            </div>
+  return (
+    <div className="page-container">
+      <h1>Password Security 🔐</h1>
+      <p>
+        Learn how to build stronger passwords, avoid reuse, and protect your accounts.
+      </p>
 
-            <button onClick={() => setStep(1)} style={{ marginTop: 18 }}>
-              Start Passphrase Builder
+      <h2>
+        Question {currentQuestion + 1} of {questions.length}
+      </h2>
+
+      <div className="quiz-card">
+        <h3>{current.question}</h3>
+
+        <div className="options-container">
+          {current.options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => handleAnswerClick(option)}
+              disabled={answered}
+              className={`option-btn ${
+                answered && option === current.correctAnswer
+                  ? "correct"
+                  : answered && option === selectedAnswer && option !== current.correctAnswer
+                  ? "incorrect"
+                  : ""
+              }`}
+            >
+              {option}
             </button>
-          </div>
-        )}
+          ))}
+        </div>
 
-        {step === 1 && (
-          <div>
-            <h2 style={{ marginTop: 0 }}>Part 2: Passphrase Builder</h2>
-            <p style={{ color: "#444", lineHeight: 1.6 }}>
-              Create a passphrase with at least 4 words. Avoid names, birthdays, and common patterns.
+        {answered && (
+          <div className="answer-note">
+            <p>
+              <strong>{isCorrect ? "Correct" : "Incorrect"}</strong>
             </p>
-
-            <input
-              value={phrase}
-              onChange={(e) => setPhrase(e.target.value)}
-              placeholder="Example: Blue Train Mango River 2026!"
-              style={{
-                width: "100%",
-                padding: 12,
-                borderRadius: 12,
-                border: "1px solid rgba(0,0,0,0.2)",
-                fontSize: 16,
-              }}
-            />
-
-            <div
-              style={{
-                display: "grid",
-                gap: 12,
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                marginTop: 16,
-              }}
-            >
-              <div
-                style={{
-                  padding: 14,
-                  borderRadius: 14,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  background: "rgba(255,255,255,0.85)",
-                }}
-              >
-                <div style={{ fontWeight: 800 }}>Strength Score</div>
-                <div style={{ fontSize: 28, fontWeight: 900, marginTop: 8 }}>{analysis.score}%</div>
-                <div style={{ color: "#555", marginTop: 6 }}>Length: {analysis.length} characters</div>
-                <div style={{ color: "#555" }}>Words: {analysis.words}</div>
-              </div>
-
-              <div
-                style={{
-                  padding: 14,
-                  borderRadius: 14,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  background: "rgba(255,255,255,0.85)",
-                }}
-              >
-                <div style={{ fontWeight: 800 }}>Checklist</div>
-                <div style={{ marginTop: 8, color: analysis.words >= 4 ? "#1a7f37" : "#555" }}>• 4 or more words</div>
-                <div style={{ color: analysis.length >= 14 ? "#1a7f37" : "#555" }}>• 14 or more characters</div>
-                <div style={{ color: analysis.hasUpper ? "#1a7f37" : "#555" }}>• Includes uppercase letters</div>
-                <div style={{ color: analysis.hasNumber ? "#1a7f37" : "#555" }}>• Includes a number</div>
-                <div style={{ color: analysis.hasSymbol ? "#1a7f37" : "#555" }}>• Includes a symbol</div>
-                <div style={{ color: analysis.looksCommon ? "#b00020" : "#1a7f37" }}>• Avoid common patterns</div>
-              </div>
-            </div>
-
-            <button onClick={() => setStep(2)} style={{ marginTop: 18 }} disabled={analysis.score < 50}>
-              Continue to Quiz
-            </button>
+            <p>
+              <strong>Why:</strong> {current.explanation}
+            </p>
           </div>
         )}
 
-        {step === 2 && (
-          <div>
-            <h2 style={{ marginTop: 0 }}>Part 3: Quick Quiz</h2>
-
-            <div
-              style={{
-                padding: 16,
-                borderRadius: 16,
-                border: "1px solid rgba(0,0,0,0.12)",
-                background: "rgba(255,255,255,0.85)",
-              }}
-            >
-              <div style={{ fontWeight: 800 }}>
-                Q{quizIndex + 1}. {QUIZ[quizIndex].q}
-              </div>
-
-              <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-                {QUIZ[quizIndex].options.map((opt, idx) => {
-                  const isSelected = selectedQuizAnswer === idx;
-                  const isCorrect = idx === QUIZ[quizIndex].a;
-
-                  let borderStyle = "1px solid rgba(0,0,0,0.12)";
-                  if (showQuizFeedback && isSelected && isCorrect) borderStyle = "2px solid #1a7f37";
-                  if (showQuizFeedback && isSelected && !isCorrect) borderStyle = "2px solid #b00020";
-
-                  return (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => handleQuizAnswer(idx)}
-                      style={{
-                        textAlign: "left",
-                        padding: 12,
-                        borderRadius: 12,
-                        border: borderStyle,
-                        background: "rgba(255,255,255,0.9)",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {msg && <div style={{ marginTop: 12, color: "#b00020" }}>{msg}</div>}
-
-              {showQuizFeedback && selectedQuizAnswer !== null && (
-                <div
-                  style={{
-                    marginTop: 14,
-                    padding: 12,
-                    borderRadius: 12,
-                    background:
-                      selectedQuizAnswer === QUIZ[quizIndex].a
-                        ? "rgba(26,127,55,0.10)"
-                        : "rgba(176,0,32,0.10)",
-                    border:
-                      selectedQuizAnswer === QUIZ[quizIndex].a
-                        ? "1px solid rgba(26,127,55,0.25)"
-                        : "1px solid rgba(176,0,32,0.25)",
-                  }}
-                >
-                  <div style={{ fontWeight: 800 }}>
-                    {selectedQuizAnswer === QUIZ[quizIndex].a ? "Correct ✅" : "Incorrect ❌"}
-                  </div>
-
-                  <div style={{ marginTop: 6, color: "#333", lineHeight: 1.5 }}>
-                    {selectedQuizAnswer === QUIZ[quizIndex].a
-                      ? `Good choice. ${QUIZ[quizIndex].explain}`
-                      : `The correct answer is: ${QUIZ[quizIndex].options[QUIZ[quizIndex].a]}. ${QUIZ[quizIndex].explain}`}
-                  </div>
-                </div>
-              )}
-
-              <button onClick={nextQuiz} style={{ marginTop: 16 }}>
-                {quizIndex < QUIZ.length - 1 ? "Next" : "Finish Quiz"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <h2 style={{ marginTop: 0 }}>Results</h2>
-
-            <div
-              style={{
-                display: "grid",
-                gap: 12,
-                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              }}
-            >
-              <div
-                style={{
-                  padding: 14,
-                  borderRadius: 14,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  background: "rgba(255,255,255,0.85)",
-                }}
-              >
-                <div style={{ fontWeight: 800 }}>Builder</div>
-                <div style={{ fontSize: 28, fontWeight: 900, marginTop: 8 }}>{results.builderPct}%</div>
-              </div>
-
-              <div
-                style={{
-                  padding: 14,
-                  borderRadius: 14,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  background: "rgba(255,255,255,0.85)",
-                }}
-              >
-                <div style={{ fontWeight: 800 }}>Quiz</div>
-                <div style={{ fontSize: 28, fontWeight: 900, marginTop: 8 }}>{results.quizPct}%</div>
-                <div style={{ color: "#555", marginTop: 6 }}>
-                  {results.quizCorrect} / {QUIZ.length} correct
-                </div>
-              </div>
-
-              <div
-                style={{
-                  padding: 14,
-                  borderRadius: 14,
-                  border: "1px solid rgba(0,0,0,0.12)",
-                  background: "rgba(255,255,255,0.85)",
-                }}
-              >
-                <div style={{ fontWeight: 800 }}>Total</div>
-                <div style={{ fontSize: 28, fontWeight: 900, marginTop: 8 }}>{results.totalPct}%</div>
-                <div style={{ color: "#555", marginTop: 6 }}>Points earned: +{results.pointsEarned}</div>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
-              <button onClick={finishModule}>
-                Save & Mark Completed
-              </button>
-              <button type="button" onClick={() => navigate("/modules")}>
-                Back to Modules
-              </button>
-            </div>
-          </div>
+        {answered && (
+          <button onClick={handleNext} className="next-btn">
+            {currentQuestion + 1 === questions.length ? "Finish" : "Next Question"}
+          </button>
         )}
       </div>
     </div>
   );
 }
+
+export default ModulePasswords;
