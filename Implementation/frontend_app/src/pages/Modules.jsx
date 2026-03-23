@@ -1,63 +1,55 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useProgress } from "../lib/ProgressContext";
+import { modulesData } from "./modulesData";
 
-function Modules() {
-  const navigate = useNavigate();
+export default function Modules() {
+  const { progress } = useProgress();
 
-  const modules = [
-    {
-      id: 1,
-      title: "Phishing Awareness 📧",
-      description: "Learn how to spot fake emails, suspicious links, and scam messages.",
-      route: "/modules/phishing",
-    },
-    {
-      id: 2,
-      title: "Password Security 🔐",
-      description: "Understand strong passwords, passphrases, and password safety habits.",
-      route: "/modules/passwords",
-    },
-    {
-      id: 3,
-      title: "Multi-Factor Authentication 🛡️",
-      description: "See how MFA adds an extra layer of protection to your accounts.",
-      route: "/modules/mfa",
-    },
-    {
-      id: 4,
-      title: "Social Engineering 🕵️",
-      description: "Learn how attackers manipulate people using trust, fear, and urgency.",
-      route: "/modules/social",
-    },
-    {
-      id: 5,
-      title: "Incident Response 🚨",
-      description: "Know what to do when you suspect a cyber incident or data breach.",
-      route: "/modules/incident",
-    },
-  ];
+  const order = ["phishing", "passwords", "mfa", "social", "incident"];
+
+  const isUnlocked = (key) => {
+    const index = order.indexOf(key);
+    if (index === 0) return true;
+    const previousKey = order[index - 1];
+    return progress.completed[previousKey];
+  };
 
   return (
-    <div className="page-container">
-      <h1>Training Modules</h1>
-      <p>
-        Choose a module to start building your cybersecurity awareness skills.
-      </p>
+    <div className="page-shell">
+      <div className="card">
+        <h1>Training Modules</h1>
+        <p>Complete each module to unlock the next one and earn points.</p>
+      </div>
 
-      <div className="modules-grid">
-        {modules.map((module) => (
-          <div
-            key={module.id}
-            className="module-card"
-            onClick={() => navigate(module.route)}
-          >
-            <h3>{module.title}</h3>
-            <p>{module.description}</p>
-          </div>
-        ))}
+      <div className="module-grid">
+        {modulesData.map((module) => {
+          const unlocked = isUnlocked(module.key);
+          const completed = progress.completed[module.key];
+
+          return (
+            <div key={module.key} className="card module-card">
+              <h2>{module.title}</h2>
+              <p>{module.description}</p>
+              <p className="muted-text">Reward: {module.points} points</p>
+              <div className="status-row">
+                <span className={`status-pill ${completed ? "done" : unlocked ? "open" : "locked"}`}>
+                  {completed ? "Completed" : unlocked ? "Unlocked" : "Locked"}
+                </span>
+              </div>
+              {unlocked ? (
+                <Link className="primary-btn" to={module.route}>
+                  Open module
+                </Link>
+              ) : (
+                <button className="secondary-btn" disabled>
+                  Complete previous module first
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
-
-export default Modules;

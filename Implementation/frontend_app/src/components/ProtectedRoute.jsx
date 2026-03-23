@@ -1,12 +1,10 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { useProgress } from "../lib/ProgressContext";
 
-export default function ProtectedRoute({ session, authReady, children }) {
-  const location = useLocation();
+const ProtectedRoute = ({ children }) => {
+  const { user } = useProgress();
 
-  const saved = localStorage.getItem("profile");
-  const hasProfile = !!(saved && JSON.parse(saved)?.name);
+  return user ? children : <Navigate to="/login" />;
+};
 
-  if (!authReady) return <div className="cardWide">Checking access...</div>;
-  if (session || hasProfile) return children;
-  return <Navigate to="/login" replace state={{ from: location }} />;
-}
+export default ProtectedRoute;

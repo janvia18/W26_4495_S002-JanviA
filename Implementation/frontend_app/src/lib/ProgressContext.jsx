@@ -1,59 +1,39 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { storage } from "./storage";
 
-const ProgressContext = createContext();
+const ProgressContext = createContext(null);
 
-function safeJson(raw, fallback) {
-  try {
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
+const defaultProgress = {
+  completed: {
+    phishing: false,
+    passwords: false,
+    mfa: false,
+    social: false,
+    incident: false
   }
-}
+};
 
-function getStoredUser() {
-  return safeJson(localStorage.getItem("cyberaware_user"), null);
-}
-
-function getStoredProfile() {
-  return safeJson(localStorage.getItem("profile"), null);
-}
-
-function getStoredProgress() {
-  return safeJson(localStorage.getItem("progress"), {
-    completed: {
-      phishing: false,
-      password: false,
-      mfa: false,
-      social: false,
-      incident: false,
-    },
-  });
-}
-
-function getStoredPoints() {
-  return Number(localStorage.getItem("points") || 0);
-}
+const defaultProfile = {
+  name: "",
+  organization: "",
+  role: "",
+  avatar: "🛡️"
+};
 
 export function ProgressProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [progress, setProgress] = useState(getStoredProgress());
-  const [points, setPoints] = useState(getStoredPoints());
+  const [profile, setProfile] = useState(defaultProfile);
+  const [progress, setProgress] = useState(defaultProgress);
+  const [points, setPoints] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem("cyberaware_logged_in") === "true";
-    const savedUser = getStoredUser();
-    const savedProfile = getStoredProfile();
-    const savedProgress = getStoredProgress();
-    const savedPoints = getStoredPoints();
+    const savedUser = storage.get("cyberaware_user", null);
+    const savedProfile = storage.get("cyberaware_profile", defaultProfile);
+    const savedProgress = storage.get("cyberaware_progress", defaultProgress);
+    const savedPoints = storage.get("cyberaware_points", 0);
 
-    if (loggedIn && savedUser) {
-      setUser(savedUser);
-    } else {
-      setUser(null);
-    }
-
+    setUser(savedUser);
     setProfile(savedProfile);
     setProgress(savedProgress);
     setPoints(savedPoints);
@@ -61,87 +41,82 @@ export function ProgressProvider({ children }) {
   }, []);
 
   const login = (userData) => {
-    localStorage.setItem("cyberaware_user", JSON.stringify(userData));
-    localStorage.setItem("cyberaware_logged_in", "true");
+    storage.set("cyberaware_user", userData);
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem("cyberaware_logged_in");
+    storage.remove("cyberaware_user");
     setUser(null);
   };
 
   const updateProfile = (profileData) => {
-    localStorage.setItem("profile", JSON.stringify(profileData));
-    setProfile(profileData);
+    const nextProfile = { ...profile, ...profileData };
+    storage.set("cyberaware_profile", nextProfile);
+    setProfile(nextProfile);
   };
 
-  const completeModule = (moduleKey, earnedPoints = 10) => {
+  const completeModule = (moduleKey, earnedPoints = 20) => {
+    const alreadyDone = progress.completed[moduleKey];
+
     const updatedProgress = {
       ...progress,
       completed: {
         ...progress.completed,
-        [moduleKey]: true,
-      },
+        [moduleKey]: true
+      }
     };
 
-    let updatedPoints = points;
+    const updatedPoints = alreadyDone ? points : points + earnedPoints;
 
-    if (!progress.completed[moduleKey]) {
-      updatedPoints += earnedPoints;
-    }
-
-    localStorage.setItem("progress", JSON.stringify(updatedProgress));
-    localStorage.setItem("points", String(updatedPoints));
+    storage.set("cyberaware_progress", updatedProgress);
+    storage.set("cyberaware_points", updatedPoints);
 
     setProgress(updatedProgress);
     setPoints(updatedPoints);
   };
 
   const resetProgress = () => {
-    const freshProgress = {
-      completed: {
-        phishing: false,
-        password: false,
-        mfa: false,
-        social: false,
-        incident: false,
-      },
-    };
-
-    localStorage.setItem("progress", JSON.stringify(freshProgress));
-    localStorage.setItem("points", "0");
-
-    setProgress(freshProgress);
+    storage.set("cyberaware_progress", defaultProgress);
+    storage.set("cyberaware_points", 0);
+    setProgress(defaultProgress);
     setPoints(0);
   };
 
-  return (
-    <ProgressContext.Provider
-      value={{
-        user,
-        profile,
-        progress,
-        points,
-        loading,
-        login,
-        logout,
-        updateProfile,
-        completeModule,
-        resetProgress,
-      }}
-    >
-      {children}
-    </ProgressContext.Provider>
+  const level = useMemo(() => {
+    if (points >= 100) return "Expert";
+    if (points >= 60) return "Advanced";
+    if (points >= 30) return "Intermediate";
+    return "Beginner";
+  }, [points]);
+
+  const completedCount = useMemo(
+    () => Object.values(progress.completed).filter(Boolean).length,
+    [progress]
   );
+
+  const value = {
+    user,
+    profile,
+    progress,
+    points,
+    loading,
+    level,
+    completedCount,
+    login,
+    logout,
+    updateProfile,
+    completeModule,
+    resetProgress
+  };
+
+  return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 }
 
 export function useProgress() {
   const context = useContext(ProgressContext);
-
   if (!context) {
-    throw new Error("useProgress must be used within a ProgressProvider");
+    throw new Error("useProgress must be used inside ProgressProvider");
   }
-
   return context;
 }

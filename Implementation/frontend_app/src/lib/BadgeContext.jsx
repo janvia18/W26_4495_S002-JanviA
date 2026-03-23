@@ -1,66 +1,67 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
+import { useProgress } from "./ProgressContext";
 
-const BadgeContext = createContext();
+const BadgeContext = createContext(null);
 
-function safeJson(raw, fallback) {
-  try {
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
+const badges = [
+  {
+    id: "first-step",
+    title: "First Step",
+    description: "Complete your first cybersecurity module.",
+    check: ({ completedCount }) => completedCount >= 1
+  },
+  {
+    id: "halfway-hero",
+    title: "Halfway Hero",
+    description: "Complete at least 3 modules.",
+    check: ({ completedCount }) => completedCount >= 3
+  },
+  {
+    id: "cyberaware-master",
+    title: "CyberAware Master",
+    description: "Complete all 5 modules.",
+    check: ({ completedCount }) => completedCount >= 5
   }
-}
-
-function getStoredBadges() {
-  return safeJson(localStorage.getItem("badges"), []);
-}
+];
 
 export function BadgeProvider({ children }) {
-  const [badges, setBadges] = useState(getStoredBadges());
+  const { completedCount } = useProgress();
+  const [earnedBadges, setEarnedBadges] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cyberaware_badges") || "[]");
+    } catch {
+      return [];
+    }
+  });
   const [showBadgeNotification, setShowBadgeNotification] = useState(null);
 
-  useEffect(() => {
-    localStorage.setItem("badges", JSON.stringify(badges));
-  }, [badges]);
+  React.useEffect(() => {
+    const nextBadge = badges.find(
+      (badge) => badge.check({ completedCount }) && !earnedBadges.some((item) => item.id === badge.id)
+    );
 
-  const unlockBadge = (badge) => {
-    const exists = badges.some((b) => b.id === badge.id);
-    if (exists) return;
+    if (nextBadge) {
+      const updated = [...earnedBadges, nextBadge];
+      setEarnedBadges(updated);
+      localStorage.setItem("cyberaware_badges", JSON.stringify(updated));
+      setShowBadgeNotification(nextBadge);
+    }
+  }, [completedCount, earnedBadges]);
 
-    const updated = [...badges, badge];
-    setBadges(updated);
-    setShowBadgeNotification(badge);
+  const clearBadgeNotification = () => setShowBadgeNotification(null);
 
-    setTimeout(() => {
-      setShowBadgeNotification(null);
-    }, 3000);
-  };
-
-  const resetBadges = () => {
-    localStorage.removeItem("badges");
-    setBadges([]);
-    setShowBadgeNotification(null);
-  };
-
-  return (
-    <BadgeContext.Provider
-      value={{
-        badges,
-        unlockBadge,
-        resetBadges,
-        showBadgeNotification,
-      }}
-    >
-      {children}
-    </BadgeContext.Provider>
+  const value = useMemo(
+    () => ({ earnedBadges, showBadgeNotification, clearBadgeNotification }),
+    [earnedBadges, showBadgeNotification]
   );
+
+  return <BadgeContext.Provider value={value}>{children}</BadgeContext.Provider>;
 }
 
 export function useBadges() {
   const context = useContext(BadgeContext);
-
   if (!context) {
-    throw new Error("useBadges must be used within a BadgeProvider");
+    throw new Error("useBadges must be used inside BadgeProvider");
   }
-
   return context;
 }
