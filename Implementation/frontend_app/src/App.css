@@ -613,4 +613,154 @@ input:focus {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .lesson-card {
+  padding: 28px;
+}
+
+.lesson-user-panel {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.lesson-section {
+  margin-bottom: 30px;
+}
+
+.lesson-section-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.lesson-points-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.lesson-point-card {
+  border: 1px solid #e7ebf0;
+  border-radius: 16px;
+  background: #fff;
+  padding: 16px 18px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.scenario-card {
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  background: #fff;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.scenario-card h3 {
+  margin-bottom: 14px;
+  font-size: 1.15rem;
+}
+
+.scenario-meta {
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.scenario-meta p {
+  margin-bottom: 6px;
+}
+
+.scenario-body p {
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.scenario-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.scenario-btn {
+  border: 1px solid #d7dbe3;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scenario-btn.selected {
+  border-color: #6d6cf6;
+  background: #f3f2ff;
+}
+
+.scenario-feedback {
+  margin-top: 18px;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid transparent;
+}
+
+.scenario-feedback.correct {
+  background: #edf7f1;
+  border-color: #b7e0c2;
+}
+
+.scenario-feedback.incorrect {
+  background: #fff4e8;
+  border-color: #ffd6a8;
+}
+
+.quiz-question {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.quiz-options-column {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.quiz-option-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #fafafa;
+}
+
+.lesson-bottom-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.success-box {
+  background: #edf7f1;
+  border-color: #b7e0c2;
+}
+
+.warning-box {
+  background: #fff4e8;
+  border-color: #ffd6a8;
+}
+
+@media (max-width: 900px) {
+  .lesson-user-panel {
+    justify-items: start;
+  }
+
+  .scenario-actions,
+  .lesson-bottom-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 }

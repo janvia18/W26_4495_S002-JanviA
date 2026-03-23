@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useProgress } from "../lib/ProgressContext";
 import { useBadges } from "../lib/BadgeContext";
+import ModuleDetail from "./ModuleDetail";
+import { modulesData } from "./modulesData";
 
 const questions = [
   {
@@ -216,4 +218,6 @@ function ModuleIncident() {
   );
 }
 
-export default ModuleIncident;
+export default function ModuleIncident() {
+  return <ModuleDetail module={modulesData.find((item) => item.key === "incident")} />;
+}

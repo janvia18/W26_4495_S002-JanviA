@@ -3,127 +3,97 @@ import { Link } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
 import { modulesData } from "./modulesData";
 
-export default function Dashboard() {
-  const { profile, points, level, completedCount } = useProgress();
+export default function Modules() {
+  const { progress, points } = useProgress();
 
-  const nextModule = modulesData.find((module) => !module.completed)?.title;
-  const displayedNext =
-    completedCount >= modulesData.length
-      ? "All modules completed 🎉"
-      : modulesData.find((module) => {
-          const order = modulesData.map((m) => m.key);
-          const idx = order.indexOf(module.key);
-          if (idx === 0) return true;
-          return false;
-        });
+  const order = ["phishing", "passwords", "mfa", "social", "safe-browsing", "incident"];
 
-  const moduleNames = {
-    phishing: "Phishing Awareness",
-    passwords: "Password Security",
-    mfa: "Multi-Factor Authentication",
-    social: "Social Engineering",
-    "safe-browsing": "Safe Browsing",
-    incident: "Incident Reporting"
+  const isUnlocked = (key) => {
+    const index = order.indexOf(key);
+    if (index === 0) return true;
+    return progress.completed[order[index - 1]];
   };
 
-  const progressPercent = Math.round((completedCount / modulesData.length) * 100);
+  const timeMap = {
+    phishing: "10 min",
+    passwords: "8 min",
+    mfa: "7 min",
+    social: "9 min",
+    "safe-browsing": "8 min",
+    incident: "6 min"
+  };
 
-  const nextRecommended = (() => {
-    const order = ["phishing", "passwords", "mfa", "social", "safe-browsing", "incident"];
-    for (let i = 0; i < order.length; i++) {
-      const key = order[i];
-      if (!localStorage.getItem("dummy")) {
-        // noop
-      }
-    }
-    return orderToTitle(order, completedCount, moduleNames);
-  })();
+  const emojiMap = {
+    phishing: "📨",
+    passwords: "🔐",
+    mfa: "📱",
+    social: "🕵️",
+    "safe-browsing": "🌐",
+    incident: "🚨"
+  };
 
   return (
     <div className="page-shell">
       <div className="content-wrap">
         <div className="main-card">
-          <div className="dashboard-top">
+          <div className="page-header-row">
             <div>
-              <h1 className="page-title">CyberAware</h1>
-              <p className="muted-text">Learner Dashboard</p>
+              <h1 className="page-title">Modules</h1>
+              <p className="muted-text">Points: {points}</p>
             </div>
 
-            <div className="dashboard-user-row">
-              <div className="user-chip">
-                <span>{profile.avatar || "🛡️"}</span>
-                <span>{profile.name || "Learner"}</span>
-              </div>
-            </div>
+            <Link className="ghost-btn" to="/dashboard">
+              Back to Dashboard
+            </Link>
           </div>
 
-          <div className="dashboard-grid">
-            <div className="dashboard-main-panel">
-              <h2 className="welcome-title">
-                Welcome <span className="wave">👋</span> {profile.name || "Learner"}
-              </h2>
-              <p className="muted-text">
-                Learn through short modules, scenario-based activities, and quick quizzes.
-              </p>
+          <div className="subtle-line" />
 
-              <div className="dashboard-actions">
-                <Link className="primary-btn" to="/modules">
-                  Go to Modules
-                </Link>
-                <Link className="secondary-btn" to="/profile-setup">
-                  Edit Profile
-                </Link>
-              </div>
+          <div className="module-list">
+            {modulesData.map((module) => {
+              const unlocked = isUnlocked(module.key);
+              const completed = progress.completed[module.key];
 
-              <div className="progress-header">
-                <h3>Progress</h3>
-                <span>
-                  {completedCount}/{modulesData.length}
-                </span>
-              </div>
+              return (
+                <div key={module.key} className="module-item">
+                  <div className="module-left">
+                    <div className="module-title">
+                      {module.title} <span className="module-emoji">{emojiMap[module.key]}</span>
+                    </div>
+                    <div className="module-desc">{module.description}</div>
+                    <div className="module-time">Time: {timeMap[module.key]}</div>
+                    <div className="module-time">Reward: {module.points} points</div>
+                  </div>
 
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
+                  <div className="module-right">
+                    <div className="module-status">
+                      {completed ? "Completed ✅" : unlocked ? "Not Started" : "Locked"}
+                    </div>
 
-              <div className="progress-footer">
-                <strong>
-                  {level} • {points} points
-                </strong>
-              </div>
-            </div>
-
-            <div className="dashboard-side-panel">
-              <div className="stat-section">
-                <h3>Points</h3>
-                <p className="big-number">{points}</p>
-              </div>
-
-              <div className="stat-section">
-                <h3>Level</h3>
-                <p className="level-text">{level}</p>
-              </div>
-
-              <p className="muted-text side-copy">
-                Complete modules to earn points and unlock the next topic.
-              </p>
-            </div>
+                    {completed ? (
+                      <Link className="ghost-btn" to={module.route}>
+                        Review
+                      </Link>
+                    ) : unlocked ? (
+                      <Link className="primary-btn" to={module.route}>
+                        Open Module
+                      </Link>
+                    ) : (
+                      <button className="ghost-btn" disabled>
+                        Finish previous module
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <div className="next-card">
-            <h3>Next Recommended</h3>
-            <p>{nextRecommended}</p>
-          </div>
+          <p className="modules-note">
+            Progress is saved locally for this prototype. Server sync is planned.
+          </p>
         </div>
       </div>
     </div>
   );
-}
-
-function orderToTitle(order, completedCount, moduleNames) {
-  if (completedCount >= order.length) return "All modules completed 🎉";
-  return `Next: ${moduleNames[order[completedCount]]}`;
 }

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useProgress } from "../lib/ProgressContext";
 import { useBadges } from "../lib/BadgeContext";
+import ModuleDetail from "./ModuleDetail";
+import { modulesData } from "./modulesData";
 
 const questions = [
   {
@@ -217,4 +219,6 @@ function ModulePhishing() {
   );
 }
 
-export default ModulePhishing;
+export default function ModulePhishing() {
+  return <ModuleDetail module={modulesData.find((item) => item.key === "phishing")} />;
+}

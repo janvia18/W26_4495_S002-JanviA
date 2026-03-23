@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useProgress } from "../lib/ProgressContext";
 import { useBadges } from "../lib/BadgeContext";
+import ModuleDetail from "./ModuleDetail";
+import { modulesData } from "./modulesData";
 
 const questions = [
   {
@@ -216,4 +218,6 @@ function ModuleMFA() {
   );
 }
 
-export default ModuleMFA;
+export default function ModuleMFA() {
+  return <ModuleDetail module={modulesData.find((item) => item.key === "mfa")} />;
+}
