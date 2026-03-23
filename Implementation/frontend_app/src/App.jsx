@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import { Navigate, Route, Routes } from "react-router-dom";
 import { BadgeProvider, useBadges } from "./lib/BadgeContext";
 import { ProgressProvider, useProgress } from "./lib/ProgressContext";
@@ -146,24 +145,6 @@ function AppContent() {
           element={
             <PrivateRoute>
               <ModuleIncident />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/progress"
-          element={
-            <PrivateRoute>
-              <Progress />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/profile-setup"
-          element={
-            <PrivateRoute>
-              <ProfileSetup />
             </PrivateRoute>
           }
         />
