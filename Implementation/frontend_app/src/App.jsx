@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { BadgeProvider, useBadges } from "./lib/BadgeContext";
 import { ProgressProvider, useProgress } from "./lib/ProgressContext";
 import BadgeNotification from "./components/BadgeNotification";
-
+import AppHeader from "./components/AppHeader";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import LoginPage from "./pages/LoginPage";
@@ -18,6 +18,7 @@ import ModulePasswords from "./pages/ModulePasswords";
 import ModuleMFA from "./pages/ModuleMFA";
 import ModuleSocial from "./pages/ModuleSocial";
 import ModuleIncident from "./pages/ModuleIncident";
+import ModuleSafeBrowsing from "./pages/ModuleSafeBrowsing";
 import "./App.css";
 
 function PrivateRoute({ children }) {
@@ -52,13 +53,21 @@ function AppContent() {
   return (
     <>
       <BadgeNotification badge={currentBadge} onClose={handleCloseBadge} />
+    <AppHeader />
+
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-
+        <Route path="/modules/safe-browsing"
+        element={
+          <PrivateRoute>
+            <ModuleSafeBrowsing />
+          </PrivateRoute>
+  }
+/>
         <Route
           path="/dashboard"
           element={

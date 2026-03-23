@@ -9,6 +9,7 @@ const defaultProgress = {
     passwords: false,
     mfa: false,
     social: false,
+    "safe-browsing": false,
     incident: false
   }
 };
@@ -33,10 +34,17 @@ export function ProgressProvider({ children }) {
     const savedProgress = storage.get("cyberaware_progress", defaultProgress);
     const savedPoints = storage.get("cyberaware_points", 0);
 
+    const normalizedProgress = {
+      completed: {
+        ...defaultProgress.completed,
+        ...(savedProgress?.completed || {})
+      }
+    };
+
     setUser(savedUser);
-    setProfile(savedProfile);
-    setProgress(savedProgress);
-    setPoints(savedPoints);
+    setProfile({ ...defaultProfile, ...(savedProfile || {}) });
+    setProgress(normalizedProgress);
+    setPoints(savedPoints || 0);
     setLoading(false);
   }, []);
 
@@ -84,9 +92,9 @@ export function ProgressProvider({ children }) {
   };
 
   const level = useMemo(() => {
-    if (points >= 100) return "Expert";
-    if (points >= 60) return "Advanced";
-    if (points >= 30) return "Intermediate";
+    if (points >= 120) return "Expert";
+    if (points >= 80) return "Advanced";
+    if (points >= 40) return "Intermediate";
     return "Beginner";
   }, [points]);
 

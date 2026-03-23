@@ -9,36 +9,44 @@ export default function Progress() {
 
   return (
     <div className="page-shell">
-      <div className="card">
-        <h1>My Progress</h1>
-        <p>Track your training journey and see how far you have come.</p>
-      </div>
-
-      <div className="card">
-        <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${percent}%` }} />
-        </div>
-        <p>
-          <strong>{percent}% complete</strong>
-        </p>
-        <p>
-          Points: {points} • Level: {level}
-        </p>
-      </div>
-
-      <div className="module-grid">
-        {items.map(([key, done]) => (
-          <div key={key} className="card module-card">
-            <h2>{key}</h2>
-            <p>{done ? "Completed" : "Not completed yet"}</p>
+      <div className="content-wrap">
+        <div className="main-card">
+          <div className="page-header-row">
+            <div>
+              <h1 className="page-title">Progress</h1>
+              <p className="muted-text">Track your learning progress across all modules.</p>
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="card">
-        <button className="secondary-btn" onClick={resetProgress}>
-          Reset progress
-        </button>
+          <div className="subtle-line" />
+
+          <div className="stat-box" style={{ marginBottom: "20px" }}>
+            <h3>Overall Completion</h3>
+            <p className="big-number">{percent}%</p>
+            <p className="muted-text">Points: {points} • Level: {level}</p>
+          </div>
+
+          <div className="module-list">
+            {items.map(([key, done]) => (
+              <div key={key} className="module-item">
+                <div className="module-left">
+                  <div className="module-title">{key}</div>
+                </div>
+                <div className="module-right">
+                  <div className={`module-status ${done ? "done" : "locked"}`}>
+                    {done ? "Completed ✅" : "Not Completed"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: "20px" }}>
+            <button className="ghost-btn" onClick={resetProgress}>
+              Reset Progress
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
