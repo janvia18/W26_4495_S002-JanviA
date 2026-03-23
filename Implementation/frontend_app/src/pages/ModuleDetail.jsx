@@ -2,6 +2,15 @@ import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
 
+const emojiMap = {
+  phishing: "📨",
+  passwords: "🔐",
+  mfa: "📱",
+  social: "🕵️",
+  "safe-browsing": "🌐",
+  incident: "🚨"
+};
+
 export default function ModuleDetail({ module }) {
   const { progress, completeModule, profile } = useProgress();
   const navigate = useNavigate();
@@ -19,6 +28,7 @@ export default function ModuleDetail({ module }) {
 
   const passedQuiz = submitted && score >= Math.ceil(module.quiz.length / 2);
   const isCompleted = progress.completed[module.key];
+  const scenarioCorrect = scenarioChoice === module.scenario.correctAnswer;
 
   const handleSubmitQuiz = (e) => {
     e.preventDefault();
@@ -29,14 +39,10 @@ export default function ModuleDetail({ module }) {
     }
   };
 
-  const scenarioContent = getScenarioContent(module.key);
-
   const handleScenarioCheck = (choice) => {
     setScenarioChoice(choice);
     setScenarioChecked(true);
   };
-
-  const scenarioCorrect = scenarioChoice === scenarioContent.correctAnswer;
 
   return (
     <div className="page-shell">
@@ -45,7 +51,7 @@ export default function ModuleDetail({ module }) {
           <div className="page-header-row">
             <div>
               <h1 className="page-title">
-                {module.title} <span className="module-emoji">{getModuleEmoji(module.key)}</span>
+                {module.title} <span className="module-emoji">{emojiMap[module.key]}</span>
               </h1>
               <p className="lesson-intro">{module.description}</p>
             </div>
@@ -66,9 +72,7 @@ export default function ModuleDetail({ module }) {
 
           <section className="lesson-section">
             <h2 className="lesson-section-title">Part 1: Learn the Basics</h2>
-            <p className="muted-text">
-              Review the key concepts below before starting the quiz.
-            </p>
+            <p className="muted-text">Review the key concepts below before starting the quiz.</p>
 
             <div className="lesson-points-grid">
               {module.content.map((item) => (
@@ -80,52 +84,36 @@ export default function ModuleDetail({ module }) {
           </section>
 
           <section className="lesson-section">
-            <h2 className="lesson-section-title">{scenarioContent.title}</h2>
-            <p className="muted-text">{scenarioContent.instructions}</p>
+            <h2 className="lesson-section-title">{module.scenario.title}</h2>
+            <p className="muted-text">{module.scenario.instructions}</p>
 
             <div className="scenario-card">
-              {scenarioContent.type === "message" ? (
-                <>
-                  <h3>{scenarioContent.heading}</h3>
-                  <div className="scenario-meta">
-                    {scenarioContent.from && (
-                      <p>
-                        <strong>From:</strong> {scenarioContent.from}
-                      </p>
-                    )}
-                    {scenarioContent.subject && (
-                      <p>
-                        <strong>Subject:</strong> {scenarioContent.subject}
-                      </p>
-                    )}
-                  </div>
+              <h3>{module.scenario.heading}</h3>
 
-                  <div className="scenario-body">
-                    {scenarioContent.body.map((line, idx) => (
-                      <p key={idx}>{line}</p>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h3>{scenarioContent.heading}</h3>
-                  <div className="scenario-body">
-                    {scenarioContent.body.map((line, idx) => (
-                      <p key={idx}>{line}</p>
-                    ))}
-                  </div>
-                </>
+              {module.scenario.from && (
+                <div className="scenario-meta">
+                  <p>
+                    <strong>From:</strong> {module.scenario.from}
+                  </p>
+                  <p>
+                    <strong>Subject:</strong> {module.scenario.subject}
+                  </p>
+                </div>
               )}
+
+              <div className="scenario-body">
+                {module.scenario.body.map((line, idx) => (
+                  <p key={idx}>{line}</p>
+                ))}
+              </div>
             </div>
 
             <div className="scenario-actions">
-              {scenarioContent.options.map((option) => (
+              {module.scenario.options.map((option) => (
                 <button
                   key={option}
                   type="button"
-                  className={`scenario-btn ${
-                    scenarioChoice === option ? "selected" : ""
-                  }`}
+                  className={`scenario-btn ${scenarioChoice === option ? "selected" : ""}`}
                   onClick={() => handleScenarioCheck(option)}
                 >
                   {option}
@@ -135,17 +123,15 @@ export default function ModuleDetail({ module }) {
 
             {scenarioChecked && (
               <div className={`scenario-feedback ${scenarioCorrect ? "correct" : "incorrect"}`}>
-                <h3>{scenarioCorrect ? "Correct ✅" : "Try Again ⚠️"}</h3>
-                <p>{scenarioCorrect ? scenarioContent.correctText : scenarioContent.incorrectText}</p>
+                <h3>{scenarioCorrect ? "Correct ✅" : "Incorrect ❌"}</h3>
+                <p>{scenarioCorrect ? module.scenario.correctText : module.scenario.incorrectText}</p>
               </div>
             )}
           </section>
 
           <section className="lesson-section">
             <h2 className="lesson-section-title">Part 3: Knowledge Check</h2>
-            <p className="muted-text">
-              Answer the quiz questions below.
-            </p>
+            <p className="muted-text">Answer the quiz questions below.</p>
 
             <form onSubmit={handleSubmitQuiz} className="form-grid">
               {module.quiz.map((item, index) => (
@@ -193,10 +179,7 @@ export default function ModuleDetail({ module }) {
                 {passedQuiz ? (
                   <>
                     <p>Nice work. This module is complete and your points have been added.</p>
-                    <button
-                      className="primary-btn"
-                      onClick={() => navigate("/dashboard")}
-                    >
+                    <button className="primary-btn" onClick={() => navigate("/dashboard")}>
                       Go to Dashboard
                     </button>
                   </>
@@ -207,132 +190,11 @@ export default function ModuleDetail({ module }) {
             )}
 
             {isCompleted && !submitted && (
-              <div className="result-box success-box">
-                This module is already completed.
-              </div>
+              <div className="result-box success-box">This module is already completed.</div>
             )}
           </section>
         </div>
       </div>
     </div>
   );
-}
-
-function getModuleEmoji(key) {
-  const emojiMap = {
-    phishing: "📨",
-    passwords: "🔐",
-    mfa: "📱",
-    social: "🕵️",
-    "safe-browsing": "🌐",
-    incident: "🚨"
-  };
-
-  return emojiMap[key] || "📘";
-}
-
-function getScenarioContent(key) {
-  const scenarios = {
-    phishing: {
-      title: "Part 2: Spot the Phish",
-      instructions: "Read the message. Decide if it's phishing or safe.",
-      type: "message",
-      heading: "Email: Payroll Update Required",
-      from: "Payroll Team <payroll@company-payroll-support.com>",
-      subject: "Action Required: Confirm your direct deposit info",
-      body: [
-        "Hi,",
-        "Your payroll will be paused unless you confirm your direct deposit within 2 hours.",
-        "Confirm here: http://company-payroll-support.com/verify",
-        "Thanks,",
-        "Payroll Team"
-      ],
-      options: ["🚩 Phish", "✅ Safe"],
-      correctAnswer: "🚩 Phish",
-      correctText:
-        "Correct. This is phishing because it creates urgency, uses a suspicious domain, and asks you to complete a sensitive action through a link.",
-      incorrectText:
-        "Not quite. Look for signs like urgency, suspicious domains, and requests for sensitive actions."
-    },
-    passwords: {
-      title: "Part 2: Password Check",
-      instructions: "Choose the safer password behavior.",
-      type: "message",
-      heading: "Account Setup Choice",
-      body: [
-        "A coworker says they use the same password everywhere because it is easier to remember.",
-        "Another coworker uses a password manager and different passwords for each account."
-      ],
-      options: ["Same password everywhere", "Use password manager"],
-      correctAnswer: "Use password manager",
-      correctText:
-        "Correct. A password manager helps create and store strong unique passwords for each account.",
-      incorrectText:
-        "Not quite. Reusing passwords creates risk because one breach can expose many accounts."
-    },
-    mfa: {
-      title: "Part 2: MFA Prompt Check",
-      instructions: "Read the scenario and decide the safest action.",
-      type: "message",
-      heading: "Unexpected Sign-In Prompt",
-      body: [
-        "You receive a login approval notification on your phone, but you are not trying to log in.",
-        "The prompt asks you to approve access immediately."
-      ],
-      options: ["Approve it", "Deny it"],
-      correctAnswer: "Deny it",
-      correctText:
-        "Correct. Unexpected MFA prompts may mean someone else has your password and is trying to access your account.",
-      incorrectText:
-        "Not quite. Never approve an MFA prompt you did not initiate."
-    },
-    social: {
-      title: "Part 2: Social Engineering Check",
-      instructions: "Decide the safest response.",
-      type: "message",
-      heading: "Urgent Caller Request",
-      body: [
-        "A caller says they are from IT and urgently need your password to fix your account.",
-        "They say the CEO needs this done immediately."
-      ],
-      options: ["Share password", "Verify identity first"],
-      correctAnswer: "Verify identity first",
-      correctText:
-        "Correct. Attackers often use urgency and authority. Always verify identity before sharing anything sensitive.",
-      incorrectText:
-        "Not quite. Legitimate IT staff should not ask for your password directly."
-    },
-    "safe-browsing": {
-      title: "Part 2: Safe Browsing Check",
-      instructions: "Choose the safest action.",
-      type: "message",
-      heading: "Download Prompt",
-      body: [
-        "A pop-up claims your device is infected and tells you to download a cleanup file immediately from an unknown site."
-      ],
-      options: ["Download now", "Close and verify source"],
-      correctAnswer: "Close and verify source",
-      correctText:
-        "Correct. Unexpected pop-ups and urgent download prompts are common attack methods.",
-      incorrectText:
-        "Not quite. Downloading files from unknown prompts can expose your device to malware."
-    },
-    incident: {
-      title: "Part 2: Incident Response Check",
-      instructions: "Choose the best next step.",
-      type: "message",
-      heading: "Suspicious Activity",
-      body: [
-        "You accidentally clicked a suspicious link and noticed strange browser behavior afterward."
-      ],
-      options: ["Report immediately", "Ignore it"],
-      correctAnswer: "Report immediately",
-      correctText:
-        "Correct. Fast reporting helps contain issues and reduces the chance of further damage.",
-      incorrectText:
-        "Not quite. Delaying a report can make security incidents worse."
-    }
-  };
-
-  return scenarios[key];
 }

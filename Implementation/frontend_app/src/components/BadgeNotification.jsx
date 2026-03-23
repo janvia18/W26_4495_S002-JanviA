@@ -6,8 +6,8 @@ export default function BadgeNotification({ badge, onClose }) {
   return (
     <div className="badge-toast">
       <div>
-        <strong>🏆 Badge unlocked:</strong> {badge.title}
-        <div className="muted-text">{badge.description}</div>
+        <strong>🏆 {badge.title}</strong>
+        <div>{badge.description}</div>
       </div>
       <button className="secondary-btn" onClick={onClose}>
         Close

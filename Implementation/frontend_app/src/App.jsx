@@ -1,73 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import AppHeader from "./components/AppHeader";
+import BadgeNotification from "./components/BadgeNotification";
 import { BadgeProvider, useBadges } from "./lib/BadgeContext";
 import { ProgressProvider, useProgress } from "./lib/ProgressContext";
-import BadgeNotification from "./components/BadgeNotification";
-import AppHeader from "./components/AppHeader";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Dashboard from "./pages/Dashboard";
 import Modules from "./pages/Modules";
-import Achievements from "./pages/Achievements";
 import ProfileSetup from "./pages/ProfileSetup";
-import Progress from "./pages/progress";
+import ProgressPage from "./pages/progress";
+import Achievements from "./pages/Achievements";
 import ModulePhishing from "./pages/ModulePhishing";
 import ModulePasswords from "./pages/ModulePasswords";
 import ModuleMFA from "./pages/ModuleMFA";
 import ModuleSocial from "./pages/ModuleSocial";
-import ModuleIncident from "./pages/ModuleIncident";
 import ModuleSafeBrowsing from "./pages/ModuleSafeBrowsing";
-import "./App.css";
-
+import ModuleIncident from "./pages/ModuleIncident";
 function PrivateRoute({ children }) {
   const { user, loading } = useProgress();
-
   if (loading) {
     return (
       <div className="page-shell">
-        <div className="card">Loading...</div>
+        <div className="content-wrap">
+          <div className="main-card">Loading...</div>
+        </div>
       </div>
     );
   }
-
   return user ? children : <Navigate to="/login" replace />;
 }
-
 function AppContent() {
   const { showBadgeNotification, clearBadgeNotification } = useBadges();
   const [currentBadge, setCurrentBadge] = useState(null);
-
   useEffect(() => {
     if (showBadgeNotification) {
       setCurrentBadge(showBadgeNotification);
     }
   }, [showBadgeNotification]);
-
   const handleCloseBadge = () => {
     setCurrentBadge(null);
     clearBadgeNotification();
   };
-
   return (
     <>
       <BadgeNotification badge={currentBadge} onClose={handleCloseBadge} />
-    <AppHeader />
-
-
+      <AppHeader />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/modules/safe-browsing"
-        element={
-          <PrivateRoute>
-            <ModuleSafeBrowsing />
-          </PrivateRoute>
-  }
-/>
         <Route
           path="/dashboard"
           element={
@@ -76,7 +61,6 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/modules"
           element={
@@ -85,7 +69,23 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
+Page 7
+        <Route
+         path="/profile-setup"
+          element={
+            <PrivateRoute>
+              <ProfileSetup />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/progress"
+          element={
+            <PrivateRoute>
+              <ProgressPage />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/achievements"
           element={
@@ -94,25 +94,6 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
-        <Route
-          path="/progress"
-          element={
-            <PrivateRoute>
-              <Progress />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/profile-setup"
-          element={
-            <PrivateRoute>
-              <ProfileSetup />
-            </PrivateRoute>
-          }
-        />
-
         <Route
           path="/modules/phishing"
           element={
@@ -121,7 +102,6 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/modules/passwords"
           element={
@@ -130,7 +110,6 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/modules/mfa"
           element={
@@ -139,7 +118,6 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/modules/social"
           element={
@@ -148,7 +126,14 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
+        <Route
+          path="/modules/safe-browsing"
+          element={
+            <PrivateRoute>
+              <ModuleSafeBrowsing />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/modules/incident"
           element={
@@ -157,19 +142,17 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );
 }
-
 export default function App() {
   return (
     <ProgressProvider>
       <BadgeProvider>
         <AppContent />
-      </BadgeProvider>
+           </BadgeProvider>
     </ProgressProvider>
   );
 }

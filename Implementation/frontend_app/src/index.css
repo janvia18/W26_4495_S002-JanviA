@@ -1,18 +1,5 @@
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  min-width: 320px;
-}
-
-a {
-  color: inherit;
-}
-
-h1,
-h2,
-h3,
-p {
-  margin-top: 0;
+html,
+body,
+#root {
+  min-height: 100%;
 }

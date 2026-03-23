@@ -1,29 +1,26 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useProgress } from "./ProgressContext";
-
 const BadgeContext = createContext(null);
-
-const badges = [
+const badgeDefinitions = [
   {
-    id: "first-step",
-    title: "First Step",
-    description: "Complete your first cybersecurity module.",
-    check: ({ completedCount }) => completedCount >= 1
+    id: "first-module",
+    title: "First Win",
+    description: "Completed your first module.",
+    unlocked: (completedCount) => completedCount >= 1
   },
   {
-    id: "halfway-hero",
+    id: "halfway",
     title: "Halfway Hero",
-    description: "Complete at least 3 modules.",
-    check: ({ completedCount }) => completedCount >= 3
+    description: "Completed 3 modules.",
+    unlocked: (completedCount) => completedCount >= 3
   },
   {
-    id: "cyberaware-master",
-    title: "CyberAware Master",
-    description: "Complete all 5 modules.",
-    check: ({ completedCount }) => completedCount >= 5
+    id: "all-modules",
+    title: "CyberAware Champion",
+    description: "Completed all 6 modules.",
+    unlocked: (completedCount) => completedCount >= 6
   }
 ];
-
 export function BadgeProvider({ children }) {
   const { completedCount } = useProgress();
   const [earnedBadges, setEarnedBadges] = useState(() => {
@@ -34,12 +31,12 @@ export function BadgeProvider({ children }) {
     }
   });
   const [showBadgeNotification, setShowBadgeNotification] = useState(null);
-
-  React.useEffect(() => {
-    const nextBadge = badges.find(
-      (badge) => badge.check({ completedCount }) && !earnedBadges.some((item) => item.id === badge.id)
+  useEffect(() => {
+    const nextBadge = badgeDefinitions.find(
+      (badge) =>
+        badge.unlocked(completedCount) &&
+        !earnedBadges.some((earned) => earned.id === badge.id)
     );
-
     if (nextBadge) {
       const updated = [...earnedBadges, nextBadge];
       setEarnedBadges(updated);
@@ -47,21 +44,15 @@ export function BadgeProvider({ children }) {
       setShowBadgeNotification(nextBadge);
     }
   }, [completedCount, earnedBadges]);
-
   const clearBadgeNotification = () => setShowBadgeNotification(null);
-
   const value = useMemo(
     () => ({ earnedBadges, showBadgeNotification, clearBadgeNotification }),
     [earnedBadges, showBadgeNotification]
   );
-
   return <BadgeContext.Provider value={value}>{children}</BadgeContext.Provider>;
 }
-
 export function useBadges() {
   const context = useContext(BadgeContext);
-  if (!context) {
-    throw new Error("useBadges must be used inside BadgeProvider");
-  }
+  if (!context) throw new Error("useBadges must be used inside BadgeProvider");
   return context;
 }

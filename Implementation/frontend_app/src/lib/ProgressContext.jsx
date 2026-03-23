@@ -34,16 +34,14 @@ export function ProgressProvider({ children }) {
     const savedProgress = storage.get("cyberaware_progress", defaultProgress);
     const savedPoints = storage.get("cyberaware_points", 0);
 
-    const normalizedProgress = {
+    setUser(savedUser);
+    setProfile({ ...defaultProfile, ...(savedProfile || {}) });
+    setProgress({
       completed: {
         ...defaultProgress.completed,
         ...(savedProgress?.completed || {})
       }
-    };
-
-    setUser(savedUser);
-    setProfile({ ...defaultProfile, ...(savedProfile || {}) });
-    setProgress(normalizedProgress);
+    });
     setPoints(savedPoints || 0);
     setLoading(false);
   }, []);
@@ -87,6 +85,7 @@ export function ProgressProvider({ children }) {
   const resetProgress = () => {
     storage.set("cyberaware_progress", defaultProgress);
     storage.set("cyberaware_points", 0);
+    localStorage.removeItem("cyberaware_badges");
     setProgress(defaultProgress);
     setPoints(0);
   };
@@ -123,8 +122,6 @@ export function ProgressProvider({ children }) {
 
 export function useProgress() {
   const context = useContext(ProgressContext);
-  if (!context) {
-    throw new Error("useProgress must be used inside ProgressProvider");
-  }
+  if (!context) throw new Error("useProgress must be used inside ProgressProvider");
   return context;
 }

@@ -7,13 +7,6 @@ export default function Modules() {
   const { progress, points } = useProgress();
 
   const order = ["phishing", "passwords", "mfa", "social", "safe-browsing", "incident"];
-
-  const isUnlocked = (key) => {
-    const index = order.indexOf(key);
-    if (index === 0) return true;
-    return progress.completed[order[index - 1]];
-  };
-
   const timeMap = {
     phishing: "10 min",
     passwords: "8 min",
@@ -22,7 +15,6 @@ export default function Modules() {
     "safe-browsing": "8 min",
     incident: "6 min"
   };
-
   const emojiMap = {
     phishing: "📨",
     passwords: "🔐",
@@ -30,6 +22,12 @@ export default function Modules() {
     social: "🕵️",
     "safe-browsing": "🌐",
     incident: "🚨"
+  };
+
+  const isUnlocked = (key) => {
+    const index = order.indexOf(key);
+    if (index === 0) return true;
+    return progress.completed[order[index - 1]];
   };
 
   return (
@@ -90,7 +88,7 @@ export default function Modules() {
           </div>
 
           <p className="modules-note">
-            Progress is saved locally for this prototype. Server sync is planned.
+            Progress is saved locally for this prototype. Server sync can be added later.
           </p>
         </div>
       </div>

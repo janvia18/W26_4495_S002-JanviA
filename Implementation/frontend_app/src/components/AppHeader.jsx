@@ -22,6 +22,7 @@ export default function AppHeader() {
           <Link className={`nav-link ${isActive("/about") ? "active" : ""}`} to="/about">
             About
           </Link>
+
           {user && (
             <>
               <Link className={`nav-link ${isActive("/dashboard") ? "active" : ""}`} to="/dashboard">

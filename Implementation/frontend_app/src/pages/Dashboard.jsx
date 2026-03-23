@@ -1,43 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
-import { modulesData } from "./modulesData";
+
+const order = ["phishing", "passwords", "mfa", "social", "safe-browsing", "incident"];
+const titles = {
+  phishing: "Phishing Awareness",
+  passwords: "Password Security",
+  mfa: "Multi-Factor Authentication",
+  social: "Social Engineering",
+  "safe-browsing": "Safe Browsing",
+  incident: "Incident Reporting"
+};
 
 export default function Dashboard() {
   const { profile, points, level, completedCount } = useProgress();
+  const progressPercent = Math.round((completedCount / 6) * 100);
 
-  const nextModule = modulesData.find((module) => !module.completed)?.title;
-  const displayedNext =
-    completedCount >= modulesData.length
-      ? "All modules completed 🎉"
-      : modulesData.find((module) => {
-          const order = modulesData.map((m) => m.key);
-          const idx = order.indexOf(module.key);
-          if (idx === 0) return true;
-          return false;
-        });
-
-  const moduleNames = {
-    phishing: "Phishing Awareness",
-    passwords: "Password Security",
-    mfa: "Multi-Factor Authentication",
-    social: "Social Engineering",
-    "safe-browsing": "Safe Browsing",
-    incident: "Incident Reporting"
-  };
-
-  const progressPercent = Math.round((completedCount / modulesData.length) * 100);
-
-  const nextRecommended = (() => {
-    const order = ["phishing", "passwords", "mfa", "social", "safe-browsing", "incident"];
-    for (let i = 0; i < order.length; i++) {
-      const key = order[i];
-      if (!localStorage.getItem("dummy")) {
-        // noop
-      }
-    }
-    return orderToTitle(order, completedCount, moduleNames);
-  })();
+  const nextRecommended =
+    completedCount >= order.length ? "All modules completed 🎉" : `Next: ${titles[order[completedCount]]}`;
 
   return (
     <div className="page-shell">
@@ -60,7 +40,7 @@ export default function Dashboard() {
           <div className="dashboard-grid">
             <div className="dashboard-main-panel">
               <h2 className="welcome-title">
-                Welcome <span className="wave">👋</span> {profile.name || "Learner"}
+                Welcome 👋 {profile.name || "Learner"}
               </h2>
               <p className="muted-text">
                 Learn through short modules, scenario-based activities, and quick quizzes.
@@ -77,16 +57,11 @@ export default function Dashboard() {
 
               <div className="progress-header">
                 <h3>Progress</h3>
-                <span>
-                  {completedCount}/{modulesData.length}
-                </span>
+                <span>{completedCount}/6</span>
               </div>
 
               <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${progressPercent}%` }}
-                />
+                <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
               </div>
 
               <div className="progress-footer">
@@ -121,9 +96,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
-
-function orderToTitle(order, completedCount, moduleNames) {
-  if (completedCount >= order.length) return "All modules completed 🎉";
-  return `Next: ${moduleNames[order[completedCount]]}`;
 }

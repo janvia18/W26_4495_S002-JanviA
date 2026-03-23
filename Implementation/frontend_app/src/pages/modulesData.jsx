@@ -4,33 +4,54 @@ export const modulesData = [
     title: "Phishing Awareness",
     route: "/modules/phishing",
     points: 20,
-    description: "Learn how to spot fake emails, suspicious links, and social traps.",
+    description: "Learn how to spot fake emails, suspicious links, and messages designed to steal information.",
     content: [
-      "Always verify the sender's address before trusting an email.",
-      "Be cautious of urgent requests asking for passwords or payments.",
-      "Hover over links before clicking them.",
-      "Report suspicious emails instead of responding."
+      "Phishing is a cyberattack that tricks users into revealing sensitive information.",
+      "Phishing messages often create urgency to push quick action.",
+      "Suspicious links and fake sender addresses are common warning signs.",
+      "Never submit passwords or personal information through unverified links."
     ],
+    scenario: {
+      title: "Part 2: Spot the Phish",
+      instructions: "Read the message and decide whether it is safe or phishing.",
+      heading: "Email: Payroll Update Required",
+      from: "Payroll Team <payroll@company-payroll-support.com>",
+      subject: "Action Required: Confirm your direct deposit info",
+      body: [
+        "Hi,",
+        "Your payroll will be paused unless you confirm your direct deposit within 2 hours.",
+        "Confirm here: http://company-payroll-support.com/verify",
+        "Thanks,",
+        "Payroll Team"
+      ],
+      options: ["🚩 Phish", "✅ Safe"],
+      correctAnswer: "🚩 Phish",
+      correctText:
+        "Correct. This message uses urgency, a suspicious domain, and asks for sensitive action through a risky link.",
+      incorrectText:
+        "Incorrect. The urgency and suspicious link are strong signs of phishing."
+    },
     quiz: [
       {
-        question: "Which is a common phishing sign?",
+        question: "What is phishing?",
         options: [
-          "Urgent request for login details",
-          "Normal greeting from a known teacher",
-          "Expected account notice",
-          "A bookmarked safe website"
+          "A cyberattack that tricks users into revealing sensitive information",
+          "A method for improving Wi-Fi speed",
+          "A secure way to store passwords",
+          "A type of antivirus scan"
         ],
-        answer: "Urgent request for login details"
+        answer:
+          "A cyberattack that tricks users into revealing sensitive information"
       },
       {
-        question: "Before clicking an email link, you should:",
+        question: "Which is a phishing warning sign?",
         options: [
-          "Reply first",
-          "Hover over the link",
-          "Forward it",
-          "Ignore the sender name"
+          "Urgent request to verify your account",
+          "Saved bookmark to your bank website",
+          "Company email from a verified internal domain",
+          "A document you expected to receive"
         ],
-        answer: "Hover over the link"
+        answer: "Urgent request to verify your account"
       }
     ]
   },
@@ -39,33 +60,43 @@ export const modulesData = [
     title: "Password Security",
     route: "/modules/passwords",
     points: 20,
-    description: "Build strong passwords and use passphrases safely.",
+    description: "Use strong passwords, passphrases, and safer password habits.",
     content: [
-      "Use long and unique passwords for each account.",
-      "Passphrases are easier to remember and harder to crack.",
-      "Never reuse passwords across important accounts.",
-      "A password manager helps store complex passwords securely."
+      "Strong passwords should be long, unique, and hard to guess.",
+      "Passphrases are easier to remember and stronger than short passwords.",
+      "Never reuse the same password across multiple important accounts.",
+      "Password managers help you store secure passwords safely."
     ],
+    scenario: {
+      title: "Part 2: Password Choice",
+      instructions: "Choose the safer password behavior.",
+      heading: "Which practice is safer?",
+      body: [
+        "Employee A uses the same password for all accounts.",
+        "Employee B uses a password manager and a different password for each account."
+      ],
+      options: ["Employee A", "Employee B"],
+      correctAnswer: "Employee B",
+      correctText:
+        "Correct. Unique passwords stored in a password manager are much safer than reuse.",
+      incorrectText:
+        "Incorrect. Reusing passwords means one breach can expose multiple accounts."
+    },
     quiz: [
       {
-        question: "Which password is strongest?",
-        options: [
-          "janvi123",
-          "Password1",
-          "BlueRiverCoffeeTrain!",
-          "12345678"
-        ],
+        question: "Which password is the strongest?",
+        options: ["janvi123", "Password1", "BlueRiverCoffeeTrain!", "12345678"],
         answer: "BlueRiverCoffeeTrain!"
       },
       {
-        question: "What is the best way to manage many strong passwords?",
+        question: "What helps manage many secure passwords?",
         options: [
-          "Write them in notes",
-          "Use the same password everywhere",
-          "Use a password manager",
-          "Text them to yourself"
+          "A password manager",
+          "Using one password everywhere",
+          "Saving them in plain text",
+          "Sharing them with a friend"
         ],
-        answer: "Use a password manager"
+        answer: "A password manager"
       }
     ]
   },
@@ -74,33 +105,42 @@ export const modulesData = [
     title: "Multi-Factor Authentication",
     route: "/modules/mfa",
     points: 20,
-    description: "Understand why MFA adds a second layer of protection.",
+    description: "Understand how MFA protects accounts by adding another layer of verification.",
     content: [
-      "MFA combines more than one form of verification.",
-      "Authenticator apps are generally safer than SMS codes.",
-      "MFA limits damage when a password is stolen.",
-      "Never approve an MFA request you did not initiate."
+      "MFA requires more than one form of verification.",
+      "Even if a password is stolen, MFA can still block access.",
+      "Unexpected MFA prompts can be a sign of an attack attempt.",
+      "Authenticator apps are usually safer than SMS codes."
     ],
+    scenario: {
+      title: "Part 2: MFA Prompt Check",
+      instructions: "Decide the safest response.",
+      heading: "Unexpected MFA notification",
+      body: [
+        "You receive a login approval prompt on your phone, but you are not signing in."
+      ],
+      options: ["Approve", "Deny"],
+      correctAnswer: "Deny",
+      correctText:
+        "Correct. An unexpected MFA prompt may mean someone else has your password.",
+      incorrectText:
+        "Incorrect. Never approve an MFA request you did not initiate."
+    },
     quiz: [
       {
-        question: "Why is MFA helpful?",
+        question: "Why is MFA useful?",
         options: [
-          "It removes passwords forever",
           "It adds another verification step",
-          "It makes scams legal",
-          "It disables security alerts"
+          "It removes the need for security",
+          "It stores passwords publicly",
+          "It makes scams impossible"
         ],
         answer: "It adds another verification step"
       },
       {
-        question: "If you receive an unexpected MFA prompt, you should:",
-        options: [
-          "Approve quickly",
-          "Deny or ignore it",
-          "Send it to a friend",
-          "Turn off your phone"
-        ],
-        answer: "Deny or ignore it"
+        question: "What should you do with an unexpected MFA prompt?",
+        options: ["Ignore or deny it", "Approve it quickly", "Forward it to a friend", "Disable your phone"],
+        answer: "Ignore or deny it"
       }
     ]
   },
@@ -109,28 +149,42 @@ export const modulesData = [
     title: "Social Engineering",
     route: "/modules/social",
     points: 20,
-    description: "Recognize manipulation tactics used to trick people.",
+    description: "Recognize how attackers manipulate people using urgency, trust, and fear.",
     content: [
-      "Attackers often use fear, urgency, or authority.",
-      "Always verify a person's identity before sharing sensitive data.",
-      "Do not break policy just because someone sounds important.",
-      "Pause and report suspicious requests."
+      "Social engineering targets people instead of systems.",
+      "Attackers may pretend to be trusted coworkers or IT staff.",
+      "Urgency and authority are common manipulation tactics.",
+      "Always verify identity before sharing sensitive information."
     ],
+    scenario: {
+      title: "Part 2: Social Engineering Check",
+      instructions: "Choose the safest action.",
+      heading: "Urgent call from fake IT support",
+      body: [
+        "A caller claims to be from IT and asks for your password immediately to prevent account lockout."
+      ],
+      options: ["Share password", "Verify identity first"],
+      correctAnswer: "Verify identity first",
+      correctText:
+        "Correct. Social engineering often uses urgency and authority. Always verify first.",
+      incorrectText:
+        "Incorrect. Legitimate support staff should not ask for your password directly."
+    },
     quiz: [
       {
-        question: "Social engineering mainly targets:",
-        options: ["People", "Only servers", "Printers", "Wi-Fi speed"],
+        question: "Social engineering usually targets:",
+        options: ["People", "Only servers", "Only routers", "Printers"],
         answer: "People"
       },
       {
-        question: "If someone pressures you for confidential information, you should:",
+        question: "If someone urgently asks for confidential information, you should:",
         options: [
-          "Share it quickly",
-          "Verify first",
-          "Post it online",
-          "Assume they are genuine"
+          "Verify their identity first",
+          "Share it immediately",
+          "Post it publicly",
+          "Ignore all communication forever"
         ],
-        answer: "Verify first"
+        answer: "Verify their identity first"
       }
     ]
   },
@@ -139,33 +193,47 @@ export const modulesData = [
     title: "Safe Browsing",
     route: "/modules/safe-browsing",
     points: 20,
-    description: "Learn safer habits while browsing websites and downloading files.",
+    description: "Learn safer habits for browsing websites and downloading files.",
     content: [
-      "Check that websites use HTTPS before entering sensitive data.",
-      "Avoid downloading files from unknown or suspicious websites.",
-      "Be careful with pop-ups asking for urgent action.",
-      "Keep your browser and extensions updated."
+      "Use trusted websites and check for HTTPS before entering sensitive data.",
+      "Avoid clicking pop-ups that demand urgent action.",
+      "Be cautious with unknown downloads and browser prompts.",
+      "Keep your browser and security tools updated."
     ],
+    scenario: {
+      title: "Part 2: Safe Browsing Check",
+      instructions: "Choose the safer action.",
+      heading: "Strange browser pop-up",
+      body: [
+        "A site suddenly says your device is infected and asks you to download an unknown tool."
+      ],
+      options: ["Download it", "Close it and verify"],
+      correctAnswer: "Close it and verify",
+      correctText:
+        "Correct. Unexpected pop-ups and urgent downloads are common web threats.",
+      incorrectText:
+        "Incorrect. Downloading unknown files from pop-ups can install malware."
+    },
     quiz: [
       {
         question: "What does HTTPS usually indicate?",
         options: [
-          "The site uses a secure connection",
-          "The site is always trustworthy",
+          "A secure connection",
+          "The website is always safe",
           "The page cannot contain scams",
-          "The page is government-approved"
+          "It is a government site"
         ],
-        answer: "The site uses a secure connection"
+        answer: "A secure connection"
       },
       {
-        question: "If a site prompts a strange file download, you should:",
+        question: "What should you do with a suspicious download prompt?",
         options: [
-          "Download immediately",
-          "Check the source before downloading",
-          "Disable antivirus",
-          "Open it without scanning"
+          "Close it and verify the source",
+          "Download it immediately",
+          "Turn off antivirus",
+          "Ignore browser warnings"
         ],
-        answer: "Check the source before downloading"
+        answer: "Close it and verify the source"
       }
     ]
   },
@@ -174,32 +242,36 @@ export const modulesData = [
     title: "Incident Reporting",
     route: "/modules/incident",
     points: 20,
-    description: "Know what to do when something suspicious happens.",
+    description: "Know how and when to report suspicious activity or security issues.",
     content: [
-      "Report incidents as soon as possible.",
-      "Do not hide mistakes or suspicious activity.",
-      "Preserve helpful details like screenshots and time stamps.",
-      "Fast reporting improves containment and recovery."
+      "Report suspicious incidents as quickly as possible.",
+      "Do not hide accidental clicks or unusual activity.",
+      "Screenshots, timelines, and details help responders investigate.",
+      "Fast reporting helps reduce the damage of an incident."
     ],
+    scenario: {
+      title: "Part 2: Incident Reporting Check",
+      instructions: "Pick the best next step.",
+      heading: "Suspicious link clicked",
+      body: [
+        "You clicked a suspicious link and your browser started behaving strangely."
+      ],
+      options: ["Report immediately", "Ignore it"],
+      correctAnswer: "Report immediately",
+      correctText:
+        "Correct. Fast reporting helps contain the issue and reduce damage.",
+      incorrectText:
+        "Incorrect. Ignoring a possible incident can make the situation worse."
+    },
     quiz: [
       {
         question: "When should you report a possible security incident?",
-        options: [
-          "As soon as possible",
-          "At the end of the month",
-          "Only if others noticed it",
-          "After deleting all evidence"
-        ],
+        options: ["As soon as possible", "Next month", "Only if someone else noticed", "After deleting evidence"],
         answer: "As soon as possible"
       },
       {
         question: "What is useful in an incident report?",
-        options: [
-          "A screenshot or timeline",
-          "A random guess",
-          "Nothing",
-          "Only your opinion"
-        ],
+        options: ["A screenshot or timeline", "A random guess", "Nothing", "Only your opinion"],
         answer: "A screenshot or timeline"
       }
     ]
