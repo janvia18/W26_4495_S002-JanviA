@@ -4,6 +4,7 @@ import AppHeader from "./components/AppHeader";
 import BadgeNotification from "./components/BadgeNotification";
 import { BadgeProvider, useBadges } from "./lib/BadgeContext";
 import { ProgressProvider, useProgress } from "./lib/ProgressContext";
+
 import Home from "./pages/Home";
 import About from "./pages/About";
 import LoginPage from "./pages/LoginPage";
@@ -19,8 +20,12 @@ import ModuleMFA from "./pages/ModuleMFA";
 import ModuleSocial from "./pages/ModuleSocial";
 import ModuleSafeBrowsing from "./pages/ModuleSafeBrowsing";
 import ModuleIncident from "./pages/ModuleIncident";
+
+import "./App.css";
+
 function PrivateRoute({ children }) {
   const { user, loading } = useProgress();
+
   if (loading) {
     return (
       <div className="page-shell">
@@ -30,29 +35,36 @@ function PrivateRoute({ children }) {
       </div>
     );
   }
+
   return user ? children : <Navigate to="/login" replace />;
 }
+
 function AppContent() {
   const { showBadgeNotification, clearBadgeNotification } = useBadges();
   const [currentBadge, setCurrentBadge] = useState(null);
+
   useEffect(() => {
     if (showBadgeNotification) {
       setCurrentBadge(showBadgeNotification);
     }
   }, [showBadgeNotification]);
+
   const handleCloseBadge = () => {
     setCurrentBadge(null);
     clearBadgeNotification();
   };
+
   return (
     <>
       <BadgeNotification badge={currentBadge} onClose={handleCloseBadge} />
       <AppHeader />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+
         <Route
           path="/dashboard"
           element={
@@ -61,6 +73,7 @@ function AppContent() {
             </PrivateRoute>
           }
         />
+
         <Route
           path="/modules"
           element={
@@ -69,15 +82,16 @@ function AppContent() {
             </PrivateRoute>
           }
         />
-Page 7
+
         <Route
-         path="/profile-setup"
+          path="/profile-setup"
           element={
             <PrivateRoute>
               <ProfileSetup />
             </PrivateRoute>
           }
         />
+
         <Route
           path="/progress"
           element={
@@ -86,6 +100,7 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route
           path="/achievements"
           element={
@@ -94,6 +109,7 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route
           path="/modules/phishing"
           element={
@@ -102,6 +118,7 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route
           path="/modules/passwords"
           element={
@@ -110,6 +127,7 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route
           path="/modules/mfa"
           element={
@@ -118,6 +136,7 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route
           path="/modules/social"
           element={
@@ -126,6 +145,7 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route
           path="/modules/safe-browsing"
           element={
@@ -134,6 +154,7 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route
           path="/modules/incident"
           element={
@@ -142,17 +163,19 @@ Page 7
             </PrivateRoute>
           }
         />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );
 }
+
 export default function App() {
   return (
     <ProgressProvider>
       <BadgeProvider>
         <AppContent />
-           </BadgeProvider>
+      </BadgeProvider>
     </ProgressProvider>
   );
 }

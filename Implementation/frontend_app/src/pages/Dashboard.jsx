@@ -10,12 +10,20 @@ const titles = {
   social: "Social Engineering",
   "safe-browsing": "Safe Browsing",
   incident: "Incident Reporting"
+  
 };
 
 export default function Dashboard() {
-  const { profile, points, level, completedCount } = useProgress();
+  const { profile, points, completedCount } = useProgress();
   const progressPercent = Math.round((completedCount / 6) * 100);
-
+  const level =
+  points >= 120
+    ? "Cyber Expert 🧠"
+    : points >= 80
+    ? "Security Pro 🔐"
+    : points >= 40
+    ? "Explorer 🧭"
+    : "Beginner 🌱";
   const nextRecommended =
     completedCount >= order.length ? "All modules completed 🎉" : `Next: ${titles[order[completedCount]]}`;
 

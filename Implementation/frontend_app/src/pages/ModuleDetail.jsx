@@ -17,8 +17,12 @@ export default function ModuleDetail({ module }) {
 
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
+
   const [scenarioChoice, setScenarioChoice] = useState("");
   const [scenarioChecked, setScenarioChecked] = useState(false);
+
+  const [extraScenarioChoice, setExtraScenarioChoice] = useState("");
+  const [extraScenarioChecked, setExtraScenarioChecked] = useState(false);
 
   const score = useMemo(() => {
     return module.quiz.reduce((total, item, index) => {
@@ -26,15 +30,18 @@ export default function ModuleDetail({ module }) {
     }, 0);
   }, [answers, module.quiz]);
 
-  const passedQuiz = submitted && score >= Math.ceil(module.quiz.length / 2);
+  const passMark = Math.ceil(module.quiz.length * 0.7);
+  const passedQuiz = submitted && score >= passMark;
   const isCompleted = progress.completed[module.key];
   const scenarioCorrect = scenarioChoice === module.scenario.correctAnswer;
+  const extraScenarioCorrect =
+    extraScenarioChoice === module.extraScenario?.correctAnswer;
 
   const handleSubmitQuiz = (e) => {
     e.preventDefault();
     setSubmitted(true);
 
-    if (score >= Math.ceil(module.quiz.length / 2)) {
+    if (score >= passMark && !isCompleted) {
       completeModule(module.key, module.points);
     }
   };
@@ -43,6 +50,27 @@ export default function ModuleDetail({ module }) {
     setScenarioChoice(choice);
     setScenarioChecked(true);
   };
+
+  const handleExtraScenarioCheck = (choice) => {
+    setExtraScenarioChoice(choice);
+    setExtraScenarioChecked(true);
+  };
+
+  if (!module) {
+    return (
+      <div className="page-shell">
+        <div className="content-wrap">
+          <div className="main-card">
+            <h1 className="page-title">Module not found</h1>
+            <p className="muted-text">The requested module could not be loaded.</p>
+            <Link className="primary-btn" to="/modules">
+              Back to Modules
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-shell">
@@ -58,8 +86,8 @@ export default function ModuleDetail({ module }) {
 
             <div className="lesson-user-panel">
               <div className="user-chip">
-                <span>{profile.avatar || "🛡️"}</span>
-                <span>{profile.name || "Learner"}</span>
+                <span>{profile?.avatar || "🛡️"}</span>
+                <span>{profile?.name || "Learner"}</span>
               </div>
 
               <Link className="ghost-btn" to="/modules">
@@ -70,13 +98,31 @@ export default function ModuleDetail({ module }) {
 
           <div className="subtle-line" />
 
+          {module.image && (
+            <section className="lesson-section">
+              <img
+                src={module.image}
+                alt={module.title}
+                style={{
+                  width: "100%",
+                  maxHeight: "380px",
+                  objectFit: "cover",
+                  borderRadius: "18px",
+                  border: "1px solid #e7ebf0"
+                }}
+              />
+            </section>
+          )}
+
           <section className="lesson-section">
-            <h2 className="lesson-section-title">Part 1: Learn the Basics</h2>
-            <p className="muted-text">Review the key concepts below before starting the quiz.</p>
+            <h2 className="lesson-section-title">Part 1: Key Concepts</h2>
+            <p className="muted-text">
+              Review these important notes before moving to scenarios and quiz questions.
+            </p>
 
             <div className="lesson-points-grid">
-              {module.content.map((item) => (
-                <div key={item} className="lesson-point-card">
+              {module.content.map((item, index) => (
+                <div key={index} className="lesson-point-card">
                   {item}
                 </div>
               ))}
@@ -95,9 +141,11 @@ export default function ModuleDetail({ module }) {
                   <p>
                     <strong>From:</strong> {module.scenario.from}
                   </p>
-                  <p>
-                    <strong>Subject:</strong> {module.scenario.subject}
-                  </p>
+                  {module.scenario.subject && (
+                    <p>
+                      <strong>Subject:</strong> {module.scenario.subject}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -124,14 +172,67 @@ export default function ModuleDetail({ module }) {
             {scenarioChecked && (
               <div className={`scenario-feedback ${scenarioCorrect ? "correct" : "incorrect"}`}>
                 <h3>{scenarioCorrect ? "Correct ✅" : "Incorrect ❌"}</h3>
-                <p>{scenarioCorrect ? module.scenario.correctText : module.scenario.incorrectText}</p>
+                <p>
+                  {scenarioCorrect
+                    ? module.scenario.correctText
+                    : module.scenario.incorrectText}
+                </p>
               </div>
             )}
           </section>
 
+          {module.extraScenario && (
+            <section className="lesson-section">
+              <h2 className="lesson-section-title">{module.extraScenario.title}</h2>
+              <p className="muted-text">{module.extraScenario.instructions}</p>
+
+              <div className="scenario-card">
+                <h3>{module.extraScenario.heading}</h3>
+
+                <div className="scenario-body">
+                  {module.extraScenario.body.map((line, idx) => (
+                    <p key={idx}>{line}</p>
+                  ))}
+                </div>
+              </div>
+
+              <div className="scenario-actions">
+                {module.extraScenario.options.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    className={`scenario-btn ${
+                      extraScenarioChoice === option ? "selected" : ""
+                    }`}
+                    onClick={() => handleExtraScenarioCheck(option)}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+
+              {extraScenarioChecked && (
+                <div
+                  className={`scenario-feedback ${
+                    extraScenarioCorrect ? "correct" : "incorrect"
+                  }`}
+                >
+                  <h3>{extraScenarioCorrect ? "Correct ✅" : "Incorrect ❌"}</h3>
+                  <p>
+                    {extraScenarioCorrect
+                      ? module.extraScenario.correctText
+                      : module.extraScenario.incorrectText}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+
           <section className="lesson-section">
             <h2 className="lesson-section-title">Part 3: Knowledge Check</h2>
-            <p className="muted-text">Answer the quiz questions below.</p>
+            <p className="muted-text">
+              Answer the questions below and review the explanation after submission.
+            </p>
 
             <form onSubmit={handleSubmitQuiz} className="form-grid">
               {module.quiz.map((item, index) => (
@@ -139,32 +240,82 @@ export default function ModuleDetail({ module }) {
                   <h3>
                     Question {index + 1} of {module.quiz.length}
                   </h3>
+
                   <p className="quiz-question">{item.question}</p>
 
                   <div className="quiz-options-column">
-                    {item.options.map((option) => (
-                      <label key={option} className="quiz-option-card">
-                        <input
-                          type="radio"
-                          name={`question-${index}`}
-                          value={option}
-                          checked={answers[index] === option}
-                          onChange={() =>
-                            setAnswers((prev) => ({ ...prev, [index]: option }))
-                          }
-                        />
-                        <span>{option}</span>
-                      </label>
-                    ))}
+                    {item.options.map((option) => {
+                      const isSelected = answers[index] === option;
+                      const isCorrect = item.answer === option;
+
+                      return (
+                        <label
+                          key={option}
+                          className={`quiz-option-card ${
+                            submitted
+                              ? isCorrect
+                                ? "correct"
+                                : isSelected
+                                ? "incorrect"
+                                : ""
+                              : ""
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name={`question-${index}`}
+                            value={option}
+                            checked={isSelected}
+                            onChange={() =>
+                              setAnswers((prev) => ({ ...prev, [index]: option }))
+                            }
+                            disabled={submitted}
+                          />
+                          <span>{option}</span>
+                        </label>
+                      );
+                    })}
                   </div>
+
+                  {submitted && (
+                    <div style={{ marginTop: "12px" }}>
+                      {answers[index] === item.answer ? (
+                        <div className="result-box success-box">
+                          <p>
+                            <strong>Correct.</strong> {item.explanation}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="result-box warning-box">
+                          <p>
+                            <strong>Incorrect.</strong> {item.explanation}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
 
               <div className="lesson-bottom-actions">
-                <button className="primary-btn" type="submit">
-                  Submit Quiz
-                </button>
-                <Link className="secondary-btn" to="/modules">
+                {!submitted ? (
+                  <button className="primary-btn" type="submit">
+                    Submit Quiz
+                  </button>
+                ) : (
+                  <button
+                    className="secondary-btn"
+                    type="button"
+                    onClick={() => {
+                      setAnswers({});
+                      setSubmitted(false);
+                    }}
+                  >
+                    Try Again
+                  </button>
+                )}
+
+                <Link className="ghost-btn" to="/modules">
                   Back to Modules
                 </Link>
               </div>
@@ -175,24 +326,57 @@ export default function ModuleDetail({ module }) {
                 <p>
                   Your score: <strong>{score}/{module.quiz.length}</strong>
                 </p>
+                <p>
+                  Pass mark: <strong>{passMark}/{module.quiz.length}</strong>
+                </p>
 
                 {passedQuiz ? (
                   <>
-                    <p>Nice work. This module is complete and your points have been added.</p>
+                    <p>
+                      Great job. You successfully demonstrated understanding of this topic.
+                      Your points have been added.
+                    </p>
                     <button className="primary-btn" onClick={() => navigate("/dashboard")}>
                       Go to Dashboard
                     </button>
                   </>
                 ) : (
-                  <p>Review the lesson and try again.</p>
+                  <p>
+                    Review the notes, scenarios, and explanations, then try again.
+                  </p>
                 )}
               </div>
             )}
 
             {isCompleted && !submitted && (
-              <div className="result-box success-box">This module is already completed.</div>
+              <div className="result-box success-box">
+                This module is already completed. You can still review the content anytime.
+              </div>
             )}
           </section>
+
+          {module.realWorld && (
+            <section className="lesson-section">
+              <h2 className="lesson-section-title">{module.realWorld.title}</h2>
+              <p className="muted-text">
+                This example shows how the topic can appear in real life.
+              </p>
+
+              <div className="lesson-points-grid">
+                {module.realWorld.story.map((line, index) => (
+                  <div key={index} className="lesson-point-card">
+                    {line}
+                  </div>
+                ))}
+              </div>
+
+              <div className="result-box warning-box" style={{ marginTop: 16 }}>
+                <p>
+                  <strong>Key Takeaway:</strong> {module.realWorld.takeaway}
+                </p>
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </div>

@@ -9,7 +9,8 @@ export default function BadgeNotification({ badge, onClose }) {
         <strong>🏆 {badge.title}</strong>
         <div>{badge.description}</div>
       </div>
-      <button className="secondary-btn" onClick={onClose}>
+
+      <button className="secondary-btn" type="button" onClick={onClose}>
         Close
       </button>
     </div>

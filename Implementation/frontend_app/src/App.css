@@ -32,6 +32,19 @@ a {
 }
 
 button,
+input,
+a,
+.module-item,
+.main-card,
+.quiz-card,
+.lesson-point-card,
+.scenario-btn,
+.quiz-option-card,
+.character-card {
+  transition: all 0.2s ease;
+}
+
+button,
 input {
   font: inherit;
 }
@@ -133,6 +146,14 @@ input:focus {
   box-shadow: var(--shadow);
   border: 1px solid rgba(229, 231, 235, 0.8);
   padding: 24px;
+  animation: fadeIn 0.4s ease;
+}
+
+.main-card:hover,
+.lesson-point-card:hover,
+.quiz-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 35px rgba(31, 41, 55, 0.12);
 }
 
 .page-header-row {
@@ -174,16 +195,36 @@ input:focus {
   color: white;
 }
 
+.primary-btn:hover {
+  background: #5a59e6;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(109, 108, 246, 0.25);
+}
+
 .secondary-btn {
   background: #f3f4f6;
   color: #374151;
   border-color: #e5e7eb;
 }
 
+.secondary-btn:hover {
+  background: #eaecef;
+}
+
 .ghost-btn {
   background: white;
   border-color: #d1d5db;
   color: #374151;
+}
+
+.ghost-btn:hover {
+  background: #f9fafb;
+}
+
+.primary-btn:active,
+.secondary-btn:active,
+.ghost-btn:active {
+  transform: scale(0.97);
 }
 
 .secondary-btn:disabled,
@@ -197,6 +238,18 @@ input:focus {
   border-radius: 20px;
   box-shadow: var(--shadow);
   padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-box::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(109, 108, 246, 0.15), transparent);
 }
 
 .eyebrow {
@@ -282,6 +335,16 @@ input:focus {
   border-radius: 18px;
   padding: 18px;
   box-shadow: 0 4px 14px rgba(31, 41, 55, 0.04);
+  cursor: pointer;
+}
+
+.module-item:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 16px 35px rgba(31, 41, 55, 0.12);
+}
+
+.module-item:hover .module-title {
+  color: #4f46e5;
 }
 
 .module-left {
@@ -428,7 +491,6 @@ input:focus {
   border-radius: 20px;
   padding: 24px 16px;
   cursor: pointer;
-  transition: 0.2s ease;
 }
 
 .character-card.selected {
@@ -533,6 +595,11 @@ input:focus {
   cursor: pointer;
 }
 
+.scenario-btn:hover {
+  background: #f3f2ff;
+  border-color: #6d6cf6;
+}
+
 .scenario-btn.selected {
   border-color: #6d6cf6;
   background: #f3f2ff;
@@ -548,11 +615,13 @@ input:focus {
 .scenario-feedback.correct {
   background: #edf7f1;
   border-color: #b7e0c2;
+  box-shadow: 0 10px 20px rgba(34, 197, 94, 0.15);
 }
 
 .scenario-feedback.incorrect {
   background: #fff4e8;
   border-color: #ffd6a8;
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.15);
 }
 
 .quiz-card {
@@ -582,6 +651,23 @@ input:focus {
   border-radius: 12px;
   padding: 12px 14px;
   background: #fafafa;
+}
+
+.quiz-option-card:hover {
+  border-color: #6d6cf6;
+  background: #f5f6ff;
+}
+
+.quiz-option-card.correct {
+  border-color: #22c55e;
+  background: #edf7f1;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+.quiz-option-card.incorrect {
+  border-color: #f97316;
+  background: #fff4e8;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
 }
 
 .lesson-bottom-actions {
@@ -630,6 +716,29 @@ input:focus {
   align-items: center;
   gap: 12px;
   max-width: 360px;
+  animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 900px) {
@@ -684,4 +793,16 @@ input:focus {
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+.module-image {
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid #e7ebf0;
+}
+
+.lesson-point-card strong {
+  color: #111827;
 }

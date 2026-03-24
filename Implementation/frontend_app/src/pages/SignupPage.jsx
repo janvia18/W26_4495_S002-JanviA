@@ -1,69 +1,112 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
+
 export default function SignupPage() {
-  const { login } = useProgress();
   const navigate = useNavigate();
+  const { signup } = useProgress();
+
   const [form, setForm] = useState({
+    name: "",
     email: "",
-    password: "",
-    confirmPassword: ""
+    password: ""
   });
   const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    if (!form.email || !form.password || !form.confirmPassword) {
-      setError("Please complete all fields.");
+
+    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
+      setError("Please fill in all fields.");
       return;
     }
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
       return;
     }
-    login({ email: form.email });
-    navigate("/profile-setup");
+
+    try {
+      signup({
+        name: form.name.trim(),
+        email: form.email.trim()
+      });
+      navigate("/profile-setup");
+    } catch (err) {
+      setError("Unable to create account. Please try again.");
+    }
   };
+
   return (
     <div className="page-shell">
       <div className="content-wrap">
         <div className="auth-card">
-          <h1 className="page-title">Create Account</h1>
+          <h1 className="page-title">Create Your Account</h1>
+          <p className="muted-text">
+            Sign up to start learning cybersecurity concepts through modules,
+            scenarios, and quizzes.
+          </p>
+
+          <div className="subtle-line" />
+
           <form onSubmit={handleSubmit} className="form-grid">
             <div>
-              <label>Email</label>
+              <label htmlFor="name">Full Name</label>
               <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Enter your full name"
+                value={form.name}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email">Email Address</label>
+              <input
+                id="email"
+                name="email"
                 type="email"
-                value={form.email}
                 placeholder="Enter your email"
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                value={form.email}
+                onChange={handleChange}
               />
             </div>
+
             <div>
-              <label>Password</label>
+              <label htmlFor="password">Password</label>
               <input
+                id="password"
+                name="password"
                 type="password"
+                placeholder="Create a password"
                 value={form.password}
-                placeholder="Create your password"
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onChange={handleChange}
               />
             </div>
-            <div>
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                value={form.confirmPassword}
-                placeholder="Confirm your password"
-                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-              />
-            </div>
-            {error ? <p className="error-text">{error}</p> : null}
-            <button className="primary-btn" type="submit">
+
+            {error && <p className="error-text">{error}</p>}
+
+            <button type="submit" className="primary-btn">
               Sign Up
             </button>
           </form>
-          <p className="muted-text" style={{ marginTop: 16 }}>
-            Already have an account? <Link to="/login">Log in</Link>
+
+          <div className="subtle-line" />
+
+          <p className="muted-text">
+            Already have an account?{" "}
+            <Link to="/login" className="nav-link active">
+              Log in here
+            </Link>
           </p>
         </div>
       </div>

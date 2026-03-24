@@ -1,47 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
 
-const avatarOptions = [
-  { emoji: "🐻", label: "Bear" },
-  { emoji: "🐴", label: "Horse" },
-  { emoji: "🐱", label: "Cat" },
-  { emoji: "🐶", label: "Dog" },
-  { emoji: "🦊", label: "Fox" },
-  { emoji: "🐼", label: "Panda" },
-  { emoji: "🐰", label: "Rabbit" },
-  { emoji: "🐯", label: "Tiger" },
-  { emoji: "🦁", label: "Lion" },
-  { emoji: "🐵", label: "Monkey" },
-  { emoji: "🐨", label: "Koala" },
-  { emoji: "🐧", label: "Penguin" }
+const avatars = [
+  { id: "bear", emoji: "🐻", label: "Bear" },
+  { id: "cat", emoji: "🐱", label: "Cat" },
+  { id: "dog", emoji: "🐶", label: "Dog" },
+  { id: "fox", emoji: "🦊", label: "Fox" },
+  { id: "panda", emoji: "🐼", label: "Panda" },
+  { id: "rabbit", emoji: "🐰", label: "Rabbit" },
+  { id: "lion", emoji: "🦁", label: "Lion" },
+  { id: "owl", emoji: "🦉", label: "Owl" }
 ];
 
 export default function ProfileSetup() {
-  const { profile, updateProfile } = useProgress();
   const navigate = useNavigate();
+  const { profile, updateProfile } = useProgress();
 
-  const [name, setName] = useState(profile.name || "");
-  const [organization, setOrganization] = useState(profile.organization || "");
-  const [role, setRole] = useState(profile.role || "");
-  const [avatar, setAvatar] = useState(profile.avatar || "🐻");
-  const [error, setError] = useState("");
+  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState("🐻");
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    if (profile?.name) setName(profile.name);
+    if (profile?.avatar) setAvatar(profile.avatar);
+  }, [profile]);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!name.trim()) {
-      setError("Please enter your name.");
-      return;
-    }
-
     updateProfile({
-      name: name.trim(),
-      organization: organization.trim(),
-      role: role.trim(),
+      name: name.trim() || "Learner",
       avatar
     });
-
     navigate("/dashboard");
   };
 
@@ -49,65 +38,53 @@ export default function ProfileSetup() {
     <div className="page-shell">
       <div className="content-wrap">
         <div className="main-card profile-card">
-          <h1 className="page-title">Create your profile</h1>
-
-          <form onSubmit={handleSave} className="form-grid">
+          <div className="page-header-row">
             <div>
-              <label>Your name</label>
+              <h1 className="page-title">Profile Setup</h1>
+              <p className="muted-text">
+                Personalize your CyberAware experience by choosing a display name and avatar.
+              </p>
+            </div>
+          </div>
+
+          <div className="subtle-line" />
+
+          <form onSubmit={handleSubmit} className="form-grid">
+            <div>
+              <label htmlFor="displayName">Display Name</label>
               <input
+                id="displayName"
                 type="text"
-                value={name}
                 placeholder="Enter your name"
+                value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
 
             <div>
-              <label>Organization</label>
-              <input
-                type="text"
-                value={organization}
-                placeholder="Optional"
-                onChange={(e) => setOrganization(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label>Role</label>
-              <input
-                type="text"
-                value={role}
-                placeholder="Optional"
-                onChange={(e) => setRole(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label>Pick a character</label>
+              <label>Choose an Avatar</label>
               <div className="character-grid">
-                {avatarOptions.map((option) => (
+                {avatars.map((item) => (
                   <button
-                    key={option.label}
+                    key={item.id}
                     type="button"
-                    className={`character-card ${avatar === option.emoji ? "selected" : ""}`}
-                    onClick={() => setAvatar(option.emoji)}
+                    className={`character-card ${avatar === item.emoji ? "selected" : ""}`}
+                    onClick={() => setAvatar(item.emoji)}
                   >
-                    <div className="character-emoji">{option.emoji}</div>
-                    <div className="character-name">{option.label}</div>
+                    <div className="character-emoji">{item.emoji}</div>
+                    <div className="character-name">{item.label}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {error ? <p className="error-text">{error}</p> : null}
-
             <div className="profile-actions">
-              <button className="primary-btn" type="submit">
+              <button type="submit" className="primary-btn">
                 Save Profile
               </button>
               <button
-                className="secondary-btn"
                 type="button"
+                className="ghost-btn"
                 onClick={() => navigate("/dashboard")}
               >
                 Cancel

@@ -10,15 +10,15 @@ const defaultProgress = {
     mfa: false,
     social: false,
     "safe-browsing": false,
-    incident: false
-  }
+    incident: false,
+  },
 };
 
 const defaultProfile = {
   name: "",
   organization: "",
   role: "",
-  avatar: "🛡️"
+  avatar: "🛡️",
 };
 
 export function ProgressProvider({ children }) {
@@ -39,16 +39,46 @@ export function ProgressProvider({ children }) {
     setProgress({
       completed: {
         ...defaultProgress.completed,
-        ...(savedProgress?.completed || {})
-      }
+        ...(savedProgress?.completed || {}),
+      },
     });
     setPoints(savedPoints || 0);
     setLoading(false);
   }, []);
 
+  const signup = (userData) => {
+    const newUser = {
+      name: userData.name || "",
+      email: userData.email || "",
+    };
+
+    storage.set("cyberaware_user", newUser);
+    setUser(newUser);
+
+    const nextProfile = {
+      ...defaultProfile,
+      name: userData.name || "",
+      avatar: defaultProfile.avatar,
+    };
+
+    storage.set("cyberaware_profile", nextProfile);
+    setProfile(nextProfile);
+  };
+
   const login = (userData) => {
-    storage.set("cyberaware_user", userData);
-    setUser(userData);
+    const savedUser = storage.get("cyberaware_user", null);
+
+    if (savedUser) {
+      setUser(savedUser);
+      storage.set("cyberaware_user", savedUser);
+    } else {
+      const fallbackUser = {
+        email: userData.email || "",
+        name: userData.name || "Learner",
+      };
+      storage.set("cyberaware_user", fallbackUser);
+      setUser(fallbackUser);
+    }
   };
 
   const logout = () => {
@@ -69,8 +99,8 @@ export function ProgressProvider({ children }) {
       ...progress,
       completed: {
         ...progress.completed,
-        [moduleKey]: true
-      }
+        [moduleKey]: true,
+      },
     };
 
     const updatedPoints = alreadyDone ? points : points + earnedPoints;
@@ -97,10 +127,9 @@ export function ProgressProvider({ children }) {
     return "Beginner";
   }, [points]);
 
-  const completedCount = useMemo(
-    () => Object.values(progress.completed).filter(Boolean).length,
-    [progress]
-  );
+  const completedCount = useMemo(() => {
+    return Object.values(progress.completed).filter(Boolean).length;
+  }, [progress]);
 
   const value = {
     user,
@@ -110,18 +139,27 @@ export function ProgressProvider({ children }) {
     loading,
     level,
     completedCount,
+    signup,
     login,
     logout,
     updateProfile,
     completeModule,
-    resetProgress
+    resetProgress,
   };
 
-  return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
+  return (
+    <ProgressContext.Provider value={value}>
+      {children}
+    </ProgressContext.Provider>
+  );
 }
 
 export function useProgress() {
   const context = useContext(ProgressContext);
-  if (!context) throw new Error("useProgress must be used inside ProgressProvider");
+
+  if (!context) {
+    throw new Error("useProgress must be used inside ProgressProvider");
+  }
+
   return context;
 }
