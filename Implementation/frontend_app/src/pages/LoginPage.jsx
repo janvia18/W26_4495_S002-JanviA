@@ -1,52 +1,98 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
+
 export default function LoginPage() {
-  const { login } = useProgress();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const { login } = useProgress();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.email || !form.password) {
+
+    if (!form.email.trim() || !form.password.trim()) {
       setError("Please enter both email and password.");
       return;
     }
-    login({ email: form.email });
-    navigate("/dashboard");
+
+    try {
+      setLoading(true);
+
+      await login({
+        email: form.email.trim(),
+        password: form.password,
+      });
+
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Unable to log in. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <div className="page-shell">
       <div className="content-wrap">
         <div className="auth-card">
           <h1 className="page-title">Log In</h1>
+          <p className="muted-text">Continue your CyberAware learning journey.</p>
+
+          <div className="subtle-line" />
+
           <form onSubmit={handleSubmit} className="form-grid">
             <div>
-              <label>Email</label>
+              <label htmlFor="email">Email Address</label>
               <input
+                id="email"
+                name="email"
                 type="email"
-                value={form.email}
                 placeholder="Enter your email"
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                value={form.email}
+                onChange={handleChange}
               />
             </div>
+
             <div>
-              <label>Password</label>
+              <label htmlFor="password">Password</label>
               <input
+                id="password"
+                name="password"
                 type="password"
-                value={form.password}
                 placeholder="Enter your password"
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                value={form.password}
+                onChange={handleChange}
               />
             </div>
-            {error ? <p className="error-text">{error}</p> : null}
-            <button className="primary-btn" type="submit">
-              Log In
+
+            {error && <p className="error-text">{error}</p>}
+
+            <button type="submit" className="primary-btn" disabled={loading}>
+              {loading ? "Logging In..." : "Log In"}
             </button>
           </form>
-          <p className="muted-text" style={{ marginTop: 16 }}>
-            Don’t have an account? <Link to="/signup">Sign up</Link>
+
+          <div className="subtle-line" />
+
+          <p className="muted-text">
+            Do not have an account?{" "}
+            <Link to="/signup" className="nav-link active">
+              Sign up here
+            </Link>
           </p>
         </div>
       </div>

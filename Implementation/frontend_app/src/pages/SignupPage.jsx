@@ -9,19 +9,21 @@ export default function SignupPage() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
       setError("Please fill in all fields.");
@@ -34,13 +36,19 @@ export default function SignupPage() {
     }
 
     try {
-      signup({
+      setLoading(true);
+
+      await signup({
         name: form.name.trim(),
-        email: form.email.trim()
+        email: form.email.trim(),
+        password: form.password,
       });
+
       navigate("/profile-setup");
     } catch (err) {
-      setError("Unable to create account. Please try again.");
+      setError(err.message || "Unable to create account. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -95,8 +103,8 @@ export default function SignupPage() {
 
             {error && <p className="error-text">{error}</p>}
 
-            <button type="submit" className="primary-btn">
-              Sign Up
+            <button type="submit" className="primary-btn" disabled={loading}>
+              {loading ? "Creating Account..." : "Sign Up"}
             </button>
           </form>
 
