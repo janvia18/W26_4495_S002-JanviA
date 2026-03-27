@@ -1,53 +1,42 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signUpUser } from "../services/auth";
+import { useProgress } from "../lib/ProgressContext";
 
 export default function SignupPage() {
+  const { signup } = useProgress();
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    const cleanedForm = {
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      password: form.password,
-    };
-
-    if (!cleanedForm.name || !cleanedForm.email || !cleanedForm.password) {
-      setError("Please fill in all fields.");
+    if (!email || !password || !confirmPassword) {
+      setError("Please complete all fields.");
       return;
     }
 
-    if (cleanedForm.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      setLoading(true);
-
-      await signUpUser(cleanedForm);
-
+      await signup(email, password);
       navigate("/profile-setup");
     } catch (err) {
-      setError(err.message || "Unable to create account. Please try again.");
+      setError(err.message || "Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -57,69 +46,48 @@ export default function SignupPage() {
     <div className="page-shell">
       <div className="content-wrap">
         <div className="auth-card">
-          <h1 className="page-title">Create Your Account</h1>
-          <p className="muted-text">
-            Sign up to start learning cybersecurity concepts through modules,
-            scenarios, and quizzes.
-          </p>
-
-          <div className="subtle-line" />
-
+          <h1 className="page-title">Create Account</h1>
+          <p className="muted-text">Start your cybersecurity journey today</p>
+          
           <form onSubmit={handleSubmit} className="form-grid">
             <div>
-              <label htmlFor="name">Full Name</label>
+              <label>Email</label>
               <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Enter your full name"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email">Email Address</label>
-              <input
-                id="email"
-                name="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                value={form.email}
-                onChange={handleChange}
                 required
               />
             </div>
-
             <div>
-              <label htmlFor="password">Password</label>
+              <label>Password</label>
               <input
-                id="password"
-                name="password"
                 type="password"
-                placeholder="Create a password"
-                value={form.password}
-                onChange={handleChange}
-                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Create a password (min. 6 characters)"
                 required
               />
             </div>
-
+            <div>
+              <label>Confirm Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your password"
+                required
+              />
+            </div>
             {error && <p className="error-text">{error}</p>}
-
-            <button type="submit" className="primary-btn" disabled={loading}>
-              {loading ? "Creating Account..." : "Sign Up"}
+            <button className="primary-btn" type="submit" disabled={loading}>
+              {loading ? "Creating account..." : "Sign Up"}
             </button>
           </form>
-
-          <div className="subtle-line" />
-
-          <p className="muted-text">
-            Already have an account?{" "}
-            <Link to="/login" className="nav-link active">
-              Log in here
-            </Link>
+          
+          <p className="muted-text" style={{ marginTop: 16, textAlign: "center" }}>
+            Already have an account? <Link to="/login">Log in</Link>
           </p>
         </div>
       </div>

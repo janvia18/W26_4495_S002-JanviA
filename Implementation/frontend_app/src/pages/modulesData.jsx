@@ -1,749 +1,503 @@
-import phishingImage from "../assets/phishing-comic.webp";
-import passwordsImage from "../assets/passwords-comic.webp";
-import mfaImage from "../assets/mfa-comic.webp";
-import socialImage from "../assets/social-engineering-comic.webp";
-import safeBrowsingImage from "../assets/safe-browsing-comic.webp";
-import incidentImage from "../assets/incident-reporting-comic.webp";
-
 export const modulesData = [
   {
     key: "phishing",
     title: "Phishing Awareness",
     route: "/modules/phishing",
     points: 20,
-    image: phishingImage,
-    description:
-      "Learn how to identify fake emails, suspicious links, and urgency tactics used to steal personal information.",
+    description: "Learn how to spot fake emails, suspicious links, and messages designed to steal information.",
     content: [
-      "Phishing is a cyberattack where attackers pretend to be trusted organizations or people.",
-      "Attackers often use urgency, fear, or rewards to pressure users into acting quickly.",
-      "Suspicious links, unknown sender addresses, and generic greetings are major warning signs.",
-      "Never enter passwords or personal details on pages reached through unexpected emails or messages.",
-      "Hovering over links helps reveal the real destination before clicking.",
-      "Unexpected attachments can contain malware or redirect users to fake login pages."
+      "Phishing is a cyberattack that tricks users into revealing sensitive information.",
+      "Phishing messages often create urgency to push quick action.",
+      "Suspicious links and fake sender addresses are common warning signs.",
+      "Never submit passwords or personal information through unverified links.",
+      "Always check the sender's email address carefully before responding."
     ],
     scenario: {
-      title: "Part 2: Spot the Phish",
-      instructions:
-        "Read the message below and decide whether it is safe or phishing.",
-      heading: "Email: Account Verification Notice",
-      from: "Security Team <verify@secure-account-alerts.co>",
-      subject: "Immediate action required: verify your account",
+      title: "Scenario: Spot the Phish",
+      instructions: "Read the message and decide whether it is safe or phishing.",
+      heading: "Email: Payroll Update Required",
+      from: "Payroll Team <payroll@company-payroll-support.com>",
+      subject: "Action Required: Confirm your direct deposit info",
       body: [
-        "Dear User,",
-        "Your account has been flagged for suspicious activity.",
-        "To avoid account suspension, verify your information immediately using the link below.",
-        "http://secure-check-login-now.net",
-        "Regards,",
-        "Support Team"
+        "Hi,",
+        "Your payroll will be paused unless you confirm your direct deposit within 2 hours.",
+        "Confirm here: http://company-payroll-support.com/verify",
+        "Thanks,",
+        "Payroll Team"
       ],
-      options: ["Phishing", "Safe"],
-      correctAnswer: "Phishing",
-      correctText:
-        "Correct. The sender address is suspicious, the tone is urgent, and the link does not match a trusted official domain.",
-      incorrectText:
-        "Incorrect. This message contains common phishing signs such as urgency, a suspicious sender, and an unsafe-looking link."
-    },
-    extraScenario: {
-      title: "Part 2.1: Real-World Situation",
-      instructions: "Choose the safest response in this workplace scenario.",
-      heading: "Calendar Invite Attack",
-      body: [
-        "An employer notices a strange event automatically added to the calendar.",
-        "At first, it looks like a glitch or random meeting request.",
-        "The event includes a link that says 'unsubscribe' or 'remove this event'.",
-        "After clicking it, a login page opens asking for account details."
-      ],
-      options: ["Safe to continue", "Suspicious - avoid the link"],
-      correctAnswer: "Suspicious - avoid the link",
-      correctText:
-        "Correct. Attackers can abuse calendar invitations and fake unsubscribe links to steal login details.",
-      incorrectText:
-        "Incorrect. Unexpected calendar links should be treated carefully because they may be part of a phishing campaign."
-    },
-    realWorld: {
-      title: "Part 4: Real-Life Threat Story",
-      story: [
-        "An employer noticed an unfamiliar calendar event and assumed it was only a glitch.",
-        "The event contained a link to unsubscribe or remove future events.",
-        "After opening the link, a page appeared asking for login credentials.",
-        "The website looked real, but it was fake and designed to steal account details.",
-        "This is an example of calendar phishing, where attackers use calendar tools instead of normal email messages."
-      ],
-      takeaway:
-        "Unexpected calendar events, unsubscribe links, and login prompts should always be verified before interaction."
+      options: ["This is a legitimate email", "This is a phishing attempt"],
+      correctAnswer: "This is a phishing attempt",
+      correctText: "Correct! This is a phishing attempt. The sender address is suspicious, it creates urgency, and the link doesn't match the company's domain.",
+      incorrectText: "Incorrect! This is actually a phishing attempt. Always verify the sender's email address and never click links in urgent messages."
     },
     quiz: [
       {
-        question: "Which sign most strongly suggests a phishing email?",
+        question: "What is phishing?",
         options: [
-          "An urgent request to click a link and verify your account",
-          "A normal message from your instructor",
-          "A calendar reminder you created",
-          "A saved bookmark opening your bank website"
+          "A type of computer virus",
+          "A cyberattack that tricks users into revealing sensitive information",
+          "A method for improving Wi-Fi speed",
+          "A secure way to store passwords"
         ],
-        answer: "An urgent request to click a link and verify your account",
-        explanation:
-          "Phishing emails commonly create pressure and push users to click links without thinking carefully."
+        answer: "A cyberattack that tricks users into revealing sensitive information",
+        explanation: "Phishing is a social engineering attack where attackers trick victims into revealing sensitive information."
       },
       {
-        question: "What should you do before clicking a link in an unexpected email?",
+        question: "Which is a common phishing warning sign?",
         options: [
-          "Hover over the link and verify the sender/domain",
-          "Click quickly before it expires",
-          "Reply with your password",
-          "Forward it to everyone"
+          "Urgent request to verify your account",
+          "Saved bookmark to your bank website",
+          "Company email from a verified internal domain",
+          "A document you expected to receive"
         ],
-        answer: "Hover over the link and verify the sender/domain",
-        explanation:
-          "Checking the destination link and sender identity helps you spot fake or misleading messages."
+        answer: "Urgent request to verify your account",
+        explanation: "Phishing emails often create a sense of urgency to pressure you into acting without thinking."
       },
       {
-        question: "Why do attackers often use urgent language in phishing messages?",
+        question: "What should you do if you receive a suspicious email?",
         options: [
-          "To pressure people into acting quickly",
-          "To improve grammar",
-          "To make the email shorter",
-          "To help IT support"
+          "Click the link to verify",
+          "Reply and ask for more information",
+          "Report it to your IT security team",
+          "Forward it to all your colleagues"
         ],
-        answer: "To pressure people into acting quickly",
-        explanation:
-          "Urgency reduces the chance that the target will pause and inspect the message carefully."
+        answer: "Report it to your IT security team",
+        explanation: "Always report suspicious emails to your security team so they can investigate and protect others."
       },
       {
-        question: "Which greeting is more suspicious in a phishing email?",
+        question: "What does a legitimate company typically NOT ask for in an email?",
         options: [
-          "Dear Customer",
-          "Hi Janvi, regarding your class schedule",
-          "Hello Professor",
-          "Thank you for your recent order from a store you used"
+          "Your username",
+          "Your password or verification codes",
+          "Your department name",
+          "Your company email address"
         ],
-        answer: "Dear Customer",
-        explanation:
-          "Generic greetings are common in phishing campaigns because attackers often do not know the recipient personally."
+        answer: "Your password or verification codes",
+        explanation: "Legitimate companies never ask for passwords or verification codes via email."
       },
       {
-        question: "What is the safest response to a suspicious message asking for credentials?",
+        question: "What should you check before clicking a link in an email?",
         options: [
-          "Delete or report it without entering information",
-          "Send your password to confirm identity",
-          "Click the link to check first",
-          "Reply with banking details"
+          "Hover over the link to see the actual URL",
+          "The email's color scheme",
+          "The number of recipients",
+          "The email's file size"
         ],
-        answer: "Delete or report it without entering information",
-        explanation:
-          "You should not interact with suspicious requests for credentials. Reporting it is the safest step."
+        answer: "Hover over the link to see the actual URL",
+        explanation: "Hovering reveals the actual destination URL, which may be different from the displayed text."
       }
     ]
   },
-
   {
     key: "passwords",
     title: "Password Security",
     route: "/modules/passwords",
     points: 20,
-    image: passwordsImage,
-    description:
-      "Understand how strong, unique passwords and password managers protect your accounts.",
+    description: "Use strong passwords, passphrases, and safer password habits.",
     content: [
-      "Strong passwords should be long, unique, and difficult to guess.",
-      "Password reuse is dangerous because one breach can affect multiple accounts.",
-      "Passphrases are often easier to remember and stronger than short predictable passwords.",
-      "Password managers help users store and generate secure passwords safely.",
-      "Weak passwords are easier for attackers to crack using guessing or automated tools.",
-      "Private passwords should never be shared casually with friends or co-workers."
+      "Strong passwords should be long, unique, and hard to guess.",
+      "Passphrases are easier to remember and stronger than short passwords.",
+      "Never reuse the same password across multiple important accounts.",
+      "Password managers help you store secure passwords safely.",
+      "Enable 2FA whenever possible for an extra layer of security."
     ],
     scenario: {
-      title: "Part 2: Password Safety Decision",
-      instructions:
-        "Choose which employee is following better password practices.",
-      heading: "Office Account Security",
+      title: "Scenario: Password Choice",
+      instructions: "Choose the safer password behavior.",
+      heading: "Which practice is safer?",
       body: [
-        "Employee A uses Password123 for several accounts because it is easy to remember.",
-        "Employee B uses a password manager and stores a different strong password for each account."
+        "Employee A uses the same password for all accounts.",
+        "Employee B uses a password manager and a different password for each account."
       ],
       options: ["Employee A", "Employee B"],
       correctAnswer: "Employee B",
-      correctText:
-        "Correct. Using unique passwords with a password manager is much safer than reusing weak passwords.",
-      incorrectText:
-        "Incorrect. Reusing weak passwords increases the risk of multiple accounts being compromised."
-    },
-    extraScenario: {
-      title: "Part 2.1: Real-World Situation",
-      instructions: "Decide the safer password choice in this case.",
-      heading: "Shared Team Access",
-      body: [
-        "A team member writes the shared password on a sticky note near the monitor.",
-        "Another employee suggests storing the credentials in a secure password manager instead."
-      ],
-      options: ["Sticky note is fine", "Use a password manager"],
-      correctAnswer: "Use a password manager",
-      correctText:
-        "Correct. Password managers are safer than visible written notes that anyone can access.",
-      incorrectText:
-        "Incorrect. Sticky notes expose credentials to anyone nearby and increase the risk of misuse."
-    },
-    realWorld: {
-      title: "Part 4: Real-Life Threat Story",
-      story: [
-        "A user reused the same simple password on multiple websites.",
-        "One of those sites experienced a data breach.",
-        "Attackers tested the same password on email and banking services.",
-        "Because the password had been reused, more than one account became vulnerable.",
-        "This is why unique passwords are important for every account."
-      ],
-      takeaway:
-        "One weak reused password can open several doors for an attacker."
+      correctText: "Correct! Unique passwords stored in a password manager are much safer than reuse. If one account gets breached, others remain secure.",
+      incorrectText: "Incorrect! Reusing passwords means one breach can expose multiple accounts. Always use unique passwords for each account."
     },
     quiz: [
       {
-        question: "Which password is strongest?",
-        options: [
-          "password123",
-          "Janvi2026",
-          "BlueRiverCoffeeTrain!",
-          "12345678"
-        ],
-        answer: "BlueRiverCoffeeTrain!",
-        explanation:
-          "Longer passwords or passphrases with variation are much harder to guess or crack."
+        question: "Which password is the strongest?",
+        options: ["janvi123", "Password1", "BlueRiverCoffeeTrain", "12345678"],
+        answer: "BlueRiverCoffeeTrain",
+        explanation: "Long passphrases with multiple words are much harder to crack than short passwords."
       },
       {
-        question: "What is the safest way to manage many strong passwords?",
+        question: "What is a password manager?",
         options: [
-          "Use a password manager",
-          "Reuse one easy password",
-          "Write them on sticky notes",
-          "Share them with a friend"
+          "A tool that steals passwords",
+          "A secure application that stores and generates strong passwords",
+          "A physical device to write down passwords",
+          "A website that shares passwords"
         ],
-        answer: "Use a password manager",
-        explanation:
-          "Password managers help generate unique passwords and reduce the temptation to reuse weak ones."
+        answer: "A secure application that stores and generates strong passwords",
+        explanation: "Password managers securely store your credentials and can generate strong, unique passwords."
       },
       {
-        question: "Why is password reuse risky?",
+        question: "Why should you avoid password reuse?",
         options: [
-          "One leaked password can affect multiple accounts",
-          "It makes typing slower",
-          "It improves security too much",
-          "It blocks websites from loading"
+          "It's hard to remember",
+          "One breached account can compromise multiple accounts",
+          "It takes too long to type",
+          "Websites don't allow it"
         ],
-        answer: "One leaked password can affect multiple accounts",
-        explanation:
-          "If one reused password is exposed in a breach, attackers may try it on other services."
+        answer: "One breached account can compromise multiple accounts",
+        explanation: "If attackers get your password from one site, they'll try it on other sites too."
       },
       {
-        question: "Which is the best example of a strong passphrase?",
+        question: "What is a good practice for creating strong passwords?",
         options: [
-          "SunsetTrainCoffeeRiver92",
-          "abcd1234",
-          "password",
-          "qwerty"
+          "Using your birthday",
+          "Using a combination of random words with numbers and symbols",
+          "Using 'password123'",
+          "Using the same password for all accounts"
         ],
-        answer: "SunsetTrainCoffeeRiver92",
-        explanation:
-          "A longer passphrase with unrelated words and variation is much stronger than common passwords."
+        answer: "Using a combination of random words with numbers and symbols",
+        explanation: "Random words with numbers and symbols create strong, memorable passwords."
       },
       {
-        question: "Where should you store important passwords?",
+        question: "How often should you change your passwords?",
         options: [
-          "In a trusted password manager",
-          "On a sticky note under your keyboard",
-          "In a public group chat",
-          "Shared with classmates"
+          "Every day",
+          "Only when you suspect a breach or annually",
+          "Never",
+          "Every week"
         ],
-        answer: "In a trusted password manager",
-        explanation:
-          "A password manager is the safest practical tool for storing many unique passwords."
+        answer: "Only when you suspect a breach or annually",
+        explanation: "Regular changes aren't necessary unless there's a suspected breach, but annual updates are good practice."
       }
     ]
   },
-
   {
     key: "mfa",
     title: "Multi-Factor Authentication",
     route: "/modules/mfa",
     points: 20,
-    image: mfaImage,
-    description:
-      "Learn how MFA adds an extra layer of security even when passwords are compromised.",
+    description: "Add an extra layer of security to your accounts with MFA.",
     content: [
-      "Multi-factor authentication requires more than one proof of identity.",
-      "MFA can protect accounts even if a password is stolen.",
-      "Unexpected approval prompts may signal unauthorized login attempts.",
-      "Authenticator apps are often safer than relying only on SMS codes.",
-      "MFA does not replace good passwords, it strengthens them.",
-      "Users should never approve an authentication request they did not initiate."
+      "MFA requires two or more verification methods to access an account.",
+      "Common factors: something you know (password), something you have (phone), something you are (biometrics).",
+      "Even if your password is stolen, MFA can prevent unauthorized access.",
+      "Use authenticator apps instead of SMS when possible for better security.",
+      "Always set up MFA on your most important accounts: email, banking, social media."
     ],
     scenario: {
-      title: "Part 2: MFA Prompt Check",
-      instructions:
-        "Decide what to do when you receive a login prompt you did not request.",
-      heading: "Unexpected sign-in alert",
+      title: "Scenario: MFA Decision",
+      instructions: "Choose the most secure option.",
+      heading: "You just enabled MFA on your work account. Which option provides the best security?",
       body: [
-        "You receive an authentication approval request on your phone, but you are not trying to log in."
+        "Option 1: SMS text message codes",
+        "Option 2: Authenticator app codes",
+        "Option 3: Email verification codes"
       ],
-      options: ["Approve", "Deny"],
-      correctAnswer: "Deny",
-      correctText:
-        "Correct. Unexpected MFA prompts should always be denied because they may be part of an unauthorized login attempt.",
-      incorrectText:
-        "Incorrect. Approving a login you did not initiate could give an attacker access to your account."
-    },
-    extraScenario: {
-      title: "Part 2.1: Real-World Situation",
-      instructions: "Choose the safest action.",
-      heading: "Repeated Approval Requests",
-      body: [
-        "A user keeps receiving repeated MFA approval pop-ups late at night.",
-        "They feel annoyed and consider pressing approve just to stop the notifications."
-      ],
-      options: ["Approve to stop them", "Deny and change password"],
-      correctAnswer: "Deny and change password",
-      correctText:
-        "Correct. Repeated prompts may indicate that an attacker already knows the password and is trying to get approval.",
-      incorrectText:
-        "Incorrect. Approving an unknown request may allow an attacker to enter the account."
-    },
-    realWorld: {
-      title: "Part 4: Real-Life Threat Story",
-      story: [
-        "An attacker obtained a user's password from a previous data breach.",
-        "They attempted to sign in repeatedly, causing constant MFA prompts on the victim's phone.",
-        "The victim became frustrated and finally approved one request to stop the notifications.",
-        "That single approval allowed the attacker into the account.",
-        "This attack method is sometimes called MFA fatigue."
-      ],
-      takeaway:
-        "Unexpected MFA prompts should be denied, and the account password should be changed immediately."
+      options: ["SMS codes", "Authenticator app", "Email codes"],
+      correctAnswer: "Authenticator app",
+      correctText: "Correct! Authenticator apps are more secure than SMS, which can be intercepted via SIM swapping attacks.",
+      incorrectText: "Incorrect! Authenticator apps provide the best security. SMS can be vulnerable to SIM swapping attacks."
     },
     quiz: [
       {
-        question: "Why is MFA effective?",
-        options: [
-          "It adds another verification step",
-          "It removes all cyber risks",
-          "It replaces passwords completely",
-          "It makes websites load faster"
-        ],
-        answer: "It adds another verification step",
-        explanation:
-          "MFA strengthens security by requiring something more than just a password."
-      },
-      {
-        question: "What should you do with an unexpected MFA prompt?",
-        options: [
-          "Deny or ignore it and review account activity",
-          "Approve it to stop notifications",
-          "Send the code to someone else",
-          "Disable MFA permanently"
-        ],
-        answer: "Deny or ignore it and review account activity",
-        explanation:
-          "Unexpected prompts can indicate an attacker is trying to log in using your credentials."
-      },
-      {
         question: "What does MFA stand for?",
         options: [
+          "Multiple File Access",
           "Multi-Factor Authentication",
-          "Maximum Firewall Access",
-          "Main File Authorization",
-          "Managed Frequency Access"
+          "Main Frame Authorization",
+          "Manual Form Authentication"
         ],
         answer: "Multi-Factor Authentication",
-        explanation:
-          "MFA means users must prove identity using more than one factor."
+        explanation: "MFA is an authentication method that requires two or more verification factors."
       },
       {
-        question: "Which option is usually safer than SMS for MFA?",
+        question: "Which of these is NOT a typical authentication factor?",
         options: [
-          "Authenticator app",
-          "No verification",
-          "Writing the code on paper only",
-          "Sharing the code with others"
+          "Something you know (password)",
+          "Something you have (phone)",
+          "Something you are (fingerprint)",
+          "Something you want (desire)"
         ],
-        answer: "Authenticator app",
-        explanation:
-          "Authenticator apps are generally safer because they are less vulnerable to some SMS-based attacks."
+        answer: "Something you want (desire)",
+        explanation: "Authentication factors are: knowledge, possession, and inherence. Desire is not a security factor."
       },
       {
-        question: "What is the biggest benefit of MFA?",
+        question: "Why is MFA important?",
         options: [
-          "It protects accounts even if a password is stolen",
-          "It guarantees no malware can exist",
-          "It speeds up the internet",
-          "It removes the need for updates"
+          "It makes login slower",
+          "It protects accounts even if passwords are compromised",
+          "It remembers your passwords for you",
+          "It automatically logs you out"
         ],
-        answer: "It protects accounts even if a password is stolen",
-        explanation:
-          "MFA reduces the damage a stolen password can cause by requiring a second proof of identity."
+        answer: "It protects accounts even if passwords are compromised",
+        explanation: "MFA adds a critical layer of security that attackers can't bypass without the second factor."
+      },
+      {
+        question: "What's the most secure MFA method?",
+        options: [
+          "SMS text codes",
+          "Email verification",
+          "Hardware security key or authenticator app",
+          "Security questions"
+        ],
+        answer: "Hardware security key or authenticator app",
+        explanation: "Hardware keys and authenticator apps are more secure than SMS, which can be intercepted."
+      },
+      {
+        question: "What should you do if you lose your MFA device?",
+        options: [
+          "Panic and create new accounts",
+          "Use backup codes or contact support immediately",
+          "Wait for someone to find it",
+          "Disable all your accounts"
+        ],
+        answer: "Use backup codes or contact support immediately",
+        explanation: "Always save backup codes when setting up MFA. If you lose your device, use these codes to regain access."
       }
     ]
   },
-
   {
     key: "social",
     title: "Social Engineering",
     route: "/modules/social",
     points: 20,
-    image: socialImage,
-    description:
-      "Recognize manipulation tactics attackers use to gain trust and extract sensitive information.",
+    description: "Recognize and defend against psychological manipulation tactics.",
     content: [
-      "Social engineering attacks target human decisions rather than only technical systems.",
-      "Attackers may pretend to be support staff, co-workers, banks, or delivery services.",
-      "Urgency, fear, trust, and curiosity are common manipulation tactics.",
-      "Unexpected requests for confidential information should always be verified.",
-      "Attackers often use believable stories to lower suspicion.",
-      "Verification through official channels is one of the best defenses."
+      "Social engineering exploits human psychology rather than technical vulnerabilities.",
+      "Attackers use manipulation to gain access to information or systems.",
+      "Common tactics: pretexting, baiting, tailgating, and phishing.",
+      "Always verify identities before sharing sensitive information.",
+      "Be suspicious of unsolicited requests, even from seemingly trusted sources."
     ],
     scenario: {
-      title: "Part 2: Verify Before Trusting",
-      instructions:
-        "Decide whether the request below should be trusted immediately.",
-      heading: "Unexpected help desk call",
+      title: "Scenario: Phone Call",
+      instructions: "Choose the best response.",
+      heading: "You receive a call from someone claiming to be IT support. They ask for your password to 'fix an issue.'",
       body: [
-        "A caller says they are from IT support and urgently need your login details to fix a system issue before your account is locked."
+        "They sound professional and know your name."
       ],
-      options: ["Share details", "Verify identity first"],
-      correctAnswer: "Verify identity first",
-      correctText:
-        "Correct. Identity should always be verified before sharing sensitive information.",
-      incorrectText:
-        "Incorrect. Attackers often impersonate support teams and use urgency to pressure users."
-    },
-    extraScenario: {
-      title: "Part 2.1: Real-World Situation",
-      instructions: "Choose the safest response.",
-      heading: "Delivery Message",
-      body: [
-        "A message claims your package cannot be delivered until you confirm personal details.",
-        "It includes a link and says the issue must be fixed within one hour."
-      ],
-      options: ["Click and confirm", "Verify through the official company site"],
-      correctAnswer: "Verify through the official company site",
-      correctText:
-        "Correct. Social engineering often uses trusted brands and urgency to push users into unsafe actions.",
-      incorrectText:
-        "Incorrect. Clicking a rushed verification link from an unexpected message can expose personal information."
-    },
-    realWorld: {
-      title: "Part 4: Real-Life Threat Story",
-      story: [
-        "An attacker called an employee pretending to be from internal IT support.",
-        "They sounded professional and said the company network had an urgent issue.",
-        "The employee was asked to share login information for verification.",
-        "Because the request felt urgent and official, the employee almost complied.",
-        "This is a classic social engineering technique using impersonation and pressure."
-      ],
-      takeaway:
-        "Even when a request sounds professional, verify identity through a trusted channel before sharing anything sensitive."
+      options: ["Give them your password", "Ask for their ID and verify through official channels", "Ignore and hang up"],
+      correctAnswer: "Ask for their ID and verify through official channels",
+      correctText: "Correct! Never give passwords over the phone. Always verify the caller's identity through official company channels.",
+      incorrectText: "Incorrect! IT support will never ask for your password. Always verify before sharing any information."
     },
     quiz: [
       {
-        question: "What is a key sign of social engineering?",
+        question: "What is social engineering?",
         options: [
-          "Someone pressures you to act quickly without verification",
-          "A bookmarked trusted website",
-          "A scheduled class announcement",
-          "A browser autofill suggestion"
+          "Building social networks",
+          "Psychological manipulation to gain information or access",
+          "Engineering social media platforms",
+          "A type of software development"
         ],
-        answer: "Someone pressures you to act quickly without verification",
-        explanation:
-          "Manipulation and pressure are major warning signs in social engineering attacks."
+        answer: "Psychological manipulation to gain information or access",
+        explanation: "Social engineering uses psychological tricks to manipulate people into revealing information."
       },
       {
-        question: "What should you do if someone requests confidential information unexpectedly?",
+        question: "What is 'pretexting'?",
         options: [
-          "Verify their identity through a trusted channel",
-          "Provide it immediately",
-          "Ignore all security rules",
-          "Post it in a group chat"
+          "Creating a false scenario to obtain information",
+          "Writing a document",
+          "Testing software",
+          "Building websites"
         ],
-        answer: "Verify their identity through a trusted channel",
-        explanation:
-          "Verification through an official or known channel reduces the risk of impersonation attacks."
+        answer: "Creating a false scenario to obtain information",
+        explanation: "Pretexting involves creating a fabricated scenario to trick victims into sharing information."
       },
       {
-        question: "Social engineering mainly targets what?",
+        question: "If someone urgently asks for confidential information, you should:",
         options: [
-          "Human behavior",
-          "Only firewalls",
-          "Only website colors",
-          "Printer speed"
+          "Verify their identity first",
+          "Share it immediately",
+          "Post it publicly",
+          "Ignore all communication forever"
         ],
-        answer: "Human behavior",
-        explanation:
-          "Social engineering works by manipulating people, not just technology."
+        answer: "Verify their identity first",
+        explanation: "Always verify identity through official channels before sharing any sensitive information."
       },
       {
-        question: "Which tactic is commonly used by social engineers?",
+        question: "What is 'tailgating' in security terms?",
         options: [
-          "Pretending to be someone trustworthy",
-          "Fixing your password safely",
-          "Upgrading your antivirus for free",
-          "Teaching coding classes"
+          "Following someone into a secure area without proper authentication",
+          "Following someone on social media",
+          "Driving too close to another car",
+          "A type of email tracking"
         ],
-        answer: "Pretending to be someone trustworthy",
-        explanation:
-          "Impersonation helps attackers gain trust and convince victims to share information."
+        answer: "Following someone into a secure area without proper authentication",
+        explanation: "Tailgating is when someone follows an authorized person into a secure area without badging in themselves."
       },
       {
-        question: "Why should you avoid sharing sensitive details over an unexpected call?",
+        question: "How can you protect against social engineering?",
         options: [
-          "The caller may be impersonating someone",
-          "Phones cannot carry sound",
-          "It automatically deletes accounts",
-          "It always causes malware instantly"
+          "Share information freely",
+          "Trust everyone by default",
+          "Verify identities and be skeptical of unsolicited requests",
+          "Click all links in emails"
         ],
-        answer: "The caller may be impersonating someone",
-        explanation:
-          "Unexpected callers can pretend to be staff, banks, or support teams to steal information."
+        answer: "Verify identities and be skeptical of unsolicited requests",
+        explanation: "Always verify who you're talking to and be cautious about unsolicited requests for information."
       }
     ]
   },
-
   {
-    key: "safe-browsing",
+    key: "safeBrowsing",
     title: "Safe Browsing",
     route: "/modules/safe-browsing",
     points: 20,
-    image: safeBrowsingImage,
-    description:
-      "Practice safer internet use by identifying risky websites, downloads, and browser behavior.",
+    description: "Learn safer habits for browsing websites and downloading files.",
     content: [
-      "Safe browsing means avoiding suspicious websites, downloads, and pop-ups.",
-      "HTTPS is a good sign, but it does not guarantee that a site is trustworthy.",
-      "Random download links and cracked software websites often carry malware risks.",
-      "Browser and extension updates help fix known security weaknesses.",
-      "Unexpected redirects and aggressive alerts can be warning signs of malicious pages.",
-      "Users should prefer official websites and trusted sources for downloads."
+      "Use trusted websites and check for HTTPS before entering sensitive data.",
+      "Avoid clicking pop-ups that demand urgent action.",
+      "Be cautious with unknown downloads and browser prompts.",
+      "Keep your browser and security tools updated.",
+      "Use ad-blockers and privacy extensions for added protection."
     ],
     scenario: {
-      title: "Part 2: Website Safety Check",
-      instructions: "Decide whether the browsing action below is safe.",
-      heading: "Free software download page",
+      title: "Scenario: Safe Browsing Check",
+      instructions: "Choose the safer action.",
+      heading: "Strange browser pop-up",
       body: [
-        "You land on a website full of pop-ups offering a free cracked version of premium software.",
-        "The page asks you to disable your antivirus before downloading."
+        "A site suddenly says your device is infected and asks you to download an unknown tool."
       ],
-      options: ["Safe", "Unsafe"],
-      correctAnswer: "Unsafe",
-      correctText:
-        "Correct. Suspicious downloads, pop-ups, and requests to disable antivirus are major red flags.",
-      incorrectText:
-        "Incorrect. A website that pushes cracked software and asks you to disable security tools is unsafe."
-    },
-    extraScenario: {
-      title: "Part 2.1: Real-World Situation",
-      instructions: "Pick the safest browsing choice.",
-      heading: "Browser Security Warning",
-      body: [
-        "A browser shows a warning that a website may be deceptive.",
-        "The user is tempted to continue anyway because the page promises a free prize."
-      ],
-      options: ["Ignore the warning", "Leave the site immediately"],
-      correctAnswer: "Leave the site immediately",
-      correctText:
-        "Correct. Browser warnings exist to protect users from deceptive or unsafe pages.",
-      incorrectText:
-        "Incorrect. Ignoring browser warnings can lead to scams, malware, or stolen information."
-    },
-    realWorld: {
-      title: "Part 4: Real-Life Threat Story",
-      story: [
-        "A user searched for free software and clicked a top result that looked convincing.",
-        "The page showed urgent pop-ups and fake scan alerts saying the device was infected.",
-        "The site encouraged the user to download a cleanup tool immediately.",
-        "That download was actually malicious software.",
-        "This is a common safe-browsing failure involving fake alerts and unsafe downloads."
-      ],
-      takeaway:
-        "Do not trust pop-up warnings or downloads from suspicious pages. Use official sources only."
+      options: ["Download it", "Close it and verify"],
+      correctAnswer: "Close it and verify",
+      correctText: "Correct! Unexpected pop-ups and urgent downloads are common web threats. Close the pop-up and run a legitimate security scan.",
+      incorrectText: "Incorrect! Downloading unknown files from pop-ups can install malware. Never trust these scare tactics."
     },
     quiz: [
       {
-        question: "Which website is safer to trust?",
-        options: [
-          "A site with HTTPS and a legitimate domain",
-          "A site with many pop-ups and redirects",
-          "A page asking you to disable antivirus",
-          "A random download mirror"
-        ],
-        answer: "A site with HTTPS and a legitimate domain",
-        explanation:
-          "HTTPS and a trusted domain are positive signs, though users should still stay cautious."
-      },
-      {
-        question: "What should you do before downloading software?",
-        options: [
-          "Check the source is official and trustworthy",
-          "Disable antivirus immediately",
-          "Ignore file warnings",
-          "Download from random ad links"
-        ],
-        answer: "Check the source is official and trustworthy",
-        explanation:
-          "Downloading only from official or trusted sources reduces the risk of malware infection."
-      },
-      {
-        question: "Why are repeated pop-ups on a website suspicious?",
-        options: [
-          "They can be used to trick users into clicking unsafe content",
-          "They always improve security",
-          "They make websites load faster",
-          "They confirm the site is official"
-        ],
-        answer: "They can be used to trick users into clicking unsafe content",
-        explanation:
-          "Aggressive pop-ups are often used to mislead users into unsafe downloads or scams."
-      },
-      {
         question: "What does HTTPS usually indicate?",
         options: [
-          "The connection is encrypted",
-          "The website is fake",
-          "The browser is broken",
-          "The page is offline"
+          "A secure, encrypted connection",
+          "The website is always safe",
+          "The page cannot contain scams",
+          "It is a government site"
         ],
-        answer: "The connection is encrypted",
-        explanation:
-          "HTTPS means the connection is protected, though users should still verify the website itself."
+        answer: "A secure, encrypted connection",
+        explanation: "HTTPS encrypts data between your browser and the website, protecting it from interception."
       },
       {
-        question: "Which browsing habit is safest?",
+        question: "What should you do with a suspicious download prompt?",
         options: [
-          "Keeping browsers and extensions updated",
-          "Ignoring updates forever",
-          "Downloading every free tool you see",
-          "Turning off all warnings"
+          "Close it and verify the source",
+          "Download it immediately",
+          "Turn off antivirus",
+          "Ignore browser warnings"
         ],
-        answer: "Keeping browsers and extensions updated",
-        explanation:
-          "Updates often patch security flaws and reduce exposure to known threats."
+        answer: "Close it and verify the source",
+        explanation: "Always close suspicious prompts and verify downloads from official sources only."
+      },
+      {
+        question: "What is a browser extension and why be careful?",
+        options: [
+          "They're always safe to install",
+          "Small programs that can access your browsing data; only install from trusted sources",
+          "They automatically protect you",
+          "They speed up your internet"
+        ],
+        answer: "Small programs that can access your browsing data; only install from trusted sources",
+        explanation: "Browser extensions can have permissions to read your data. Only install from official stores and trusted developers."
+      },
+      {
+        question: "What does a 'man-in-the-middle' attack do?",
+        options: [
+          "Intercepts communication between you and a website",
+          "Steals your physical mail",
+          "Hacks your computer remotely",
+          "Creates fake websites"
+        ],
+        answer: "Intercepts communication between you and a website",
+        explanation: "MITM attacks intercept communications to steal data. HTTPS helps prevent this."
+      },
+      {
+        question: "What should you look for in a legitimate website?",
+        options: [
+          "Fancy design and animations",
+          "HTTPS, correct domain spelling, and contact information",
+          "Many pop-up ads",
+          "Requests to install software immediately"
+        ],
+        answer: "HTTPS, correct domain spelling, and contact information",
+        explanation: "Legitimate websites have security indicators like HTTPS and proper contact information."
       }
     ]
   },
-
   {
     key: "incident",
     title: "Incident Reporting",
     route: "/modules/incident",
     points: 20,
-    image: incidentImage,
-    description:
-      "Learn why early reporting matters when something suspicious happens online.",
+    description: "Know how and when to report suspicious activity or security issues.",
     content: [
-      "A security incident can include malware alerts, suspicious emails, unauthorized access, or device loss.",
-      "Quick reporting helps reduce damage and supports faster response.",
-      "People should not hide incidents because of fear or embarrassment.",
-      "Good incident reporting includes what happened, when it happened, and what actions were taken.",
-      "Delays in reporting can allow threats to spread further.",
-      "Even uncertain situations should be reported if they appear suspicious."
+      "Report suspicious incidents as quickly as possible.",
+      "Do not hide accidental clicks or unusual activity.",
+      "Screenshots, timelines, and details help responders investigate.",
+      "Fast reporting helps reduce the damage of an incident.",
+      "Know your organization's incident response procedures."
     ],
     scenario: {
-      title: "Part 2: Report or Ignore?",
-      instructions: "Decide what the safest action is in this situation.",
-      heading: "Suspicious attachment opened",
+      title: "Scenario: Incident Reporting Check",
+      instructions: "Pick the best next step.",
+      heading: "Suspicious link clicked",
       body: [
-        "An employee opens an attachment from an unknown sender and notices unusual system behavior afterward."
+        "You clicked a suspicious link and your browser started behaving strangely."
       ],
-      options: ["Ignore it", "Report it immediately"],
-      correctAnswer: "Report it immediately",
-      correctText:
-        "Correct. Prompt reporting helps contain the issue and reduces the chance of greater damage.",
-      incorrectText:
-        "Incorrect. Ignoring a possible incident can allow malware or unauthorized access to spread."
-    },
-    extraScenario: {
-      title: "Part 2.1: Real-World Situation",
-      instructions: "Choose the best next step.",
-      heading: "Accidental Click",
-      body: [
-        "A worker clicks a suspicious link by mistake.",
-        "Nothing obvious happens immediately, so they think maybe it is fine.",
-        "They feel embarrassed and consider staying silent."
-      ],
-      options: ["Stay silent", "Report the incident immediately"],
-      correctAnswer: "Report the incident immediately",
-      correctText:
-        "Correct. Reporting early is important even when the impact is not immediately visible.",
-      incorrectText:
-        "Incorrect. Many threats do not show instant visible damage, so silence can make the situation worse."
-    },
-    realWorld: {
-      title: "Part 4: Real-Life Threat Story",
-      story: [
-        "An employee clicked a malicious link and noticed unusual behavior on the device.",
-        "They hesitated to report it because they felt embarrassed.",
-        "By the time the issue was reported, suspicious activity had spread further.",
-        "Security teams had to spend more time containing the damage than they would have with earlier notice.",
-        "This shows why prompt reporting is a critical part of cybersecurity."
-      ],
-      takeaway:
-        "Reporting quickly is more important than hiding a mistake. Early action reduces damage."
+      options: ["Report immediately", "Ignore it"],
+      correctAnswer: "Report immediately",
+      correctText: "Correct! Fast reporting helps contain the issue and reduce damage. Security teams can investigate and mitigate quickly.",
+      incorrectText: "Incorrect! Ignoring a possible incident can make the situation worse. Always report suspicious activity immediately."
     },
     quiz: [
       {
-        question: "Why is incident reporting important?",
+        question: "When should you report a security incident?",
         options: [
-          "It helps contain security risks quickly",
-          "It guarantees nothing bad happened",
-          "It removes the need for passwords",
-          "It hides mistakes automatically"
+          "Only if you're sure it's serious",
+          "As soon as you suspect something is wrong",
+          "After you fix it yourself",
+          "Never, it's not your responsibility"
         ],
-        answer: "It helps contain security risks quickly",
-        explanation:
-          "Early reporting gives the organization a chance to respond before the damage grows."
+        answer: "As soon as you suspect something is wrong",
+        explanation: "Early reporting allows security teams to respond quickly and minimize potential damage."
       },
       {
-        question: "What should a good incident report include?",
+        question: "What information should you include in an incident report?",
         options: [
-          "What happened, when it happened, and relevant details",
-          "Only emotions and guesses",
-          "Nothing unless damage is confirmed",
-          "Just the file name"
+          "Just 'something happened'",
+          "Time, date, description, screenshots, and what you observed",
+          "Only your personal opinion",
+          "Blame colleagues"
         ],
-        answer: "What happened, when it happened, and relevant details",
-        explanation:
-          "Clear details help support teams investigate and respond effectively."
+        answer: "Time, date, description, screenshots, and what you observed",
+        explanation: "Detailed information helps security teams investigate and resolve incidents effectively."
       },
       {
-        question: "What is an example of a security incident?",
+        question: "What should you NOT do after a security incident?",
         options: [
-          "A suspicious email attachment causing unusual behavior",
-          "A normal school announcement",
-          "A friend sending a meme",
-          "Typing a correct password"
+          "Report to IT",
+          "Document what happened",
+          "Hide it or try to fix it alone",
+          "Take screenshots"
         ],
-        answer: "A suspicious email attachment causing unusual behavior",
-        explanation:
-          "Unexpected behavior after interacting with suspicious content is a strong sign of an incident."
+        answer: "Hide it or try to fix it alone",
+        explanation: "Don't hide incidents or attempt to fix them alone. This can make the situation worse."
       },
       {
-        question: "Why should users report incidents quickly?",
+        question: "What's the primary goal of incident reporting?",
         options: [
-          "To reduce damage and support fast response",
-          "To make the issue look worse",
-          "To avoid using the internet forever",
-          "To automatically erase all files"
+          "To blame someone",
+          "To quickly contain and mitigate damage",
+          "To create paperwork",
+          "To avoid responsibility"
         ],
-        answer: "To reduce damage and support fast response",
-        explanation:
-          "Fast reporting improves the chance of containing threats before they spread."
+        answer: "To quickly contain and mitigate damage",
+        explanation: "Quick reporting enables fast response to minimize damage and protect the organization."
       },
       {
-        question: "What should you avoid after noticing a possible incident?",
+        question: "What is a 'false positive' in incident reporting?",
         options: [
-          "Ignoring it out of embarrassment",
-          "Reporting what happened",
-          "Giving clear details",
-          "Following proper response steps"
+          "A real threat that was ignored",
+          "A reported incident that turns out to be harmless",
+          "A positive outcome from an incident",
+          "An automated response"
         ],
-        answer: "Ignoring it out of embarrassment",
-        explanation:
-          "Hiding a problem delays the response and may allow the impact to become much worse."
+        answer: "A reported incident that turns out to be harmless",
+        explanation: "False positives are incidents that are reported but turn out to be harmless. It's still better to report and confirm."
       }
     ]
   }

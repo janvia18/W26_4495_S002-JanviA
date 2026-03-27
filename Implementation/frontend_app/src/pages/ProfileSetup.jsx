@@ -1,93 +1,150 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
 
-const avatars = [
-  { id: "bear", emoji: "🐻", label: "Bear" },
-  { id: "cat", emoji: "🐱", label: "Cat" },
-  { id: "dog", emoji: "🐶", label: "Dog" },
-  { id: "fox", emoji: "🦊", label: "Fox" },
-  { id: "panda", emoji: "🐼", label: "Panda" },
-  { id: "rabbit", emoji: "🐰", label: "Rabbit" },
-  { id: "lion", emoji: "🦁", label: "Lion" },
-  { id: "owl", emoji: "🦉", label: "Owl" }
+const avatarOptions = [
+  { emoji: "🛡️", label: "Shield" },
+  { emoji: "🔒", label: "Lock" },
+  { emoji: "🦊", label: "Fox" },
+  { emoji: "🐱", label: "Cat" },
+  { emoji: "🐶", label: "Dog" },
+  { emoji: "🐼", label: "Panda" },
+  { emoji: "🦁", label: "Lion" },
+  { emoji: "🐧", label: "Penguin" },
+  { emoji: "🦉", label: "Owl" },
+  { emoji: "🐨", label: "Koala" }
 ];
 
 export default function ProfileSetup() {
+  const { profile, updateProfile, loading } = useProgress();
   const navigate = useNavigate();
-  const { profile, updateProfile } = useProgress();
-
+  
   const [name, setName] = useState("");
-  const [avatar, setAvatar] = useState("🐻");
+  const [organization, setOrganization] = useState("");
+  const [role, setRole] = useState("");
+  const [avatar, setAvatar] = useState("🛡️");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
+  // Load profile data when available
   useEffect(() => {
-    if (profile?.name) setName(profile.name);
-    if (profile?.avatar) setAvatar(profile.avatar);
+    if (profile) {
+      setName(profile.name || "");
+      setOrganization(profile.organization || "");
+      setRole(profile.role || "");
+      setAvatar(profile.avatar || "🛡️");
+    }
   }, [profile]);
 
-  const handleSubmit = (e) => {
+  if (loading) {
+    return (
+      <div className="page-shell">
+        <div className="content-wrap">
+          <div className="main-card">
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              Loading...
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    updateProfile({
-      name: name.trim() || "Learner",
-      avatar
-    });
-    navigate("/dashboard");
+    
+    if (!name.trim()) {
+      setError("Please enter your name.");
+      return;
+    }
+    
+    setSaving(true);
+    setError("");
+    
+    try {
+      await updateProfile({
+        name: name.trim(),
+        organization: organization.trim(),
+        role: role.trim(),
+        avatar
+      });
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Failed to save profile. Please try again.");
+      console.error("Profile save error:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="page-shell">
       <div className="content-wrap">
         <div className="main-card profile-card">
-          <div className="page-header-row">
+          <h1 className="page-title">Create Your Profile</h1>
+          <p className="muted-text">Tell us a bit about yourself to personalize your experience</p>
+          
+          <form onSubmit={handleSave} className="form-grid">
             <div>
-              <h1 className="page-title">Profile Setup</h1>
-              <p className="muted-text">
-                Personalize your CyberAware experience by choosing a display name and avatar.
-              </p>
-            </div>
-          </div>
-
-          <div className="subtle-line" />
-
-          <form onSubmit={handleSubmit} className="form-grid">
-            <div>
-              <label htmlFor="displayName">Display Name</label>
+              <label>Your Name *</label>
               <input
-                id="displayName"
                 type="text"
-                placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+                required
+                disabled={saving}
               />
             </div>
-
             <div>
-              <label>Choose an Avatar</label>
+              <label>Organization (Optional)</label>
+              <input
+                type="text"
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
+                placeholder="e.g., Company, School, or Organization"
+                disabled={saving}
+              />
+            </div>
+            <div>
+              <label>Role (Optional)</label>
+              <input
+                type="text"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                placeholder="e.g., Developer, Manager, Student"
+                disabled={saving}
+              />
+            </div>
+            <div>
+              <label>Choose Your Avatar</label>
               <div className="character-grid">
-                {avatars.map((item) => (
+                {avatarOptions.map((option) => (
                   <button
-                    key={item.id}
+                    key={option.label}
                     type="button"
-                    className={`character-card ${avatar === item.emoji ? "selected" : ""}`}
-                    onClick={() => setAvatar(item.emoji)}
+                    className={`character-card ${avatar === option.emoji ? "selected" : ""}`}
+                    onClick={() => setAvatar(option.emoji)}
+                    disabled={saving}
                   >
-                    <div className="character-emoji">{item.emoji}</div>
-                    <div className="character-name">{item.label}</div>
+                    <div className="character-emoji">{option.emoji}</div>
+                    <div className="character-name">{option.label}</div>
                   </button>
                 ))}
               </div>
             </div>
-
+            {error && <p className="error-text">{error}</p>}
             <div className="profile-actions">
-              <button type="submit" className="primary-btn">
-                Save Profile
+              <button className="primary-btn" type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Save Profile"}
               </button>
               <button
+                className="secondary-btn"
                 type="button"
-                className="ghost-btn"
                 onClick={() => navigate("/dashboard")}
+                disabled={saving}
               >
-                Cancel
+                Skip for Now
               </button>
             </div>
           </form>

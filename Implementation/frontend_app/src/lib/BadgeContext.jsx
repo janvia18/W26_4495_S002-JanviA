@@ -1,85 +1,137 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "./supabase";
 import { useProgress } from "./ProgressContext";
 
 const BadgeContext = createContext(null);
 
-const badgeDefinitions = [
-  {
-    id: "first-module",
+export const badgeDefinitions = {
+  first_module: {
+    id: "first_module",
     title: "First Win",
     description: "Completed your first module.",
-    unlocked: (completedCount) => completedCount >= 1,
+    icon: "🏆"
   },
-  {
-    id: "halfway",
+  halfway_hero: {
+    id: "halfway_hero",
     title: "Halfway Hero",
     description: "Completed 3 modules.",
-    unlocked: (completedCount) => completedCount >= 3,
+    icon: "⚡"
   },
-  {
-    id: "all-modules",
+  champion: {
+    id: "champion",
     title: "CyberAware Champion",
     description: "Completed all 6 modules.",
-    unlocked: (completedCount) => completedCount >= 6,
+    icon: "👑"
   },
-];
+  expert: {
+    id: "expert",
+    title: "Security Expert",
+    description: "Earned 120+ points.",
+    icon: "🎓"
+  }
+};
 
 export function BadgeProvider({ children }) {
-  const { completedCount } = useProgress();
-
-  const [earnedBadges, setEarnedBadges] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("cyberaware_badges") || "[]");
-    } catch {
-      return [];
-    }
-  });
-
+  const { user, completedCount, points } = useProgress();
+  const [earnedBadges, setEarnedBadges] = useState([]);
   const [showBadgeNotification, setShowBadgeNotification] = useState(null);
 
   useEffect(() => {
-    const nextBadge = badgeDefinitions.find((badge) => {
-      const alreadyEarned = earnedBadges.some((earned) => earned.id === badge.id);
-      return badge.unlocked(completedCount) && !alreadyEarned;
-    });
+    if (user) {
+      loadBadges();
+    } else {
+      setEarnedBadges([]);
+    }
+  }, [user]);
 
-    if (!nextBadge) return;
+  useEffect(() => {
+    if (user && completedCount !== undefined && points !== undefined) {
+      checkForNewBadges();
+    }
+  }, [completedCount, points, user]);
 
-    const updatedBadges = [...earnedBadges, nextBadge];
-    setEarnedBadges(updatedBadges);
-    localStorage.setItem("cyberaware_badges", JSON.stringify(updatedBadges));
-    setShowBadgeNotification(nextBadge);
-  }, [completedCount, earnedBadges]);
+  const loadBadges = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_badges')
+        .select('*')
+        .eq('user_id', user.id);
 
-  const clearBadgeNotification = () => {
-    setShowBadgeNotification(null);
+      if (!error && data) {
+        const badges = data.map(b => badgeDefinitions[b.badge_id]).filter(Boolean);
+        setEarnedBadges(badges);
+      }
+    } catch (error) {
+      console.error('Error loading badges:', error);
+    }
   };
 
-  const resetBadges = () => {
-    localStorage.removeItem("cyberaware_badges");
-    setEarnedBadges([]);
-    setShowBadgeNotification(null);
+  const checkForNewBadges = async () => {
+    if (!user) return;
+    
+    const badgesToEarn = [];
+    
+    if (completedCount >= 1 && !earnedBadges.some(b => b.id === 'first_module')) {
+      badgesToEarn.push(badgeDefinitions.first_module);
+    }
+    if (completedCount >= 3 && !earnedBadges.some(b => b.id === 'halfway_hero')) {
+      badgesToEarn.push(badgeDefinitions.halfway_hero);
+    }
+    if (completedCount >= 6 && !earnedBadges.some(b => b.id === 'champion')) {
+      badgesToEarn.push(badgeDefinitions.champion);
+    }
+    if (points >= 120 && !earnedBadges.some(b => b.id === 'expert')) {
+      badgesToEarn.push(badgeDefinitions.expert);
+    }
+    
+    if (badgesToEarn.length > 0) {
+      for (const badge of badgesToEarn) {
+        try {
+          const { error } = await supabase
+            .from('user_badges')
+            .insert({
+              user_id: user.id,
+              badge_id: badge.id,
+              earned_at: new Date()
+            });
+            
+          if (!error) {
+            setEarnedBadges(prev => [...prev, badge]);
+            setShowBadgeNotification(badge);
+            
+            setTimeout(() => {
+              setShowBadgeNotification(null);
+            }, 5000);
+          }
+        } catch (error) {
+          console.error('Error saving badge:', error);
+        }
+      }
+    }
   };
 
-  const value = useMemo(() => {
-    return {
-      earnedBadges,
-      showBadgeNotification,
-      clearBadgeNotification,
-      resetBadges,
-      badgeDefinitions,
-    };
-  }, [earnedBadges, showBadgeNotification]);
+  const clearBadgeNotification = () => setShowBadgeNotification(null);
 
-  return <BadgeContext.Provider value={value}>{children}</BadgeContext.Provider>;
+  const value = {
+    earnedBadges,
+    showBadgeNotification,
+    clearBadgeNotification,
+    badgeDefinitions
+  };
+
+  return (
+    <BadgeContext.Provider value={value}>
+      {children}
+    </BadgeContext.Provider>
+  );
 }
 
 export function useBadges() {
   const context = useContext(BadgeContext);
-
   if (!context) {
     throw new Error("useBadges must be used inside BadgeProvider");
   }
-
   return context;
 }
