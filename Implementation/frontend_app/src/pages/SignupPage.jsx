@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useProgress } from "../lib/ProgressContext";
+import { signUpUser } from "../services/auth";
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const { signup } = useProgress();
 
   const [form, setForm] = useState({
     name: "",
@@ -25,12 +24,18 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
 
-    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
+    const cleanedForm = {
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+    };
+
+    if (!cleanedForm.name || !cleanedForm.email || !cleanedForm.password) {
       setError("Please fill in all fields.");
       return;
     }
 
-    if (form.password.length < 6) {
+    if (cleanedForm.password.length < 6) {
       setError("Password must be at least 6 characters long.");
       return;
     }
@@ -38,11 +43,7 @@ export default function SignupPage() {
     try {
       setLoading(true);
 
-      await signup({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password,
-      });
+      await signUpUser(cleanedForm);
 
       navigate("/profile-setup");
     } catch (err) {
@@ -74,6 +75,7 @@ export default function SignupPage() {
                 placeholder="Enter your full name"
                 value={form.name}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -86,6 +88,7 @@ export default function SignupPage() {
                 placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -98,6 +101,8 @@ export default function SignupPage() {
                 placeholder="Create a password"
                 value={form.password}
                 onChange={handleChange}
+                minLength={6}
+                required
               />
             </div>
 

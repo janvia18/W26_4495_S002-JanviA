@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useProgress } from "../lib/ProgressContext";
+import { loginUser } from "../services/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useProgress();
 
   const [form, setForm] = useState({
     email: "",
@@ -24,7 +23,12 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    if (!form.email.trim() || !form.password.trim()) {
+    const cleanedForm = {
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+    };
+
+    if (!cleanedForm.email || !cleanedForm.password) {
       setError("Please enter both email and password.");
       return;
     }
@@ -32,10 +36,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      await login({
-        email: form.email.trim(),
-        password: form.password,
-      });
+      await loginUser(cleanedForm);
 
       navigate("/dashboard");
     } catch (err) {
@@ -64,6 +65,7 @@ export default function LoginPage() {
                 placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -76,6 +78,7 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
+                required
               />
             </div>
 

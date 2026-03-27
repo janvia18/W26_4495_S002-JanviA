@@ -1,142 +1,105 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useProgress } from "../lib/ProgressContext";
-import { modulesData } from "./modulesData";
+import QuizModule from "../components/QuizModule";
+import socialImg from "../assets/social-engineering-comic.webp";
 
-export default function Modules() {
-  const { progress, points } = useProgress();
+const questions = [
+  {
+    id: 1,
+    image: socialImg,
+    question: "What is social engineering?",
+    options: [
+      "Manipulating people into giving information or access",
+      "Designing social media pages",
+      "Building office networks",
+      "Repairing damaged hardware",
+    ],
+    correctAnswer: "Manipulating people into giving information or access",
+    correctNote:
+      "Correct. Social engineering targets human trust, fear, or helpfulness.",
+    incorrectNote:
+      "Incorrect. Social engineering is about manipulating people, not technology alone.",
+    takeaway:
+      "Attackers often hack people before they hack systems.",
+  },
+  {
+    id: 2,
+    image: socialImg,
+    question: "Which situation is most likely a social engineering attempt?",
+    options: [
+      "A caller pressures you to share login details immediately",
+      "A coworker books a meeting",
+      "A manager sends a regular agenda",
+      "A calendar reminder appears",
+    ],
+    correctAnswer: "A caller pressures you to share login details immediately",
+    correctNote:
+      "Correct. Pressure, urgency, and requests for credentials are classic manipulation tactics.",
+    incorrectNote:
+      "Incorrect. Social engineering attempts often involve pressure and requests for sensitive information.",
+    takeaway:
+      "Urgent requests for secrets should always trigger caution.",
+  },
+  {
+    id: 3,
+    image: socialImg,
+    question: "If someone claims to be IT support and asks for your password, what should you do?",
+    options: [
+      "Share it because they sound official",
+      "Verify independently and refuse to share the password",
+      "Text it later",
+      "Write it down and hand it over",
+    ],
+    correctAnswer: "Verify independently and refuse to share the password",
+    correctNote:
+      "Correct. Real support staff should not need your password directly.",
+    incorrectNote:
+      "Incorrect. Never share passwords with someone just because they sound convincing.",
+    takeaway:
+      "Verify identity through trusted channels before acting.",
+  },
+  {
+    id: 4,
+    image: socialImg,
+    question: "Why do attackers sometimes pretend to be authority figures?",
+    options: [
+      "To pressure people into compliance",
+      "To improve Wi-Fi speed",
+      "To shorten security policies",
+      "To reset passwords faster",
+    ],
+    correctAnswer: "To pressure people into compliance",
+    correctNote:
+      "Correct. People are more likely to comply when they believe the request comes from authority.",
+    incorrectNote:
+      "Incorrect. Pretending to be an authority figure is a manipulation tactic, not a technical requirement.",
+    takeaway:
+      "Authority can be faked. Verify before you trust.",
+  },
+  {
+    id: 5,
+    image: socialImg,
+    question: "What is the best defense against social engineering?",
+    options: [
+      "Blind trust in familiar names",
+      "Verification, caution, and reporting suspicious requests",
+      "Sharing extra information to be helpful",
+      "Ignoring all coworkers",
+    ],
+    correctAnswer: "Verification, caution, and reporting suspicious requests",
+    correctNote:
+      "Correct. Social engineering is best stopped by slowing down, verifying, and escalating concerns.",
+    incorrectNote:
+      "Incorrect. The safest response is to verify requests and report suspicious behavior.",
+    takeaway:
+      "A short pause can prevent a very long problem.",
+  },
+];
 
-  const order = [
-    "phishing",
-    "passwords",
-    "mfa",
-    "social",
-    "safe-browsing",
-    "incident",
-  ];
-
-  const timeMap = {
-    phishing: "10 min",
-    passwords: "8 min",
-    mfa: "7 min",
-    social: "9 min",
-    "safe-browsing": "8 min",
-    incident: "6 min",
-  };
-
-  const emojiMap = {
-    phishing: "📨",
-    passwords: "🔐",
-    mfa: "📱",
-    social: "🕵️",
-    "safe-browsing": "🌐",
-    incident: "🚨",
-  };
-
-  const isUnlocked = (key) => {
-    const index = order.indexOf(key);
-    if (index === 0) return true;
-    return progress.completed[order[index - 1]];
-  };
-
-  const completedCount = order.filter((key) => progress.completed[key]).length;
-  const totalModules = order.length;
-  const completionPercent = Math.round((completedCount / totalModules) * 100);
-
+export default function ModuleSocial() {
   return (
-    <div className="page-shell">
-      <div className="content-wrap">
-        <div className="main-card">
-          <div className="page-header-row">
-            <div>
-              <h1 className="page-title">Modules</h1>
-              <p className="muted-text">
-                Explore each cybersecurity topic in sequence, complete quizzes,
-                and earn points as you progress.
-              </p>
-            </div>
-
-            <Link className="ghost-btn" to="/dashboard">
-              Back to Dashboard
-            </Link>
-          </div>
-
-          <div className="subtle-line" />
-
-          <div className="stats-row">
-            <div className="stat-box">
-              <h3>Total Points</h3>
-              <p className="big-number">{points}</p>
-            </div>
-
-            <div className="stat-box">
-              <h3>Completed Modules</h3>
-              <p className="big-number">
-                {completedCount}/{totalModules}
-              </p>
-            </div>
-
-            <div className="stat-box">
-              <h3>Completion</h3>
-              <p className="big-number">{completionPercent}%</p>
-            </div>
-          </div>
-
-          <div className="subtle-line" />
-
-          <div className="module-list">
-            {modulesData.map((module, index) => {
-              const unlocked = isUnlocked(module.key);
-              const completed = progress.completed[module.key];
-
-              return (
-                <div key={module.key} className="module-item">
-                  <div className="module-left">
-                    <div className="module-title">
-                      Module {index + 1}: {module.title}{" "}
-                      <span className="module-emoji">{emojiMap[module.key]}</span>
-                    </div>
-
-                    <div className="module-desc">{module.description}</div>
-
-                    <div className="module-time">Estimated time: {timeMap[module.key]}</div>
-                    <div className="module-time">Reward: {module.points} points</div>
-                  </div>
-
-                  <div className="module-right">
-                    <div className="module-status">
-                      {completed
-                        ? "Completed ✅"
-                        : unlocked
-                        ? "Available"
-                        : "Locked"}
-                    </div>
-
-                    {completed ? (
-                      <Link className="ghost-btn" to={module.route}>
-                        Review Module
-                      </Link>
-                    ) : unlocked ? (
-                      <Link className="primary-btn" to={module.route}>
-                        Start Module
-                      </Link>
-                    ) : (
-                      <button className="ghost-btn" disabled>
-                        Finish Previous Module
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="modules-note">
-            Modules are unlocked in order so learners can build knowledge step
-            by step. Progress is currently saved locally for this prototype.
-          </p>
-        </div>
-      </div>
-    </div>
+    <QuizModule
+      title="Social Engineering"
+      description="Understand how attackers manipulate trust, urgency, and authority to trick people."
+      questions={questions}
+    />
   );
 }
