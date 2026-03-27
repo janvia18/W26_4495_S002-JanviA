@@ -3,24 +3,9 @@ import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
 
 export default function Dashboard() {
-  const { profile, points, level, completedCount, progress, loading } = useProgress();
-  
-  if (loading) {
-    return (
-      <div className="page-shell">
-        <div className="content-wrap">
-          <div className="main-card">
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              Loading your dashboard...
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  const progressPercent = Math.round((completedCount / 6) * 100) || 0;
-  
+  const { profile, points, level, completedCount, progress } = useProgress();
+  const progressPercent = Math.round((completedCount / 6) * 100);
+
   const modules = [
     { key: 'phishing', title: 'Phishing Awareness' },
     { key: 'passwords', title: 'Password Security' },
@@ -29,100 +14,67 @@ export default function Dashboard() {
     { key: 'safeBrowsing', title: 'Safe Browsing' },
     { key: 'incident', title: 'Incident Reporting' }
   ];
-  
-  const nextModule = modules.find(m => !progress?.completed?.[m.key]);
+
+  const nextModule = modules.find(m => !progress.completed?.[m.key]);
   const nextTitle = nextModule ? nextModule.title : 'All modules completed! 🎉';
-  
-  // Safe defaults for profile
-  const userName = profile?.name || 'Learner';
-  const userAvatar = profile?.avatar || '🛡️';
-  const userOrg = profile?.organization || '';
-  
+
   return (
-    <div className="page-shell">
-      <div className="content-wrap">
-        <div className="main-card">
-          <div className="dashboard-top">
-            <div>
-              <h1 className="page-title">CyberAware Dashboard</h1>
-              <p className="muted-text">Track your cybersecurity learning journey</p>
-            </div>
-          </div>
-          
-          <div className="dashboard-user-row">
-            <div className="user-chip-large">
-              <span className="avatar-large">{userAvatar}</span>
-              <div>
-                <h2>Welcome, {userName}!</h2>
-                {userOrg && <p className="muted-text">{userOrg}</p>}
-              </div>
-            </div>
-          </div>
-          
-          <div className="dashboard-grid">
-            <div className="dashboard-main-panel">
-              <div className="stats-summary">
-                <div className="stat-card">
-                  <h3>Points</h3>
-                  <p className="big-number">{points || 0}</p>
-                </div>
-                <div className="stat-card">
-                  <h3>Level</h3>
-                  <p className="level-text">{level || 'Beginner'}</p>
-                </div>
-                <div className="stat-card">
-                  <h3>Completed</h3>
-                  <p className="big-number">{completedCount || 0}/6</p>
-                </div>
-              </div>
-              
-              <div className="progress-section">
-                <div className="progress-header">
-                  <h3>Overall Progress</h3>
-                  <span>{progressPercent}%</span>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-                </div>
-              </div>
-              
-              <div className="dashboard-actions">
-                <Link className="primary-btn" to="/modules">
-                  Continue Learning
-                </Link>
-                <Link className="secondary-btn" to="/profile">
-                  Edit Profile
-                </Link>
-              </div>
-              
-              <div className="next-module-card">
-                <h3>🎯 Next Up</h3>
-                <p>{nextTitle}</p>
-                {nextModule && (
-                  <Link className="ghost-btn" to={`/modules/${nextModule.key}`}>
-                    Start Module →
-                  </Link>
-                )}
-              </div>
-            </div>
-            
-            <div className="dashboard-side-panel">
-              <div className="tip-card">
-                <h3>💡 Pro Tip</h3>
-                <p>Complete all 6 modules to become a CyberAware Champion and unlock exclusive badges!</p>
-              </div>
-              <div className="achievement-preview">
-                <h3>🏆 Achievements</h3>
-                <div className="achievement-icons">
-                  {(completedCount || 0) >= 1 && <span>🏅 First Win</span>}
-                  {(completedCount || 0) >= 3 && <span>⚡ Halfway Hero</span>}
-                  {(completedCount || 0) >= 6 && <span>👑 Champion</span>}
-                  {(points || 0) >= 120 && <span>🎓 Expert</span>}
-                </div>
-              </div>
-            </div>
-          </div>
+    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+      <h1>CyberAware Dashboard</h1>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "20px", padding: "20px", background: "#f5f5f5", borderRadius: "12px", marginBottom: "30px" }}>
+        <div style={{ fontSize: "48px" }}>{profile.avatar || "🛡️"}</div>
+        <div>
+          <h2 style={{ margin: 0 }}>Welcome, {profile.name || "Learner"}!</h2>
+          {profile.organization && <p style={{ margin: "5px 0 0 0", color: "#666" }}>{profile.organization}</p>}
         </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "30px" }}>
+        <div style={{ padding: "20px", background: "white", borderRadius: "12px", textAlign: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+          <h3>Points</h3>
+          <p style={{ fontSize: "32px", fontWeight: "bold", margin: "10px 0 0 0", color: "#6c63ff" }}>{points}</p>
+        </div>
+        <div style={{ padding: "20px", background: "white", borderRadius: "12px", textAlign: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+          <h3>Level</h3>
+          <p style={{ fontSize: "24px", fontWeight: "bold", margin: "10px 0 0 0", color: "#6c63ff" }}>{level}</p>
+        </div>
+        <div style={{ padding: "20px", background: "white", borderRadius: "12px", textAlign: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+          <h3>Completed</h3>
+          <p style={{ fontSize: "32px", fontWeight: "bold", margin: "10px 0 0 0", color: "#6c63ff" }}>{completedCount}/6</p>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: "30px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+          <h3>Overall Progress</h3>
+          <span>{progressPercent}%</span>
+        </div>
+        <div style={{ height: "10px", background: "#e0e0e0", borderRadius: "5px", overflow: "hidden" }}>
+          <div style={{ width: `${progressPercent}%`, height: "100%", background: "#6c63ff", transition: "width 0.3s" }} />
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: "15px", marginBottom: "30px" }}>
+        <Link to="/modules" style={{ padding: "12px 24px", background: "#6c63ff", color: "white", borderRadius: "8px", textDecoration: "none" }}>
+          Continue Learning
+        </Link>
+        <Link to="/profile" style={{ padding: "12px 24px", background: "#f0f0f0", color: "#333", borderRadius: "8px", textDecoration: "none" }}>
+          Edit Profile
+        </Link>
+        <Link to="/achievements" style={{ padding: "12px 24px", background: "#f0f0f0", color: "#333", borderRadius: "8px", textDecoration: "none" }}>
+          Achievements
+        </Link>
+      </div>
+
+      <div style={{ padding: "20px", background: "#f9f9ff", borderRadius: "12px", border: "1px solid #6c63ff" }}>
+        <h3 style={{ margin: "0 0 10px 0" }}>🎯 Next Up</h3>
+        <p style={{ margin: "0 0 15px 0" }}>{nextTitle}</p>
+        {nextModule && (
+          <Link to={`/modules/${nextModule.key}`} style={{ padding: "8px 16px", background: "#6c63ff", color: "white", borderRadius: "5px", textDecoration: "none", display: "inline-block" }}>
+            Start Module →
+          </Link>
+        )}
       </div>
     </div>
   );

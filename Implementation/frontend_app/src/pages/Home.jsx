@@ -1,48 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Home() {
+export default function About() {
   return (
-    <div className="page-shell">
-      <div className="content-wrap">
-        <div className="hero-box">
-          <p className="eyebrow">🎓 Cybersecurity Training Portal</p>
-          <h1 className="hero-title">CyberAware</h1>
-          <p className="hero-text">
-            A professional cybersecurity awareness platform designed to help learners build safer online habits 
-            through guided modules, realistic scenarios, quizzes, badges, and progress tracking.
-          </p>
-          <div className="hero-actions">
-            <Link className="primary-btn" to="/signup">
-              Get Started Free
-            </Link>
-            <Link className="secondary-btn" to="/login">
-              Log In
-            </Link>
-            <Link className="secondary-btn" to="/about">
-              Learn More
-            </Link>
-          </div>
-        </div>
-        
-        <div className="features-grid" style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-          <div className="feature-card" style={{ background: 'white', borderRadius: '16px', padding: '1.5rem' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📚</div>
-            <h3>6 Interactive Modules</h3>
-            <p className="muted-text">Learn phishing, passwords, MFA, social engineering, safe browsing, and incident reporting</p>
-          </div>
-          <div className="feature-card" style={{ background: 'white', borderRadius: '16px', padding: '1.5rem' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎯</div>
-            <h3>30+ Quiz Questions</h3>
-            <p className="muted-text">Test your knowledge with detailed explanations for each answer</p>
-          </div>
-          <div className="feature-card" style={{ background: 'white', borderRadius: '16px', padding: '1.5rem' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏆</div>
-            <h3>Earn Badges & Points</h3>
-            <p className="muted-text">Track your progress and unlock achievements as you learn</p>
-          </div>
-        </div>
-      </div>
+    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
+      <Link to="/" style={{ display: "inline-block", marginBottom: "20px", color: "#6c63ff", textDecoration: "none" }}>← Back Home</Link>
+      <h1>About CyberAware</h1>
+      <p>CyberAware is a cybersecurity awareness learning app built to help users understand practical digital safety in a simple, engaging, and professional way.</p>
+
+      <h2>What You'll Learn</h2>
+      <ul>
+        <li><strong>Phishing Awareness</strong> - Spot fake emails and suspicious links</li>
+        <li><strong>Password Security</strong> - Create and manage strong passwords</li>
+        <li><strong>Multi-Factor Authentication</strong> - Add extra security layers</li>
+        <li><strong>Social Engineering</strong> - Recognize manipulation tactics</li>
+        <li><strong>Safe Browsing</strong> - Browse the web securely</li>
+        <li><strong>Incident Reporting</strong> - Know when and how to report issues</li>
+      </ul>
+
+      <h2>Features</h2>
+      <ul>
+        <li>6 interactive modules with 5 questions each</li>
+        <li>Real-world scenarios with detailed feedback</li>
+        <li>Points system and level progression</li>
+        <li>Achievement badges for milestones</li>
+        <li>Progress tracking dashboard</li>
+      </ul>
     </div>
   );
 }

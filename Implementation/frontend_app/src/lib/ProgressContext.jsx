@@ -5,7 +5,7 @@ const ProgressContext = createContext();
 
 export function ProgressProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState({ name: "Learner", avatar: "🛡️" });
+  const [profile, setProfile] = useState({ name: "Learner", avatar: "🛡️", organization: "", role: "" });
   const [progress, setProgress] = useState({ completed: {} });
   const [points, setPoints] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -16,12 +16,7 @@ export function ProgressProvider({ children }) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           setUser(session.user);
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          if (profileData) setProfile(profileData);
+          await loadUserData(session.user.id);
         }
       } catch (error) {
         console.error("Error checking user:", error);
@@ -31,13 +26,44 @@ export function ProgressProvider({ children }) {
     };
     checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        setUser(session.user);
+        await loadUserData(session.user.id);
+      } else {
+        setUser(null);
+        setProfile({ name: "Learner", avatar: "🛡️", organization: "", role: "" });
+        setProgress({ completed: {} });
+        setPoints(0);
+      }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const loadUserData = async (userId) => {
+    try {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (profileData) setProfile(profileData);
+
+      const { data: progressData } = await supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      if (progressData) {
+        setProgress(progressData.progress || { completed: {} });
+        setPoints(progressData.points || 0);
+      }
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    }
+  };
 
   const login = async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -63,14 +89,18 @@ export function ProgressProvider({ children }) {
 
   const completeModule = async (moduleKey, earnedPoints = 20) => {
     if (!user) return;
+    if (progress.completed?.[moduleKey]) return;
+
     const newProgress = { 
       ...progress, 
       completed: { ...progress.completed, [moduleKey]: true } 
     };
     const newPoints = points + earnedPoints;
+
     const { error } = await supabase
       .from('user_progress')
       .upsert({ user_id: user.id, progress: newProgress, points: newPoints });
+
     if (!error) {
       setProgress(newProgress);
       setPoints(newPoints);
@@ -80,22 +110,14 @@ export function ProgressProvider({ children }) {
   const completedCount = Object.values(progress.completed || {}).filter(Boolean).length;
   const level = points >= 120 ? "Expert" : points >= 80 ? "Advanced" : points >= 40 ? "Intermediate" : "Beginner";
 
-  const value = {
-    user,
-    profile,
-    progress,
-    points,
-    loading,
-    level,
-    completedCount,
-    login,
-    signup,
-    logout,
-    updateProfile,
-    completeModule
-  };
-
-  return React.createElement(ProgressContext.Provider, { value }, children);
+  return (
+    <ProgressContext.Provider value={{
+      user, profile, progress, points, loading, level, completedCount,
+      login, signup, logout, updateProfile, completeModule
+    }}>
+      {children}
+    </ProgressContext.Provider>
+  );
 }
 
 export function useProgress() {

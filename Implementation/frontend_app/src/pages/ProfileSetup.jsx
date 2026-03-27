@@ -26,7 +26,6 @@ export default function ProfileSetup() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Load profile data when available
   useEffect(() => {
     if (profile) {
       setName(profile.name || "");

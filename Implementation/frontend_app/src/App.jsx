@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import AppHeader from './components/AppHeader';
-import BadgeNotification from './components/BadgeNotification';
-import { BadgeProvider, useBadges } from './lib/BadgeContext';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProgressProvider, useProgress } from './lib/ProgressContext';
+import { BadgeProvider } from './lib/BadgeContext';
 import Home from './pages/Home';
 import About from './pages/About';
 import LoginPage from './pages/LoginPage';
@@ -23,103 +21,31 @@ function PrivateRoute({ children }) {
   const { user, loading } = useProgress();
   
   if (loading) {
-    return (
-      <div className="page-shell">
-        <div className="content-wrap">
-          <div className="main-card">
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              Loading...
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
   }
   
   return user ? children : <Navigate to="/login" replace />;
 }
 
-function AppContentWithBadges() {
-  const { showBadgeNotification, clearBadgeNotification } = useBadges();
-  const [currentBadge, setCurrentBadge] = useState(null);
-
-  useEffect(() => {
-    if (showBadgeNotification) {
-      setCurrentBadge(showBadgeNotification);
-      const timer = setTimeout(() => {
-        setCurrentBadge(null);
-        clearBadgeNotification();
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [showBadgeNotification, clearBadgeNotification]);
-
-  const handleCloseBadge = () => {
-    setCurrentBadge(null);
-    clearBadgeNotification();
-  };
-
+function AppRoutes() {
   return (
-    <>
-      <BadgeNotification badge={currentBadge} onClose={handleCloseBadge} />
-      <AppHeader />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        } />
-        <Route path="/modules" element={
-          <PrivateRoute>
-            <Modules />
-          </PrivateRoute>
-        } />
-        <Route path="/profile" element={
-          <PrivateRoute>
-            <ProfileSetup />
-          </PrivateRoute>
-        } />
-        <Route path="/achievements" element={
-          <PrivateRoute>
-            <Achievements />
-          </PrivateRoute>
-        } />
-        <Route path="/modules/phishing" element={
-          <PrivateRoute>
-            <ModulePhishing />
-          </PrivateRoute>
-        } />
-        <Route path="/modules/passwords" element={
-          <PrivateRoute>
-            <ModulePasswords />
-          </PrivateRoute>
-        } />
-        <Route path="/modules/mfa" element={
-          <PrivateRoute>
-            <ModuleMFA />
-          </PrivateRoute>
-        } />
-        <Route path="/modules/social" element={
-          <PrivateRoute>
-            <ModuleSocial />
-          </PrivateRoute>
-        } />
-        <Route path="/modules/safe-browsing" element={
-          <PrivateRoute>
-            <ModuleSafeBrowsing />
-          </PrivateRoute>
-        } />
-        <Route path="/modules/incident" element={
-          <PrivateRoute>
-            <ModuleIncident />
-          </PrivateRoute>
-        } />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Route path="/modules" element={<PrivateRoute><Modules /></PrivateRoute>} />
+      <Route path="/profile-setup" element={<PrivateRoute><ProfileSetup /></PrivateRoute>} />
+      <Route path="/profile" element={<PrivateRoute><ProfileSetup /></PrivateRoute>} />
+      <Route path="/achievements" element={<PrivateRoute><Achievements /></PrivateRoute>} />
+      <Route path="/modules/phishing" element={<PrivateRoute><ModulePhishing /></PrivateRoute>} />
+      <Route path="/modules/passwords" element={<PrivateRoute><ModulePasswords /></PrivateRoute>} />
+      <Route path="/modules/mfa" element={<PrivateRoute><ModuleMFA /></PrivateRoute>} />
+      <Route path="/modules/social" element={<PrivateRoute><ModuleSocial /></PrivateRoute>} />
+      <Route path="/modules/safe-browsing" element={<PrivateRoute><ModuleSafeBrowsing /></PrivateRoute>} />
+      <Route path="/modules/incident" element={<PrivateRoute><ModuleIncident /></PrivateRoute>} />
+    </Routes>
   );
 }
 
@@ -127,7 +53,9 @@ function App() {
   return (
     <ProgressProvider>
       <BadgeProvider>
-        <AppContentWithBadges />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
       </BadgeProvider>
     </ProgressProvider>
   );

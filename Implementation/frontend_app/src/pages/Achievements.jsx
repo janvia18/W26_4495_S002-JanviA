@@ -1,62 +1,60 @@
 import React from 'react';
-import { useBadges } from '../lib/BadgeContext';
+import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
+import { useBadges } from '../lib/BadgeContext';
 
 export default function Achievements() {
-  const { earnedBadges, badgeDefinitions } = useBadges();
-  const { completedCount, points } = useProgress();
-  
+  const { points, completedCount } = useProgress();
+  const { earnedBadges } = useBadges();
+
   const allBadges = [
-    { id: 'first_module', title: 'First Win', description: 'Completed your first module.', icon: '🏆', requirement: 'Complete 1 module', check: () => completedCount >= 1 },
-    { id: 'halfway_hero', title: 'Halfway Hero', description: 'Completed 3 modules.', icon: '⚡', requirement: 'Complete 3 modules', check: () => completedCount >= 3 },
-    { id: 'champion', title: 'CyberAware Champion', description: 'Completed all 6 modules.', icon: '👑', requirement: 'Complete all modules', check: () => completedCount >= 6 },
-    { id: 'expert', title: 'Security Expert', description: 'Earned 120+ points.', icon: '🎓', requirement: 'Reach 120 points', check: () => points >= 120 }
+    { id: 'first_module', title: 'First Win', description: 'Completed your first module', icon: '🏆', requirement: 'Complete 1 module', check: () => completedCount >= 1 },
+    { id: 'halfway_hero', title: 'Halfway Hero', description: 'Completed 3 modules', icon: '⚡', requirement: 'Complete 3 modules', check: () => completedCount >= 3 },
+    { id: 'champion', title: 'CyberAware Champion', description: 'Completed all 6 modules', icon: '👑', requirement: 'Complete all modules', check: () => completedCount >= 6 },
+    { id: 'expert', title: 'Security Expert', description: 'Earned 120+ points', icon: '🎓', requirement: 'Reach 120 points', check: () => points >= 120 }
   ];
-  
-  const earnedIds = earnedBadges.map(b => b.id);
-  
+
   return (
-    <div className="page-shell">
-      <div className="content-wrap">
-        <div className="main-card">
-          <h1 className="page-title">🏆 Achievements</h1>
-          <p className="muted-text">Badges you unlock as you progress through the platform</p>
-          
-          <div className="achievements-grid">
-            {allBadges.map((badge) => {
-              const isEarned = earnedIds.includes(badge.id);
-              
-              return (
-                <div key={badge.id} className={`achievement-card ${isEarned ? 'earned' : 'locked'}`}>
-                  <div className="achievement-icon">{badge.icon}</div>
-                  <div className="achievement-info">
-                    <h3>{badge.title}</h3>
-                    <p>{badge.description}</p>
-                    <small className="muted-text">{badge.requirement}</small>
-                    {isEarned && (
-                      <div className="achievement-badge">Earned!</div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          
-          <div className="stats-summary" style={{ marginTop: '2rem' }}>
-            <div className="stat-card">
-              <h3>Modules Completed</h3>
-              <p className="big-number">{completedCount}/6</p>
+    <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
+        <h1>🏆 Achievements</h1>
+        <Link to="/dashboard" style={{ padding: "8px 16px", background: "#f0f0f0", borderRadius: "5px", textDecoration: "none", color: "#333" }}>
+          ← Dashboard
+        </Link>
+      </div>
+
+      <p style={{ color: "#666", marginBottom: "30px" }}>Badges you unlock as you progress through the platform</p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
+        {allBadges.map(badge => {
+          const isEarned = earnedBadges.some(b => b.id === badge.id);
+
+          return (
+            <div key={badge.id} style={{
+              padding: "20px",
+              border: `2px solid ${isEarned ? '#28a745' : '#e0e0e0'}`,
+              borderRadius: "12px",
+              background: isEarned ? '#f0fff4' : 'white',
+              transition: "all 0.2s"
+            }}>
+              <div style={{ fontSize: "48px", marginBottom: "10px" }}>{badge.icon}</div>
+              <h3 style={{ margin: "0 0 5px 0" }}>
+                {badge.title} {isEarned && "✓"}
+              </h3>
+              <p style={{ margin: "0 0 10px 0", color: "#666" }}>{badge.description}</p>
+              <small style={{ color: isEarned ? '#28a745' : '#999' }}>
+                {isEarned ? "Earned!" : `Requirement: ${badge.requirement}`}
+              </small>
             </div>
-            <div className="stat-card">
-              <h3>Total Points</h3>
-              <p className="big-number">{points}</p>
-            </div>
-            <div className="stat-card">
-              <h3>Badges Earned</h3>
-              <p className="big-number">{earnedBadges.length}/{allBadges.length}</p>
-            </div>
-          </div>
-        </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: "30px", padding: "20px", background: "#f5f5f5", borderRadius: "12px", textAlign: "center" }}>
+        <h3>Your Stats</h3>
+        <p>📊 Modules Completed: {completedCount}/6</p>
+        <p>⭐ Total Points: {points}/120</p>
+        <p>🏅 Badges Earned: {earnedBadges.length}/{allBadges.length}</p>
       </div>
     </div>
   );

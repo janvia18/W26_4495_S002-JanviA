@@ -1,69 +1,66 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useProgress } from "../lib/ProgressContext";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useProgress } from '../lib/ProgressContext';
 
 export default function LoginPage() {
   const { login } = useProgress();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
       await login(email, password);
-      navigate("/dashboard");
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.message || "Invalid email or password");
+      setError('Invalid email or password');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="page-shell">
-      <div className="content-wrap">
-        <div className="auth-card">
-          <h1 className="page-title">Welcome Back</h1>
-          <p className="muted-text">Log in to continue your cybersecurity journey</p>
-          
-          <form onSubmit={handleSubmit} className="form-grid">
-            <div>
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-            <div>
-              <label>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-            {error && <p className="error-text">{error}</p>}
-            <button className="primary-btn" type="submit" disabled={loading}>
-              {loading ? "Logging in..." : "Log In"}
-            </button>
-          </form>
-          
-          <p className="muted-text" style={{ marginTop: 16, textAlign: "center" }}>
-            Don't have an account? <Link to="/signup">Sign up</Link>
-          </p>
+    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "40px 20px" }}>
+      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>Welcome Back</h1>
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: "100%", padding: "10px", border: "1px solid #ddd", borderRadius: "5px" }}
+            required
+          />
         </div>
-      </div>
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: "100%", padding: "10px", border: "1px solid #ddd", borderRadius: "5px" }}
+            required
+          />
+        </div>
+        {error && <p style={{ color: "red", marginBottom: "15px" }}>{error}</p>}
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ width: "100%", padding: "12px", background: "#6c63ff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}
+        >
+          {loading ? "Logging in..." : "Log In"}
+        </button>
+      </form>
+      <p style={{ textAlign: "center", marginTop: "20px" }}>
+        Don't have an account? <Link to="/signup" style={{ color: "#6c63ff" }}>Sign up</Link>
+      </p>
     </div>
   );
 }

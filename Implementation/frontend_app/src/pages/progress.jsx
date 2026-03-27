@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
-import { modulesData } from "./modulesData";
+import { modulesData } from "../lib/modulesData";
 
 export default function ProgressPage() {
   const { progress, completedCount, points, level, resetProgress } = useProgress();
