@@ -1,0 +1,23 @@
+# Dependencies & build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/.next/
+**/out/
+
+# Secrets — never commit real keys
+.env
+.env.*
+!.env.example
+
+# Logs & local
+*.log
+npm-debug.log*
+*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
