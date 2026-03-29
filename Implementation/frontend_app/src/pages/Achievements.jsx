@@ -72,7 +72,7 @@ export default function Achievements() {
           </div>
           <div className="achievements-page-top-actions">
             <Link to="/dashboard" className="ghost-btn">
-              Command center
+              Dashboard
             </Link>
             <Link to="/modules" className="primary-btn achievements-page-cta-modules">
               Continue missions

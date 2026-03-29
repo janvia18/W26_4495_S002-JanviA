@@ -1,6 +1,5 @@
 /**
  * One-time / maintenance: rasterize comic SVGs to JPG for production assets.
- * Run: node scripts/generate-comic-jpgs.mjs
  */
 import sharp from 'sharp';
 import fs from 'fs';

@@ -26,7 +26,7 @@ This app is a **Vite + React** single-page application. Build output is the `dis
 1. Go to [vercel.com](https://vercel.com) and sign in.
 2. **Add New Project** → import your Git repository.
 3. Set **Root Directory** to `frontend_app` (if the repo contains more than this app).
-4. Framework: **Vite** (auto-detected). Build: `npm run build`, Output: `dist`.
+4. Framework: **Vite** (auto-detected). Use the default production build and set the output folder to **`dist`**.
 5. **Environment Variables**: add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 6. Deploy. You get a URL like `https://cyberaware-xxx.vercel.app` and can attach a custom domain under **Project → Settings → Domains**.
 
@@ -38,7 +38,7 @@ This app is a **Vite + React** single-page application. Build output is the `dis
 
 1. Go to [netlify.com](https://netlify.com) → **Add new site** → **Import an existing project**.
 2. Root directory: `frontend_app` if needed.
-3. Build command: `npm run build`, Publish directory: `dist`.
+3. In the site settings, use your host’s defaults for a Vite project (production build, publish **`dist`**).
 4. **Site settings → Environment variables**: add the two `VITE_*` variables.
 5. Deploy. Custom domain: **Domain management**.
 
@@ -49,7 +49,7 @@ This app is a **Vite + React** single-page application. Build output is the `dis
 ## Option C — Cloudflare Pages
 
 1. **Workers & Pages** → **Create** → **Pages** → Connect Git.
-2. Build command: `npm run build`, Build output directory: `dist`, root `frontend_app` if applicable.
+2. Configure a Vite-style production build with output directory **`dist`**, using root **`frontend_app`** if applicable.
 3. **Settings → Environment variables**: add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 4. Add a **Single Page Application** rule: `/*` → `200` → `/index.html` (or use Cloudflare’s SPA setting).
 
@@ -57,7 +57,7 @@ This app is a **Vite + React** single-page application. Build output is the `dis
 
 ## Option D — Any static host (S3, nginx, etc.)
 
-1. Run `npm run build` inside `frontend_app`.
+1. Produce a production build from the `frontend_app` project (Vite’s standard production build).
 2. Upload the contents of **`dist/`** (not the folder name itself, unless your server expects it).
 3. Configure the server so **unknown paths** return **`index.html`** with status **200** (SPA fallback). Without this, refreshing `/dashboard` will 404.
 
@@ -65,13 +65,7 @@ This app is a **Vite + React** single-page application. Build output is the `dis
 
 ## Verify locally before going live
 
-```bash
-cd frontend_app
-npm run build
-npm run preview
-```
-
-Open the printed URL and test login and navigation.
+From the `frontend_app` directory, run a production build and a local preview using the scripts defined in **`package.json`** (Vite’s usual build and preview flow). Open the URL your tool prints and test login and navigation.
 
 ---
 

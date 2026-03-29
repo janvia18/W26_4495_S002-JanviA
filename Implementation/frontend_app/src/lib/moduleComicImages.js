@@ -1,6 +1,6 @@
 /**
  * Comic panel artwork (JPG) under src/assets/module-comics/
- * Swap files in place to update art. Optional: add comic-*.svg sources and run npm run generate:comics to rebuild JPGs.
+ * Swap files in place to update art. Optional: add comic-*.svg sources and rebuild JPGs via the comic generation script in package.json.
  */
 import comicPhishing1 from '../assets/module-comics/comic-phishing-1.jpg';
 import comicPhishing2 from '../assets/module-comics/comic-phishing-2.jpg';

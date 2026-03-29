@@ -63,7 +63,7 @@ export default function Dashboard() {
       <div className="content-wrap dashboard-pro-inner">
         <header className="dashboard-pro-header">
           <div className="dashboard-pro-brand">
-            <h1 className="dashboard-pro-title">Command center</h1>
+            <h1 className="dashboard-pro-title">Dashboard</h1>
             <p className="muted-text dashboard-pro-sub">Your CyberAware progression hub</p>
           </div>
           <div className="dashboard-pro-identity">

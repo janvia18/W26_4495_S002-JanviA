@@ -125,7 +125,7 @@ export default function About() {
             </Link>
             {user ? (
               <Link to="/dashboard" className="nav-inline muted-text">
-                Command center →
+                Dashboard →
               </Link>
             ) : (
               <Link to="/login" className="nav-inline muted-text">
@@ -244,7 +244,7 @@ export default function About() {
               Progress, XP, and achievements
             </h2>
             <p className="muted-text">
-              Your dashboard is the command center: total XP, rank tier, and how many of the six missions you have cleared. Points
+              Your dashboard shows total XP, rank tier, and how many of the six missions you have cleared. Points
               come from passing modules; ranks give you a quick sense of how far you have moved along the path.
             </p>
             <p className="muted-text">

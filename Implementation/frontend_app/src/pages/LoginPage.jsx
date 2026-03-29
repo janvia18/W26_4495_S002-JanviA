@@ -41,7 +41,7 @@ export default function LoginPage() {
           <div className="main-card auth-engage-card">
             <p className="auth-engage-card-kicker">Welcome back</p>
             <h1 className="auth-engage-card-title">Sign in</h1>
-            <p className="muted-text auth-engage-card-lead">Enter your credentials to open the command center.</p>
+            <p className="muted-text auth-engage-card-lead">Enter your credentials to open your dashboard.</p>
             <form className="auth-engage-form" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="login-email">Email</label>
@@ -68,7 +68,7 @@ export default function LoginPage() {
               </div>
               {error && <p className="error-text">{error}</p>}
               <button type="submit" className="primary-btn auth-engage-submit" disabled={loading}>
-                {loading ? 'Signing in…' : 'Enter command center'}
+                {loading ? 'Signing in…' : 'Sign in'}
               </button>
             </form>
             <p className="auth-engage-footer muted-text">

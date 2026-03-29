@@ -35,7 +35,7 @@ export default function Home() {
               </p>
               <div className="landing-hero-actions">
                 <Link to={user ? '/dashboard' : '/signup'} className="primary-btn landing-cta-primary">
-                  {user ? 'Open command center' : 'Start your run'}
+                  {user ? 'Open dashboard' : 'Start your run'}
                 </Link>
                 <Link to="/about" className="ghost-btn">
                   About the platform
@@ -129,7 +129,7 @@ export default function Home() {
               Explore About
             </Link>
             <Link to={user ? '/dashboard' : '/signup'} className="ghost-btn">
-              {user ? 'Back to command center' : 'Start learning'}
+              {user ? 'Back to dashboard' : 'Start learning'}
             </Link>
           </div>
         </section>
