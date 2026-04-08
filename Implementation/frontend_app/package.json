@@ -4,10 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "generate:comics": "node scripts/generate-comic-jpgs.mjs"
+    "predev": "node scripts/ensure-deps.mjs",
+    "dev": "node node_modules/vite/bin/vite.js",
+    "prebuild": "node scripts/ensure-deps.mjs",
+    "build": "node node_modules/vite/bin/vite.js build",
+    "prepreview": "node scripts/ensure-deps.mjs",
+    "preview": "node node_modules/vite/bin/vite.js preview",
+    "generate:comics": "node scripts/generate-comic-jpgs.mjs",
+    "generate:placeholders": "node scripts/generate-screenshot-placeholders.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

@@ -1,5 +1,6 @@
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from './supabase';
 
+/** Server-side badge rules (badges catalog + per-module scores). Not used by the UI — see BadgeContext. */
 export const badgeService = {
   async checkAndAwardBadges(userId) {
     try {
@@ -10,13 +11,19 @@ export const badgeService = {
       
       if (progressError) throw progressError;
 
-      const { data: stats, error: statsError } = await supabase
+      const { data: statsRow, error: statsError } = await supabase
         .from('user_stats')
         .select('*')
         .eq('user_id', userId)
-        .single();
-      
+        .maybeSingle();
+
       if (statsError) throw statsError;
+
+      const stats = statsRow || {
+        modules_completed: 0,
+        total_points: 0,
+        current_level: 1,
+      };
 
       const { data: allBadges, error: badgesError } = await supabase
         .from('badges')

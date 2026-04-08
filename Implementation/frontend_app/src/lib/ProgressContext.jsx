@@ -62,18 +62,23 @@ export function ProgressProvider({ children }) {
 
   const loadUserData = async (userId) => {
     try {
-      const { data: profileData } = await supabase
+      // maybeSingle: 0 rows → null without HTTP 406 (.single() forces exactly one row)
+      const { data: profileData, error: profileErr } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
+      if (profileErr) console.warn('profiles:', profileErr.message);
       if (profileData) setProfile(profileData);
 
-      const { data: progressData } = await supabase
+      // One row per user (see supabase/schema.sql). limit(1) avoids errors if an old DB had multiple rows.
+      const { data: progressRows, error: progressErr } = await supabase
         .from('user_progress')
         .select('*')
         .eq('user_id', userId)
-        .single();
+        .limit(1);
+      if (progressErr) console.warn('user_progress:', progressErr.message);
+      const progressData = progressRows?.[0];
       if (progressData) {
         setProgress(progressData.progress || { completed: {} });
         setPoints(progressData.points || 0);
@@ -101,7 +106,7 @@ export function ProgressProvider({ children }) {
     if (!user) return;
     const { error } = await supabase
       .from('profiles')
-      .upsert({ id: user.id, ...data });
+      .upsert({ id: user.id, ...data }, { onConflict: 'id' });
     if (!error) setProfile({ ...profile, ...data });
   };
 
@@ -115,14 +120,17 @@ export function ProgressProvider({ children }) {
     };
     const newPoints = points + earnedPoints;
 
-    const { error } = await supabase
-      .from('user_progress')
-      .upsert({ user_id: user.id, progress: newProgress, points: newPoints });
+    const { error } = await supabase.from('user_progress').upsert(
+      { user_id: user.id, progress: newProgress, points: newPoints },
+      { onConflict: 'user_id' }
+    );
 
-    if (!error) {
-      setProgress(newProgress);
-      setPoints(newPoints);
+    if (error) {
+      console.warn('user_progress upsert:', error.message);
+      return;
     }
+    setProgress(newProgress);
+    setPoints(newPoints);
   };
 
   const completedCount = Object.values(progress.completed || {}).filter(Boolean).length;

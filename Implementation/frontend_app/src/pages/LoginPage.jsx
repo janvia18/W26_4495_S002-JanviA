@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
+import { isSupabaseConfigured } from '../services/supabase';
 
 export default function LoginPage() {
   const { login } = useProgress();
@@ -16,10 +17,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      if (!isSupabaseConfigured()) {
+        setError(
+          'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to frontend_app/.env and restart the dev server (see supabase/SUPABASE_SETUP.md).'
+        );
+        return;
+      }
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid email or password');
+      setError(err?.message || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
@@ -42,6 +49,11 @@ export default function LoginPage() {
             <p className="auth-engage-card-kicker">Welcome back</p>
             <h1 className="auth-engage-card-title">Sign in</h1>
             <p className="muted-text auth-engage-card-lead">Enter your credentials to open your dashboard.</p>
+            {!isSupabaseConfigured() && (
+              <p className="error-text" role="alert">
+                Missing Supabase keys in <code>.env</code>. See <code>supabase/SUPABASE_SETUP.md</code>.
+              </p>
+            )}
             <form className="auth-engage-form" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="login-email">Email</label>

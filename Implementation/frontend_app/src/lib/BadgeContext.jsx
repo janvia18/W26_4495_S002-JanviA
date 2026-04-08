@@ -18,8 +18,19 @@ export function BadgeProvider({ children }) {
   }, [completedCount, points]);
 
   const loadBadges = async () => {
-    const { data } = await supabase.from('user_badges').select('badge_id').eq('user_id', user.id);
-    if (data) setEarnedBadges(data.map(b => b.badge_id));
+    try {
+      const { data, error } = await supabase
+        .from('user_badges')
+        .select('badge_id')
+        .eq('user_id', user.id);
+      if (error) {
+        console.warn('user_badges:', error.message);
+        return;
+      }
+      if (data) setEarnedBadges(data.map((b) => b.badge_id));
+    } catch {
+      /* table may not exist yet */
+    }
   };
 
   const checkNewBadges = async () => {
@@ -30,7 +41,8 @@ export function BadgeProvider({ children }) {
     if (points >= 120 && !earnedBadges.includes('expert')) newBadges.push('expert');
 
     for (const badge of newBadges) {
-      await supabase.from('user_badges').insert({ user_id: user.id, badge_id: badge });
+      const { error } = await supabase.from('user_badges').insert({ user_id: user.id, badge_id: badge });
+      if (error) break;
       setEarnedBadges(prev => [...prev, badge]);
       setShowBadgeNotification(badge);
       setTimeout(() => setShowBadgeNotification(null), 5000);

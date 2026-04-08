@@ -1,6 +1,3 @@
-/**
- * One-time / maintenance: rasterize comic SVGs to JPG for production assets.
- */
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';

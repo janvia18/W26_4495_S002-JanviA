@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
+import { isSupabaseConfigured } from '../services/supabase';
 
 export default function SignupPage() {
   const { signup } = useProgress();
@@ -33,6 +34,12 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
+      if (!isSupabaseConfigured()) {
+        setError(
+          'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to frontend_app/.env and restart the dev server (see supabase/SUPABASE_SETUP.md).'
+        );
+        return;
+      }
       await signup(email, password);
       navigate('/profile-setup');
     } catch (err) {
@@ -59,6 +66,11 @@ export default function SignupPage() {
             <p className="auth-engage-card-kicker">Join CyberAware</p>
             <h1 className="auth-engage-card-title">Create account</h1>
             <p className="muted-text auth-engage-card-lead">Takes under a minute—then you choose your learner profile.</p>
+            {!isSupabaseConfigured() && (
+              <p className="error-text" role="alert">
+                Missing Supabase keys in <code>.env</code>. See <code>supabase/SUPABASE_SETUP.md</code>.
+              </p>
+            )}
             <form className="auth-engage-form" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="signup-email">Email</label>

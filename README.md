@@ -1,66 +1,116 @@
-# Team-_4495_S002-JanviA  
-CyberAware – Web-Based Cybersecurity Awareness Platform  
+# CyberAware — COMP 4495 S002 (W26)
 
-## Course Info  
-- Term: W26  
-- Course: 4495  
-- Section: S002  
+**Team / team lead:** Janvi Arora  
+**Student ID:** 300383801  
 
-## Team  
-- Janvi Arora  
-  - Student ID: 300383801  
-  - Email: janviarora13579@gmail.com  
+Web-based **cybersecurity awareness** platform: structured modules (learn → scenario → quiz → real-world threat example), **XP**, **levels**, **achievements**, and **Supabase**-backed accounts with **Row-Level Security**.
 
-## Project  
+---
 
-CyberAware is a web-based cybersecurity awareness and training platform built using React and Supabase.  
+## Repository layout
 
-The platform allows users to securely create accounts, log in, access protected routes, and complete interactive cybersecurity training modules.  
+| Path | Purpose |
+|------|---------|
+| `Implementation/frontend_app/` | **Runnable app** (React + Vite + Supabase) |
+| `Implementation/frontend_app/supabase/` | **`schema.sql`**, **`SUPABASE_SETUP.md`** |
+| `ReportsAndDocuments/` | Final report (**`.md`**, **`JanviA_FinalReport.docx`**, PDF export), **checklist**, **`Presentation_CyberAware.pptx`**, Marp source `.md` |
+| `DocumentsAndReports/` | **User guide** + `screenshots/` placeholders |
 
-Users earn points based on quiz performance, and modules unlock sequentially to guide structured learning. Progress is tracked per user and secured using Supabase Row-Level Security policies.
+---
 
-The system demonstrates both secure web application development and practical cybersecurity awareness implementation.
+## Quick start — demo from this repository
 
-## Implemented Features  
+### 1. Prerequisites
 
-- Email/password authentication using Supabase  
-- Secure login and logout functionality  
-- Session management  
-- Protected dashboard route  
-- Phishing Awareness module with scoring  
-- Password Security module with passphrase and quiz  
-- Social Engineering module  
-- Sequential module unlock logic  
-- Points system and level calculation  
-- Dynamic progress tracking  
+- **Node.js** LTS and **npm**
+- A **Supabase** project (free tier is fine)
 
-## Tech Stack  
+### 2. Install and configure
 
-- Frontend: React (JavaScript)  
-- Routing: React Router  
-- Backend: Supabase (Authentication + Database)  
-- Security: Row-Level Security (RLS)  
+```bash
+cd Implementation/frontend_app
+npm install
+```
 
-## How to Run  
+Copy **`.env.example`** to **`.env`** and set:
 
-1. Install dependencies  
-   npm install  
+- `VITE_SUPABASE_URL` — from Supabase **Project Settings → API**
+- `VITE_SUPABASE_ANON_KEY` — anon JWT (`eyJ...`) or **publishable** key (`sb_publishable_...`)
 
-2. Create a `.env` file and add:  
+**Never commit `.env`.**
 
-   VITE_SUPABASE_URL=your_project_url  
-   VITE_SUPABASE_ANON_KEY=your_anon_key  
+### 3. Database setup
 
-3. Start development server  
-   npm run dev  
+In Supabase → **SQL Editor**, run:
 
-The application runs at:  
-http://localhost:5173  
+`Implementation/frontend_app/supabase/schema.sql`
 
-## Future Improvements  
+Then add your local URL under **Authentication → URL configuration** (e.g. `http://localhost:5173/**`).
 
-- Full database-based progress synchronization  
+Details: `Implementation/frontend_app/supabase/SUPABASE_SETUP.md`.
+
+### 4. Run
+
+```bash
+npm run dev
+```
+
+Open **http://localhost:5173** (default Vite port).
+
+### 5. Production build (smoke test)
+
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## User guide
+
+End-user instructions (add your screenshots before submission):
+
+- **`DocumentsAndReports/USER_GUIDE.md`**
+
+---
+
+## Final submission artifacts
+
+- **Checklist:** `ReportsAndDocuments/FINAL_SUBMISSION_CHECKLIST.md`  
+- **Final report (source):** `ReportsAndDocuments/JanviA_FinalReport.md`  
+- **Word (submission build):** `ReportsAndDocuments/JanviA_FinalReport_SUBMISSION.docx` — open in Word; **Save As → `JanviA_FinalReport.pdf`** for Blackboard if required  
+- **Export to PDF:** follow `ReportsAndDocuments/HOW_TO_CREATE_JanviA_FinalReport_PDF.md` → save as **`JanviA_FinalReport.pdf`**  
+- **Slides (PowerPoint):** Export from Marp: open `ReportsAndDocuments/Presentation_CyberAware.md` in VS Code → [Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode) → **Export Slide Deck → PPTX** (includes backgrounds + images). A simpler **Pandoc** version is also regenerated as `Presentation_CyberAware.pptx` from `Presentation_CyberAware_pandoc.md`.  
+- **Screenshot placeholders:** `DocumentsAndReports/screenshots/*.png` — run `npm run generate:placeholders` in `Implementation/frontend_app` to reset; **overwrite with real screenshots** before defense.
+
+---
+
+## Implemented features (summary)
+
+- Email/password auth (Supabase), protected routes, session handling  
+- Six modules: Phishing, Passwords, MFA, Social Engineering, Safe Browsing, Incident Reporting  
+- Comics, scenarios, quizzes with explanations, **Part 4 threat examples**  
+- Mission board with **flippable cards**, sequential unlocks, locked-state blur  
+- XP, levels, achievements persisted in Postgres (**`user_progress`**, **`user_badges`**)  
+- Profile editing; configuration guards when Supabase env is missing  
+
+---
+
+## Tech stack
+
+React 18 · React Router 6 · Vite 5 · Supabase (Auth + Postgres + RLS)
+
+---
+
+## Academic integrity
+
+This repository is submitted for **COMP 4495**. It must not be copied as one’s own work by others. Course plagiarism rules apply.
+
+---
+
+## Future improvements
+
+- Optional user study with surveys and longitudinal metrics  
 - Admin analytics dashboard  
-- Additional cybersecurity modules  
-- UI/UX refinements  
-- Automated testing  
+- Additional modules and localization  
+- Automated tests (unit / e2e)

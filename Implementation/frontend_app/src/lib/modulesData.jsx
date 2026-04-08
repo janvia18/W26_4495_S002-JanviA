@@ -9,6 +9,7 @@ export const modulesData = [
       "Phishing tricks users into revealing sensitive information.",
       "Messages often create urgency to pressure you.",
       "Check sender email addresses carefully.",
+      "Look-alike links fool at a glance: e.g. googIe.com uses a capital “I” where you expect a lowercase “L” in google—always hover and read the URL character by character.",
       "Never click suspicious links.",
       "Report phishing attempts to IT security."
     ],
@@ -21,12 +22,13 @@ export const modulesData = [
       subject: "Immediate action required: verify your account.",
       body: [
         "We detected suspicious activity on your account. To avoid suspension, you must verify your identity within 24 hours.",
-        "Verify now: http://secure-check-login-now.net"
+        "Verify now: http://secure-check-login-now.net",
+        "Alternate link: https://googIe.com/security-verify (check every character in the domain)."
       ],
       options: ["Phishing", "Safe"],
       correctAnswer: "Phishing",
-      correctText: "Correct ✅ This message shows phishing signs: a suspicious sender domain, urgent tone, and a mismatched or unsafe link.",
-      incorrectText: "Incorrect. This is phishing: urgent deadlines and links to unknown domains are common red flags."
+      correctText: "Correct ✅ This message shows phishing signs: a suspicious sender domain, urgent tone, mismatched links, and a look-alike domain (googIe.com is not google.com).",
+      incorrectText: "Incorrect. This is phishing: urgent deadlines, unknown domains, and tricks like googIe.com (capital I vs lowercase L) are common red flags."
     },
     quiz: [
       { question: "1. What is phishing?", options: ["A computer virus", "A trick to steal your information", "A type of antivirus", "A password manager"], answer: "A trick to steal your information", explanation: "Phishing tricks you into giving away passwords." },
@@ -38,7 +40,9 @@ export const modulesData = [
       { question: "7. Which attachment behavior is riskiest?", options: ["A known colleague’s expected invoice", "Unexpected .exe or macro-enabled file from unknown sender", "PDF from your IT portal", "Blank spreadsheet from finance"], answer: "Unexpected .exe or macro-enabled file from unknown sender", explanation: "Unexpected executables and macros are common malware delivery methods." },
       { question: "8. What helps protect others after you spot phishing?", options: ["Delete quietly only", "Report through official channels (e.g. IT / “Report phishing”)", "Reply to the sender", "Post the link publicly"], answer: "Report through official channels (e.g. IT / “Report phishing”)", explanation: "Reporting lets security teams block campaigns and warn others." },
       { question: "9. Spear phishing often uses what to seem legitimate?", options: ["Random gibberish only", "Generic “Dear user” only", "Personal or work details gathered about you", "No links"], answer: "Personal or work details gathered about you", explanation: "Targeted phishing uses researched details to earn false trust." }
-    ]
+    ],
+    threatExample:
+      "Someone had a calendar that let outsiders add events (for example a public or loosely shared “open” calendar). A stranger dropped in an event that looked like a paid subscription or renewal reminder. They tried to “cancel” using the link in the invite, but it was a scam site—not the real service—and it was designed to harvest card details or install malware. Unexpected calendar invites and “unsubscribe/cancel” links deserve the same checks as email phishing."
   },
   {
     key: "passwords",
@@ -73,7 +77,9 @@ export const modulesData = [
       { question: "7. A passphrase like “correct-horse-battery-staple” is strong mainly because it is:", options: ["All lowercase only", "Long and unpredictable", "Exactly eight characters", "Shared with friends"], answer: "Long and unpredictable", explanation: "Length and unpredictability beat short complex-looking passwords." },
       { question: "8. If a site you use announces a data breach, you should:", options: ["Ignore it if you rarely visit", "Change that site’s password and check reuse elsewhere", "Reuse the same password again", "Email strangers your new password"], answer: "Change that site’s password and check reuse elsewhere", explanation: "Assume leaked passwords are tried on other services." },
       { question: "9. Two-factor authentication (2FA) with your password means:", options: ["You can use a shorter password", "Attackers need another factor even if they steal the password", "You never need to log in again", "Passwords are optional"], answer: "Attackers need another factor even if they steal the password", explanation: "MFA adds a second proof that thieves usually do not have." }
-    ]
+    ],
+    threatExample:
+      "A shopping site suffers a data breach and leaks millions of email and password pairs. Attackers run those passwords against work email logins. Anyone who reused a password loses their corporate account in minutes—often before the original breach makes the news."
   },
   {
     key: "mfa",
@@ -111,7 +117,9 @@ export const modulesData = [
       { question: "7. Backup codes for MFA should be stored:", options: ["In a public repo", "Safely offline or in a password manager", "In your email signature", "On a shared whiteboard"], answer: "Safely offline or in a password manager", explanation: "Treat backup codes like spare keys—private and protected." },
       { question: "8. “Push bombing” means attackers:", options: ["Send many approval prompts hoping you tap yes", "Improve your Wi-Fi", "Back up your photos", "Update your browser"], answer: "Send many approval prompts hoping you tap yes", explanation: "Fatigue or confusion can make people approve a fake login." },
       { question: "9. If you lose your MFA device, you should:", options: ["Share codes with a friend", "Use account recovery / backup codes and re-enroll MFA", "Disable MFA forever", "Post on social media"], answer: "Use account recovery / backup codes and re-enroll MFA", explanation: "Use official recovery paths to regain access securely." }
-    ]
+    ],
+    threatExample:
+      "An attacker convinces a mobile carrier to move your phone number to their SIM. They request password resets that send SMS codes to them instead of you. Without backup codes or a stronger second factor, they can take over email and every account linked to it."
   },
   {
     key: "social",
@@ -149,7 +157,9 @@ export const modulesData = [
       { question: "7. A caller claims to be IT and asks for your password. You should:", options: ["Give it to fix the issue faster", "Refuse and verify through official support", "Spell it slowly", "Email it instead"], answer: "Refuse and verify through official support", explanation: "Legitimate IT will not ask for your password over the phone." },
       { question: "8. Tailgating at a secure door means:", options: ["Following policy", "Letting a stranger slip in behind you without badging", "Using VPN", "Strong passwords"], answer: "Letting a stranger slip in behind you without badging", explanation: "Physical social engineering often exploits courtesy at entry points." },
       { question: "9. Why do attackers create false urgency?", options: ["To save you time", "To bypass careful thinking and verification", "Because it is polite", "To comply with law"], answer: "To bypass careful thinking and verification", explanation: "Urgency is meant to stop you from double-checking." }
-    ]
+    ],
+    threatExample:
+      "Someone calls claiming to be IT support, cites a fake ticket number, and says they need your password to “fix VPN access.” They sound calm and professional. If you give credentials, they log in as you and send more attacks from your real account."
   },
   {
     key: "safeBrowsing",
@@ -187,7 +197,9 @@ export const modulesData = [
       { question: "7. Typosquatting means:", options: ["Fixing grammar", "Registering look-alike domains to trick users", "HTTPS only", "Browser updates"], answer: "Registering look-alike domains to trick users", explanation: "Small spelling changes in URLs fool people in a hurry." },
       { question: "8. Before installing a browser extension, you should:", options: ["Install all trending ones", "Check reviews, permissions, and whether you need it", "Disable updates", "Share admin passwords"], answer: "Check reviews, permissions, and whether you need it", explanation: "Malicious extensions can read pages and steal data." },
       { question: "9. Public Wi-Fi without a VPN is riskiest for:", options: ["Reading static news with HTTPS", "Logging into sensitive accounts on untrusted networks", "Viewing offline maps", "Changing phone wallpaper"], answer: "Logging into sensitive accounts on untrusted networks", explanation: "Untrusted networks increase risk of interception or fake hotspots." }
-    ]
+    ],
+    threatExample:
+      "You search for a free PDF tool and land on a site that flashes “Your browser is infected—install this cleaner now.” The download is actually remote-control malware. One double-click can give criminals access to files, passwords typed on that machine, and internal network shares."
   },
   {
     key: "incident",
@@ -225,7 +237,9 @@ export const modulesData = [
       { question: "7. If you see ransomware on your screen, you should:", options: ["Pay immediately in secret", "Disconnect from network if safe, report, and follow IR guidance", "Run every unknown “decrypt” tool", "Ignore it"], answer: "Disconnect from network if safe, report, and follow IR guidance", explanation: "Follow organizational incident response—don’t make it worse alone." },
       { question: "8. After a suspected malware infection, reusing the same password on that device is:", options: ["Smart", "Risky until the device is cleaned and credentials rotated", "Required", "Optional forever"], answer: "Risky until the device is cleaned and credentials rotated", explanation: "Assume the device or keystrokes may be compromised until cleared." },
       { question: "9. Post-incident, lessons learned are meant to:", options: ["Punish individuals only", "Improve controls and training for everyone", "Hide failures", "Stop all reporting"], answer: "Improve controls and training for everyone", explanation: "Good IR uses incidents to harden people and systems." }
-    ]
+    ],
+    threatExample:
+      "A user notices odd sent-mail behavior but waits two weeks to tell anyone, hoping it will “go away.” By then, the attacker has set inbox rules, read customer data, and used the mailbox to phish partners. Early reporting could have limited access to a single account."
   }
 ];
 

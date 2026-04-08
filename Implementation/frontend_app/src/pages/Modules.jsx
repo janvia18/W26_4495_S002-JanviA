@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
 import { modulesData } from '../lib/modulesData';
@@ -7,12 +7,12 @@ import { getModuleCoverSrc } from '../lib/moduleAssets';
 const ORDER = ['phishing', 'passwords', 'mfa', 'social', 'safeBrowsing', 'incident'];
 
 const MODULE_TOPIC_EMOJI = {
-  phishing: '📧',
-  passwords: '🔐',
-  mfa: '🔑',
-  social: '🎯',
-  safeBrowsing: '🌐',
-  incident: '📋',
+  phishing: 'PH',
+  passwords: 'PW',
+  mfa: '2F',
+  social: 'SE',
+  safeBrowsing: 'WB',
+  incident: 'IR',
 };
 
 const MODULE_TOPIC_BADGE = {
@@ -24,164 +24,241 @@ const MODULE_TOPIC_BADGE = {
   incident: 'Report & response',
 };
 
-export default function Modules() {
-  const { progress, points, completedCount } = useProgress();
+const MODULE_DIFFICULTY = {
+  phishing: 'Starter',
+  passwords: 'Starter',
+  mfa: 'Intermediate',
+  social: 'Intermediate',
+  safeBrowsing: 'Advanced',
+  incident: 'Advanced',
+};
 
-  const orderedModules = useMemo(
-    () => ORDER.map((key) => modulesData.find((m) => m.key === key)).filter(Boolean),
-    []
-  );
+export default function Modules() {
+  const [flippedKey, setFlippedKey] = useState(null);
+  const { progress, points, completedCount, level } = useProgress();
+  const completed = progress.completed || {};
+
+  const orderedModules = useMemo(() => ORDER.map((key) => modulesData.find((m) => m.key === key)).filter(Boolean), []);
 
   const isUnlocked = (key) => {
     const index = ORDER.indexOf(key);
-    if (index === 0) return true;
-    return progress.completed?.[ORDER[index - 1]] || false;
+    if (index <= 0) return true;
+    return Boolean(completed[ORDER[index - 1]]);
   };
 
   const getStatus = (key) => {
-    if (progress.completed?.[key]) return 'completed';
+    if (completed[key]) return 'completed';
     if (isUnlocked(key)) return 'available';
     return 'locked';
   };
 
-  const nextKey = useMemo(() => {
+  const nextModule = useMemo(() => {
     for (const key of ORDER) {
-      if (!progress.completed?.[key] && isUnlocked(key)) return key;
+      if (!completed[key] && isUnlocked(key)) {
+        return orderedModules.find((m) => m.key === key) || null;
+      }
     }
     return null;
-  }, [progress.completed]);
+  }, [completed, orderedModules]);
+
+  const completionPercent = Math.round((completedCount / ORDER.length) * 100);
+  const pendingCount = ORDER.length - completedCount;
+  const completedXp = orderedModules.reduce((sum, module) => (completed[module.key] ? sum + module.points : sum), 0);
+  const stopFlip = (e) => e.stopPropagation();
 
   return (
     <div className="page-shell modules-page modules-page--grid">
       <div className="content-wrap content-wrap--modules">
-        <header className="modules-page-header">
+        <header className="modules-page-header mc-header">
           <div>
-            <p className="modules-page-kicker">Learning path</p>
-            <h1 className="page-title modules-page-title">Mission board</h1>
-            <p className="muted-text modules-page-lead">
-              Six missions stack like a deck of challenge cards—follow the orb trail up top, flip the next card open, and clear
-              each scenario + quiz to unlock what’s underneath. XP and completion sync to your profile.
-            </p>
-            <p className="modules-page-meta">
-              <strong>{points}</strong> XP · <strong>{completedCount}</strong>/6 cleared
+            <p className="modules-page-kicker">Mission deck</p>
+            <h1 className="page-title modules-page-title">Cyber card stack</h1>
+            <p className="muted-text modules-page-lead mc-header-lead">
+              Your modules are now a playable deck. Clear each card to reveal the next challenge.
             </p>
           </div>
-          <Link to="/dashboard" className="ghost-btn">
-            ← Dashboard
-          </Link>
+          <div className="mc-header-actions">
+            <span className="mc-level-pill">Rank: {level}</span>
+            <Link to="/dashboard" className="ghost-btn">
+              Back to dashboard
+            </Link>
+          </div>
         </header>
 
-        <section className="main-card modules-path-card" aria-labelledby="path-heading">
-          <h2 id="path-heading" className="modules-path-heading">
-            Your route
-          </h2>
-          <p className="muted-text modules-path-sub">Track where you are on the CyberAware path.</p>
-          <div className="modules-path-rail" role="list" aria-label="Modules in order">
-            {ORDER.map((key, i) => {
-              const mod = modulesData.find((m) => m.key === key);
-              const st = getStatus(key);
-              const prevDone = i === 0 ? true : Boolean(progress.completed?.[ORDER[i - 1]]);
-              return (
-                <React.Fragment key={key}>
-                  {i > 0 && (
-                    <div
-                      className={`modules-path-connector ${prevDone ? 'modules-path-connector--done' : ''}`}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <div
-                    className={`modules-path-node modules-path-orb modules-path-node--${st}`}
-                    role="listitem"
-                    title={mod?.title ?? key}
-                  >
-                    <span className="modules-path-orb-shine" aria-hidden="true" />
-                    <span className="modules-path-orb-core">{st === 'completed' ? '✓' : i + 1}</span>
-                  </div>
-                </React.Fragment>
-              );
-            })}
-          </div>
+        <section className="mc-hero">
+          <article className="main-card mc-next-card">
+            <p className="mc-panel-kicker">Top card</p>
+            {nextModule ? (
+              <>
+                <h2 className="mc-next-title">{nextModule.title}</h2>
+                <p className="muted-text mc-next-copy">{nextModule.description}</p>
+                <p className="mc-next-meta">
+                  {MODULE_TOPIC_BADGE[nextModule.key]} - {nextModule.quiz.length} checks - +{nextModule.points} XP
+                </p>
+                <div className="mc-next-actions">
+                  <Link to={nextModule.route} className="primary-btn">
+                    Play next card
+                  </Link>
+                  <span className="mc-next-tag">Recommended</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="mc-next-title">Deck completed</h2>
+                <p className="muted-text mc-next-copy">
+                  Every card is cleared. Review completed cards anytime and keep your skills sharp.
+                </p>
+                <div className="mc-next-actions">
+                  <Link to="/achievements" className="secondary-btn">
+                    View achievements
+                  </Link>
+                </div>
+              </>
+            )}
+          </article>
+
+          <article className="main-card mc-stats-card">
+            <p className="mc-panel-kicker">Deck stats</p>
+            <div className="mc-stats-grid">
+              <div>
+                <span className="mc-stat-label">Completion</span>
+                <span className="mc-stat-value">{completionPercent}%</span>
+              </div>
+              <div>
+                <span className="mc-stat-label">XP secured</span>
+                <span className="mc-stat-value">{points}</span>
+              </div>
+              <div>
+                <span className="mc-stat-label">Cards left</span>
+                <span className="mc-stat-value">{pendingCount}</span>
+              </div>
+              <div>
+                <span className="mc-stat-label">Campaign score</span>
+                <span className="mc-stat-value">{completedXp}</span>
+              </div>
+            </div>
+            <div className="mc-progress">
+              <div className="mc-progress-head">
+                <span>Deck completion</span>
+                <span>
+                  {completedCount}/{ORDER.length}
+                </span>
+              </div>
+              <div className="mc-progress-track" aria-hidden="true">
+                <div className="mc-progress-fill" style={{ width: `${completionPercent}%` }} />
+              </div>
+            </div>
+          </article>
         </section>
 
-        <section className="modules-mission-grid" aria-labelledby="missions-heading">
+        <section className="mc-map-board main-card mc-deck-board" aria-labelledby="missions-heading">
           <h2 id="missions-heading" className="visually-hidden">
             All modules
           </h2>
-          {orderedModules.map((module, index) => {
-            const status = getStatus(module.key);
-            const isLocked = status === 'locked';
-            const isCompleted = status === 'completed';
-            const isNext = nextKey === module.key;
-            const coverSrc = getModuleCoverSrc(module.key);
+          <p className="mc-panel-kicker">Deck lineup</p>
+          <p className="muted-text mc-map-sub">Cards stay in unlock order. No numbered markers, just the stack.</p>
 
-            return (
-              <div
-                key={module.key}
-                className={`modules-deck-wrap modules-deck-wrap--${status} ${isNext ? 'modules-deck-wrap--next' : ''}`}
-              >
-                <span className="modules-deck-fan modules-deck-fan--back" aria-hidden="true" />
-                <span className="modules-deck-fan modules-deck-fan--mid" aria-hidden="true" />
-                <article
-                  className={`modules-mission-tile modules-mission-tile--${status} ${isNext ? 'modules-mission-tile--next' : ''}`}
+          <div className="mc-deck-grid">
+            {orderedModules.map((module) => {
+              const status = getStatus(module.key);
+              const isLocked = status === 'locked';
+              const isCompleted = status === 'completed';
+              const isNext = nextModule?.key === module.key;
+              const coverSrc = getModuleCoverSrc(module.key);
+              const isFlipped = flippedKey === module.key;
+
+              return (
+                <div
+                  key={module.key}
+                  className={`modules-deck-wrap modules-deck-wrap--${status} ${isNext ? 'modules-deck-wrap--next' : ''}`}
                 >
-                <div className="modules-mission-tile-cover">
-                  {coverSrc ? (
-                    <img src={coverSrc} alt="" className="modules-mission-tile-img" width={400} height={200} />
-                  ) : (
-                    <div className="modules-mission-tile-fallback" aria-hidden="true">
-                      {MODULE_TOPIC_EMOJI[module.key] ?? '📚'}
-                    </div>
-                  )}
-                  <span className="visually-hidden">Mission {index + 1}</span>
                   <div
-                    className={`modules-collect-orb modules-collect-orb--${status}`}
-                    aria-hidden="true"
-                    title={`Mission ${index + 1}`}
+                    className={`module-flip-card module-flip-card--${status} ${isFlipped ? 'is-flipped' : ''}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setFlippedKey(isFlipped ? null : module.key)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setFlippedKey(isFlipped ? null : module.key);
+                      }
+                    }}
                   >
-                    <span className="modules-collect-orb-shine" />
-                    <span className="modules-collect-orb-num">{index + 1}</span>
-                  </div>
-                  <span className={`modules-mission-tile-ribbon modules-mission-tile-ribbon--${status}`}>
-                    {isCompleted ? 'Cleared' : isLocked ? 'Locked' : 'Open'}
-                  </span>
-                </div>
-                <div className="modules-mission-tile-body">
-                  <div className="modules-mission-tile-head">
-                    <span className="modules-mission-tile-emoji" aria-hidden="true">
-                      {MODULE_TOPIC_EMOJI[module.key] ?? '📚'}
-                    </span>
-                    <div>
-                      <h3 className="modules-mission-tile-title">{module.title}</h3>
-                      <p className="modules-mission-tile-topic">{MODULE_TOPIC_BADGE[module.key] ?? 'Learning module'}</p>
+                    <div className="module-flip-inner">
+                      <article className={`module-flip-face module-flip-front modules-mission-tile modules-mission-tile--${status}`}>
+                        <div className="modules-mission-tile-cover">
+                          {coverSrc ? (
+                            <img src={coverSrc} alt="" className="modules-mission-tile-img" width={400} height={200} />
+                          ) : (
+                            <div className="modules-mission-tile-fallback" aria-hidden="true">
+                              {MODULE_TOPIC_EMOJI[module.key] ?? 'MD'}
+                            </div>
+                          )}
+                          <span className={`modules-mission-tile-ribbon modules-mission-tile-ribbon--${status}`}>
+                            {isCompleted ? 'Cleared' : isLocked ? 'Locked' : 'Open'}
+                          </span>
+                        </div>
+
+                        <div className="modules-mission-tile-body">
+                          <div className="modules-mission-tile-head">
+                            <span className="modules-mission-tile-emoji" aria-hidden="true">
+                              {MODULE_TOPIC_EMOJI[module.key] ?? 'MD'}
+                            </span>
+                            <div>
+                              <h3 className="modules-mission-tile-title">{module.title}</h3>
+                              <p className="modules-mission-tile-topic">{MODULE_TOPIC_BADGE[module.key] ?? 'Learning module'}</p>
+                            </div>
+                          </div>
+
+                          <p className="muted-text modules-mission-tile-desc">{module.description}</p>
+
+                          <div className="mc-card-tags">
+                            <span className="mc-card-tag">Difficulty: {MODULE_DIFFICULTY[module.key]}</span>
+                            <span className="mc-card-tag">{module.quiz.length} checks</span>
+                            <span className="mc-card-tag">+{module.points} XP</span>
+                          </div>
+
+                          <p className="module-flip-tap-hint muted-text">Tap to flip card</p>
+                        </div>
+                      </article>
+
+                      <article className="module-flip-face module-flip-back">
+                        <p className="module-flip-back-label">Mission briefing</p>
+                        <h3 className="module-flip-title">{module.title}</h3>
+                        <p className="module-flip-back-meta">
+                          {MODULE_TOPIC_BADGE[module.key]} - {module.quiz.length} checks - +{module.points} XP
+                        </p>
+                        <p className="module-flip-back-meta">Difficulty: {MODULE_DIFFICULTY[module.key]}</p>
+                        <div className={`module-flip-back-blur ${isLocked ? 'module-flip-back-blur--locked' : ''}`}>
+                          {module.content?.slice(0, 3).map((point, idx) => (
+                            <p key={`${module.key}-point-${idx}`} className="module-flip-blur-line">
+                              {point}
+                            </p>
+                          ))}
+                        </div>
+
+                        <div className="module-flip-actions" onClick={stopFlip}>
+                          {isCompleted && (
+                            <Link to={module.route} className="secondary-btn module-flip-btn">
+                              Review module
+                            </Link>
+                          )}
+                          {!isLocked && !isCompleted && (
+                            <Link to={module.route} className="primary-btn module-flip-btn">
+                              Start module
+                            </Link>
+                          )}
+                          {isNext && !isCompleted && <span className="modules-mission-next-tag">Recommended next</span>}
+                          {isLocked && <p className="module-flip-locked muted-text">Complete previous module to unlock.</p>}
+                        </div>
+                        <p className="module-flip-tap-hint module-flip-tap-hint--back muted-text">Tap again to return</p>
+                      </article>
                     </div>
                   </div>
-                  <p className="muted-text modules-mission-tile-desc">{module.description}</p>
-                  <p className="modules-mission-tile-meta muted-text">
-                    {module.quiz.length} quiz questions · {module.points} XP
-                  </p>
-                  <div className="modules-mission-tile-actions">
-                    {isCompleted && (
-                      <Link to={module.route} className="secondary-btn modules-mission-btn">
-                        Review
-                      </Link>
-                    )}
-                    {!isLocked && !isCompleted && (
-                      <Link to={module.route} className="primary-btn modules-mission-btn">
-                        Start mission
-                      </Link>
-                    )}
-                    {isNext && !isCompleted && (
-                      <span className="modules-mission-next-tag">Recommended next</span>
-                    )}
-                    {isLocked && (
-                      <span className="modules-mission-locked-msg">Complete the previous module to unlock.</span>
-                    )}
-                  </div>
                 </div>
-              </article>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </section>
       </div>
     </div>

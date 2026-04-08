@@ -149,6 +149,10 @@ export default function ModuleDetail({ module }) {
             <span className="module-part-nav-num">3</span>
             Quiz
           </a>
+          <a className="module-part-nav-link" href="#part-threat">
+            <span className="module-part-nav-num">4</span>
+            Threat example
+          </a>
         </nav>
 
         <section id="part-learn" className="main-card module-detail-section lesson-section">
@@ -345,6 +349,22 @@ export default function ModuleDetail({ module }) {
             </div>
           )}
         </section>
+
+        {module.threatExample && (
+          <section
+            id="part-threat"
+            className="main-card module-detail-section lesson-section module-threat-section"
+            aria-labelledby="part-threat-heading"
+          >
+            <h2 id="part-threat-heading" className="lesson-section-title module-detail-section-title">
+              Part 4 · Real-world threat example
+            </h2>
+            <p className="lesson-intro muted-text">
+              A concrete scenario that shows why the skills in this module matter.
+            </p>
+            <p className="module-threat-callout">{module.threatExample}</p>
+          </section>
+        )}
       </div>
     </div>
   );

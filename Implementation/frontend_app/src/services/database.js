@@ -1,5 +1,9 @@
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from './supabase';
 
+/**
+ * Alternate / per-module progress model (not wired into the React app).
+ * The UI uses ProgressContext + a single aggregated row in user_progress — see supabase/schema.sql.
+ */
 export const dbService = {
   async getUserProgress(userId) {
     const { data, error } = await supabase
@@ -17,9 +21,9 @@ export const dbService = {
       .select('*')
       .eq('user_id', userId)
       .eq('module_id', moduleId)
-      .single();
-    
-    if (error && error.code !== 'PGRST116') throw error;
+      .maybeSingle();
+
+    if (error) throw error;
     return data;
   },
 
@@ -63,9 +67,9 @@ export const dbService = {
       .from('user_stats')
       .select('*')
       .eq('user_id', userId)
-      .single();
-    
-    if (error && error.code !== 'PGRST116') throw error;
+      .maybeSingle();
+
+    if (error) throw error;
     return data;
   },
 
