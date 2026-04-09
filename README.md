@@ -71,9 +71,12 @@ This is the **only final version of the project**.
 git clone https://github.com/janvia18/W26_4495_S002-JanviA.git
 cd W26_4495_S002-JanviA/Implementation/frontend_app
 
-3. Install Dependencies
+### 3. Install Dependencies
 npm install
-4. Configure Environment Variables
+
+---
+
+### 4. Configure Environment Variables
 
 Create a .env file inside:
 
@@ -82,16 +85,16 @@ Implementation/frontend_app/
 Add:VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-5. Database Setup
+###5. Database Setup
 
 Run the SQL file:
 
 Implementation/frontend_app/supabase/schema.sql
 
-6. Run the App
+###6. Run the App
 npm run dev
 
-7. Build for Production
+### 7. Build for Production
 npm run build
 npm run preview
 📘 User Guide
@@ -110,4 +113,3 @@ Includes:
 Final Report
 Presentation Slides
 
-👉 **The final runnable application is located in:**
