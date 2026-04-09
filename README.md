@@ -67,11 +67,10 @@ This is the **only final version of the project**.
 ---
 
 ### 2. Clone the Repository
-```bash
 git clone https://github.com/janvia18/W26_4495_S002-JanviA.git
 cd W26_4495_S002-JanviA/Implementation/frontend_app
 
-### 3. Install Dependencies
+ 3. Install Dependencies
 npm install
 
 ---
