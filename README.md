@@ -1,116 +1,113 @@
-# CyberAware — COMP 4495 S002 (W26)
+# CyberAware — CSIS 4495 S002 (Winter 2026)
 
-**Team / team lead:** Janvi Arora  
+**Student / Team Lead:** Janvi Arora  
 **Student ID:** 300383801  
 
-Web-based **cybersecurity awareness** platform: structured modules (learn → scenario → quiz → real-world threat example), **XP**, **levels**, **achievements**, and **Supabase**-backed accounts with **Row-Level Security**.
+---
+
+## 📌 Project Overview
+
+CyberAware is a web-based cybersecurity awareness and training platform designed to help users understand and defend against common online threats. The system combines structured learning, real-world scenarios, and interactive quizzes to improve user awareness and promote safe online behavior.
 
 ---
 
-## Repository layout
+## 🎯 Objectives
 
-| Path | Purpose |
-|------|---------|
-| `Implementation/frontend_app/` | **Runnable app** (React + Vite + Supabase) |
-| `Implementation/frontend_app/supabase/` | **`schema.sql`**, **`SUPABASE_SETUP.md`** |
-| `ReportsAndDocuments/` | Final report (**`.md`**, **`JanviA_FinalReport.docx`**, PDF export), **checklist**, **`Presentation_CyberAware.pptx`**, Marp source `.md` |
-| `DocumentsAndReports/` | **User guide** + `screenshots/` placeholders |
+- Improve cybersecurity awareness among users  
+- Provide interactive and engaging learning  
+- Simulate real-world cyber threats  
+- Track user progress and performance  
 
 ---
 
-## Quick start — demo from this repository
+## 🧱 Tech Stack
+
+- **Frontend:** React + Vite  
+- **Backend:** Supabase  
+- **Database:** PostgreSQL  
+- **Security:** Row-Level Security (RLS)  
+
+---
+
+## 🚀 Final Application Location
+Implementation/frontend_app/
+
+
+This is the **only final version of the project**.
+
+---
+
+## 🧩 Implemented Features
+
+- User authentication (sign up, login, logout)  
+- Protected routes and session handling  
+- Six cybersecurity modules:
+  - Phishing  
+  - Password Security  
+  - Multi-Factor Authentication (MFA)  
+  - Social Engineering  
+  - Safe Browsing  
+  - Incident Reporting  
+- Scenario-based learning  
+- Quiz system with feedback  
+- XP system, levels, and achievements  
+- User profile and progress tracking  
+- Sequential module unlocking  
+- Secure per-user data access using RLS  
+
+---
+
+## ⚙️ How to Run the Project
 
 ### 1. Prerequisites
+- Node.js (LTS)
+- npm
+- Supabase account
 
-- **Node.js** LTS and **npm**
-- A **Supabase** project (free tier is fine)
+---
 
-### 2. Install and configure
-
+### 2. Clone the Repository
 ```bash
-cd Implementation/frontend_app
+git clone https://github.com/janvia18/W26_4495_S002-JanviA.git
+cd W26_4495_S002-JanviA/Implementation/frontend_app
+
+3. Install Dependencies
 npm install
-```
+4. Configure Environment Variables
 
-Copy **`.env.example`** to **`.env`** and set:
+Create a .env file inside:
 
-- `VITE_SUPABASE_URL` — from Supabase **Project Settings → API**
-- `VITE_SUPABASE_ANON_KEY` — anon JWT (`eyJ...`) or **publishable** key (`sb_publishable_...`)
+Implementation/frontend_app/
 
-**Never commit `.env`.**
+Add:VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-### 3. Database setup
+5. Database Setup
 
-In Supabase → **SQL Editor**, run:
+Run the SQL file:
 
-`Implementation/frontend_app/supabase/schema.sql`
+Implementation/frontend_app/supabase/schema.sql
 
-Then add your local URL under **Authentication → URL configuration** (e.g. `http://localhost:5173/**`).
-
-Details: `Implementation/frontend_app/supabase/SUPABASE_SETUP.md`.
-
-### 4. Run
-
-```bash
+6. Run the App
 npm run dev
-```
 
-Open **http://localhost:5173** (default Vite port).
-
-### 5. Production build (smoke test)
-
-```bash
+7. Build for Production
 npm run build
 npm run preview
-```
+📘 User Guide
 
----
+Available in:
 
-## User guide
+DocumentsAndReports/
+📂 Submission Files
 
-End-user instructions (add your screenshots before submission):
+All required submission documents are located in:
 
-- **`DocumentsAndReports/USER_GUIDE.md`**
+ReportsAndDocuments/
 
----
+Includes:
 
-## Final submission artifacts
+Final Report
+Presentation Slides
 
-- **Checklist:** `ReportsAndDocuments/FINAL_SUBMISSION_CHECKLIST.md`  
-- **Final report (source):** `ReportsAndDocuments/JanviA_FinalReport.md`  
-- **Word (submission build):** `ReportsAndDocuments/JanviA_FinalReport_SUBMISSION.docx` — open in Word; **Save As → `JanviA_FinalReport.pdf`** for Blackboard if required  
-- **Export to PDF:** follow `ReportsAndDocuments/HOW_TO_CREATE_JanviA_FinalReport_PDF.md` → save as **`JanviA_FinalReport.pdf`**  
-- **Slides (PowerPoint):** Export from Marp: open `ReportsAndDocuments/Presentation_CyberAware.md` in VS Code → [Marp for VS Code](https://marketplace.visualstudio.com/items?itemName=marp-team.marp-vscode) → **Export Slide Deck → PPTX** (includes backgrounds + images). A simpler **Pandoc** version is also regenerated as `Presentation_CyberAware.pptx` from `Presentation_CyberAware_pandoc.md`.  
-- **Screenshot placeholders:** `DocumentsAndReports/screenshots/*.png` — run `npm run generate:placeholders` in `Implementation/frontend_app` to reset; **overwrite with real screenshots** before defense.
-
----
-
-## Implemented features (summary)
-
-- Email/password auth (Supabase), protected routes, session handling  
-- Six modules: Phishing, Passwords, MFA, Social Engineering, Safe Browsing, Incident Reporting  
-- Comics, scenarios, quizzes with explanations, **Part 4 threat examples**  
-- Mission board with **flippable cards**, sequential unlocks, locked-state blur  
-- XP, levels, achievements persisted in Postgres (**`user_progress`**, **`user_badges`**)  
-- Profile editing; configuration guards when Supabase env is missing  
-
----
-
-## Tech stack
-
-React 18 · React Router 6 · Vite 5 · Supabase (Auth + Postgres + RLS)
-
----
-
-## Academic integrity
-
-This repository is submitted for **COMP 4495**. It must not be copied as one’s own work by others. Course plagiarism rules apply.
-
----
-
-## Future improvements
-
-- Optional user study with surveys and longitudinal metrics  
-- Admin analytics dashboard  
-- Additional modules and localization  
-- Automated tests (unit / e2e)
+👉 **The final runnable application is located in:**
