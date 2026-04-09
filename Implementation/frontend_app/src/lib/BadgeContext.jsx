@@ -1,3 +1,7 @@
+/**
+ * Badge UX: loads earned `user_badges` IDs, then on progress/points changes inserts new rows and shows toasts.
+ * Badge ids (first_module, …) must exist as rows in `badges` if your DB enforces FK — or inserts may fail silently in parts of the flow.
+ */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../services/supabase";
 import { useProgress } from "./ProgressContext";
@@ -33,6 +37,7 @@ export function BadgeProvider({ children }) {
     }
   };
 
+  /** Compares thresholds to earned set; first match wins per loop iteration (insert + toast). */
   const checkNewBadges = async () => {
     const newBadges = [];
     if (completedCount >= 1 && !earnedBadges.includes('first_module')) newBadges.push('first_module');
@@ -72,6 +77,7 @@ export function BadgeProvider({ children }) {
   );
 }
 
+/** Hook for earned badges list and active toast notification (if any). */
 export function useBadges() {
   const context = useContext(BadgeContext);
   if (!context) throw new Error("useBadges must be used within BadgeProvider");

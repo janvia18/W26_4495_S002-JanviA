@@ -1,3 +1,4 @@
+/** Route `/modules/phishing` — wires catalog entry into the shared lesson shell. */
 import ModuleDetail from './ModuleDetail';
 import { modulesData } from '../lib/modulesData';
 

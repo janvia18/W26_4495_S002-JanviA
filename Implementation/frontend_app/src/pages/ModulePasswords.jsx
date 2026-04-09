@@ -1,3 +1,4 @@
+/** Route `/modules/passwords`. */
 import ModuleDetail from './ModuleDetail';
 import { modulesData } from '../lib/modulesData';
 

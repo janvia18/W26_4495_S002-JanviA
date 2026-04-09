@@ -1,3 +1,6 @@
+/**
+ * Marketing landing: hero, module previews, and different CTAs for guests vs signed-in learners.
+ */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';

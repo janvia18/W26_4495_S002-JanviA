@@ -1,6 +1,9 @@
 import { supabase } from './supabase';
 
-/** Server-side badge rules (badges catalog + per-module scores). Not used by the UI — see BadgeContext. */
+/**
+ * Server-style badge evaluation: reads `badges.requirement_type` and progress/stats, inserts `user_badges`.
+ * The React UI awards a smaller fixed set via BadgeContext; this service matches a richer SQL catalog if you use it.
+ */
 export const badgeService = {
   async checkAndAwardBadges(userId) {
     try {

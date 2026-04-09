@@ -1,3 +1,4 @@
+/** Next.js App Router ESLint preset + build output ignores. */
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 

@@ -1,3 +1,6 @@
+/**
+ * Top navigation: brand, public links, authenticated learner links, profile chip, and logout.
+ */
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";

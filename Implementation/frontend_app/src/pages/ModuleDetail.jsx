@@ -1,9 +1,14 @@
+/**
+ * Shared module lesson UI: intro, comic, scenario, quiz, threat copy, and completion → Supabase via completeModule.
+ * `module` comes from modulesData; passing quiz gates calls completeModule once per module key.
+ */
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";
 import { getModuleCoverSrc } from "../lib/moduleAssets";
 import ModuleComicStrip from "../components/ModuleComicStrip";
 
+/** Quiz data sometimes prefixes questions with "1. "; strip for cleaner display when duplicating numbers in UI. */
 function stripQuestionNumber(text) {
   return String(text).replace(/^\s*\d+\.\s*/, "");
 }
@@ -18,6 +23,7 @@ const ROUTES = {
   incident: "/modules/incident"
 };
 
+/** First incomplete module after `currentKey` in canonical curriculum order (for “continue” CTAs). */
 function getNextModuleKey(currentKey, completedMap) {
   const currentIndex = ORDER.indexOf(currentKey);
   if (currentIndex < 0) return null;
@@ -44,6 +50,7 @@ export default function ModuleDetail({ module }) {
     submitted && module
       ? module.quiz.reduce((total, q, i) => total + (answers[i] === q.answer ? 1 : 0), 0)
       : 0;
+  // Pass if at least half the answers are correct — then we may persist completion and show celebration.
   const passed = Boolean(submitted && module && score >= Math.ceil(totalQuestions / 2));
 
   useEffect(() => {
@@ -58,6 +65,7 @@ export default function ModuleDetail({ module }) {
     wasCompletedOnMount.current = Boolean(progress?.completed?.[module.key]);
   }, [module?.key, progress?.completed]);
 
+  // One-shot confetti only when the user *newly* passes (not when revisiting an already completed module).
   useEffect(() => {
     if (!submitted || !passed || celebrationGate.current) return;
     if (wasCompletedOnMount.current) return;

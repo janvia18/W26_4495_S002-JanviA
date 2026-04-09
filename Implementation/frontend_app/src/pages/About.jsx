@@ -1,3 +1,6 @@
+/**
+ * Product story page: module summaries with cover art and outcomes for stakeholders or curious learners.
+ */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';

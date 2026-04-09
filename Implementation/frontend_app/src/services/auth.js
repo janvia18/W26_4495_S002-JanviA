@@ -1,5 +1,10 @@
+/**
+ * Higher-level auth helpers (optional): sign-up also upserts `profiles` for display name.
+ * The main UI often uses ProgressContext.login / signup instead; keep these for API-style usage.
+ */
 import { supabase } from "./supabase";
 
+/** Creates auth user and ensures a matching row in `profiles` (onConflict: id). */
 export async function signUpUser({ name, email, password }) {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -32,6 +37,7 @@ export async function signUpUser({ name, email, password }) {
   return data;
 }
 
+/** Email/password session via Supabase Auth. */
 export async function loginUser({ email, password }) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -45,6 +51,7 @@ export async function loginUser({ email, password }) {
   return data;
 }
 
+/** Clears local session and tokens. */
 export async function logoutUser() {
   const { error } = await supabase.auth.signOut();
 
@@ -53,6 +60,7 @@ export async function logoutUser() {
   }
 }
 
+/** Reads persisted session from Supabase client storage (no network refresh). */
 export async function getCurrentSession() {
   const {
     data: { session },

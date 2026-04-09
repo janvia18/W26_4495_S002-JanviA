@@ -1,3 +1,6 @@
+/**
+ * Progress summary page: completion %, per-module checklist from modulesData, and XP/level readout.
+ */
 import React from "react";
 import { Link } from "react-router-dom";
 import { useProgress } from "../lib/ProgressContext";

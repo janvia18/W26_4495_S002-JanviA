@@ -1,3 +1,6 @@
+/**
+ * Badges gallery: static catalog + progress bars from completedCount/points vs useBadges earned set.
+ */
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
@@ -10,6 +13,7 @@ const ALL_BADGES = [
   { id: 'expert', title: 'Security Expert', description: 'Elite XP total', icon: '🎓', requirement: 'Reach 120 points' },
 ];
 
+/** How close the learner is to each badge’s numeric requirement (for the “in progress” UI). */
 function badgeProgressPercent(badge, completedCount, points) {
   if (badge.id === 'first_module') return Math.min(100, (completedCount / 1) * 100);
   if (badge.id === 'halfway_hero') return Math.min(100, (completedCount / 3) * 100);

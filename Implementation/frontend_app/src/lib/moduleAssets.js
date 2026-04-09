@@ -1,3 +1,6 @@
+/**
+ * Vite-resolved SVG covers for the module grid and cards (`safeBrowsing` matches folder slug).
+ */
 import phishing from "../assets/modules/phishing.svg";
 import passwords from "../assets/modules/passwords.svg";
 import mfa from "../assets/modules/mfa.svg";

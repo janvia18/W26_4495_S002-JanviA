@@ -1,3 +1,7 @@
+/**
+ * Converts comic-*.svg in src/assets/module-comics/ to matching .jpg (800×480) for the learner UI.
+ * Run from package.json script when you add or change SVG sources.
+ */
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';

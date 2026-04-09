@@ -1,3 +1,7 @@
+/**
+ * Single Supabase browser client: Auth (PKCE, localStorage) + PostgREST for profiles/progress/badges.
+ * Missing .env uses harmless placeholders so the bundle loads; real login needs VITE_* vars set.
+ */
 import { createClient } from "@supabase/supabase-js";
 
 /** True when both VITE_ vars are set — required for real login and database calls. */

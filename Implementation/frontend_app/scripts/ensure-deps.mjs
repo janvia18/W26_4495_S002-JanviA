@@ -1,3 +1,7 @@
+/**
+ * Pre-dev hook: if node_modules/vite is missing, run `npm install` in frontend_app.
+ * Keeps first-time clones from failing before the user runs install manually.
+ */
 import { existsSync } from 'fs';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';

@@ -1,3 +1,7 @@
+/**
+ * Global learner state: Supabase user, `profiles` row, and one `user_progress` row (JSON + points).
+ * Subscribes to `onAuthStateChange`; session probe uses a timeout so a stuck client does not freeze the shell.
+ */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../services/supabase";
 
@@ -133,6 +137,7 @@ export function ProgressProvider({ children }) {
     setPoints(newPoints);
   };
 
+  // Tier labels drive dashboard copy; thresholds align with BadgeContext "expert" at 120 pts.
   const completedCount = Object.values(progress.completed || {}).filter(Boolean).length;
   const level = points >= 120 ? "Expert" : points >= 80 ? "Advanced" : points >= 40 ? "Intermediate" : "Beginner";
 
@@ -146,6 +151,7 @@ export function ProgressProvider({ children }) {
   );
 }
 
+/** Hook for pages/components under ProgressProvider (user, profile, progress, login helpers). */
 export function useProgress() {
   const context = useContext(ProgressContext);
   if (!context) throw new Error("useProgress must be used within ProgressProvider");

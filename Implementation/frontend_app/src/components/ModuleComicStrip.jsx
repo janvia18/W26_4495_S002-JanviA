@@ -1,3 +1,6 @@
+/**
+ * Renders a three-panel comic for `moduleKey`: merged script + JPG art from getModuleComicStrip.
+ */
 import React from 'react';
 import { getModuleComicStrip } from '../lib/moduleComics';
 import ComicPanelPerson from './ComicPanelPerson';
@@ -7,6 +10,7 @@ const FALLBACK_CAST = [
   { name: 'B', shirt: '#059669', skin: '#fdba74', hair: '#1c1917' },
 ];
 
+/** Ensures two on-stage characters even if data omits cast (fallback silhouettes). */
 function panelCast(strip) {
   if (strip.cast?.length >= 2) return strip.cast;
   return FALLBACK_CAST;

@@ -1,3 +1,6 @@
+/**
+ * Root layout for the experimental Next.js app (separate from the main Vite CyberAware client).
+ */
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 

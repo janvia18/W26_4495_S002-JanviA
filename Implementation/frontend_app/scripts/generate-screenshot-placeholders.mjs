@@ -1,3 +1,7 @@
+/**
+ * Builds labeled PNG placeholders under DocumentsAndReports/screenshots for docs/presentations.
+ * Replace files with real screenshots; filenames are referenced by reporting assets.
+ */
 import sharp from "sharp";
 import fs from "fs";
 import path from "path";

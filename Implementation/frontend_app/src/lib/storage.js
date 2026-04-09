@@ -1,3 +1,6 @@
+/**
+ * JSON helpers for localStorage — parse failures fall back to `fallback` so bad data never crashes the app.
+ */
 export const storage = {
   get(key, fallback) {
     try {

@@ -1,3 +1,6 @@
+/**
+ * Profile editor: display name, org/role fields, avatar emoji grid, and optional reset-progress control.
+ */
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';

@@ -1,3 +1,6 @@
+/**
+ * Static learner dashboard mockup (DaisyUI-style) — demo layout, not wired to Supabase yet.
+ */
 export default function LearnerPage() {
   return (
     <div data-theme="pastel" className="min-h-screen bg-base-200 p-6">

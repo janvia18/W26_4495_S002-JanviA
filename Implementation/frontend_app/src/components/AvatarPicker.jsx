@@ -1,3 +1,6 @@
+/**
+ * Optional animal-style avatar grid; parent stores `value` id and handles onChange.
+ */
 export default function AvatarPicker({ value, onChange }) {
   return (
     <div className="avatarGrid">

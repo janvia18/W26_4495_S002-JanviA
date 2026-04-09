@@ -1,3 +1,6 @@
+/**
+ * Accessible toast for a newly earned badge; auto-dismisses after a few seconds.
+ */
 import React, { useEffect } from "react";
 
 export default function BadgeNotification({ badge, onClose }) {

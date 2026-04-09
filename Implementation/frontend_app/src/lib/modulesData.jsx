@@ -1,3 +1,7 @@
+/**
+ * Static CyberAware curriculum: copy, scenarios, quizzes, and metadata per module `key`.
+ * Keys line up with routes in App.jsx and `progress.completed` in ProgressContext.
+ */
 export const modulesData = [
   {
     key: "phishing",

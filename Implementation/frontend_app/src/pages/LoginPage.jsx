@@ -1,3 +1,6 @@
+/**
+ * Email/password sign-in; blocks submit when Supabase env vars are missing (dev-friendly error copy).
+ */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';

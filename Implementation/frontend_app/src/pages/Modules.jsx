@@ -1,3 +1,6 @@
+/**
+ * “Mission board” grid: filters, unlock state, and deep links into each Module* route.
+ */
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
@@ -46,6 +49,7 @@ export default function Modules() {
     return Boolean(completed[ORDER[index - 1]]);
   };
 
+  // Drives card face state and CTA copy on the mission deck.
   const getStatus = (key) => {
     if (completed[key]) return 'completed';
     if (isUnlocked(key)) return 'available';

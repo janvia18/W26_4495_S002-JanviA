@@ -1,7 +1,8 @@
 import { COMIC_PANEL_IMAGES } from './moduleComicImages';
 
 /**
- * Comic strips: two characters talk in each panel; JPG art merged in getModuleComicStrip.
+ * Narrative comic data per module: title, cast colors, and panel dialogue.
+ * Raster backgrounds are attached in getModuleComicStrip via COMIC_PANEL_IMAGES (same panel order).
  */
 export const MODULE_COMICS = {
   phishing: {
@@ -228,6 +229,7 @@ export const MODULE_COMICS = {
   },
 };
 
+/** Merges dialogue metadata from MODULE_COMICS with raster panel art from moduleComicImages. */
 export function getModuleComicStrip(moduleKey) {
   const strip = MODULE_COMICS[moduleKey];
   if (!strip) return null;
@@ -242,6 +244,7 @@ export function getModuleComicStrip(moduleKey) {
   };
 }
 
+/** Flat text of all dialogue/captions — useful for accessibility or search snippets. */
 export function getComicStripTranscript(strip) {
   if (!strip?.panels?.length) return '';
   return strip.panels

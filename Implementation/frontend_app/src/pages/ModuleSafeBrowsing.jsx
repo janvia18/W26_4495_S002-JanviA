@@ -1,3 +1,4 @@
+/** Route `/modules/safe-browsing`. */
 import ModuleDetail from './ModuleDetail';
 import { modulesData } from '../lib/modulesData';
 

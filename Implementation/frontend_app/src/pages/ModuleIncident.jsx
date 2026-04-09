@@ -1,3 +1,4 @@
+/** Route `/modules/incident` (reporting and response). */
 import ModuleDetail from './ModuleDetail';
 import { modulesData } from '../lib/modulesData';
 

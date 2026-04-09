@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
 
 /**
- * Alternate / per-module progress model (not wired into the React app).
- * The UI uses ProgressContext + a single aggregated row in user_progress — see supabase/schema.sql.
+ * Row-per-module progress API (user_progress with module_id) + user_stats rollup helpers.
+ * The live Vite app uses ProgressContext’s single-row JSON model instead; keep this for migrations or server scripts.
  */
 export const dbService = {
   async getUserProgress(userId) {

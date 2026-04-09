@@ -1,3 +1,6 @@
+/**
+ * Compact grid of earned badges (e.g. dashboard sidebar) — caps visible icons with a “+N more” hint.
+ */
 import React from 'react';
 
 const BadgeCollection = ({ badges }) => {

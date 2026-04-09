@@ -1,3 +1,6 @@
+/**
+ * Signed-in home: XP tier, module cards with unlock rules, and links into each mission route.
+ */
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
@@ -12,6 +15,7 @@ const MODULE_ROUTES = {
   incident: '/modules/incident'
 };
 
+// Same sequence as ModuleDetail / Modules — first module always unlocked, rest require prior completion.
 const ORDER = ['phishing', 'passwords', 'mfa', 'social', 'safeBrowsing', 'incident'];
 
 const TITLES = {
@@ -27,6 +31,7 @@ function routeForModule(key) {
   return MODULE_ROUTES[key] || `/modules/${key}`;
 }
 
+/** Maps raw points to a segment progress bar between tier breakpoints (40 / 80 / 120). */
 function tierProgress(points) {
   if (points >= 120) return { pct: 100, next: null, label: 'Max tier reached' };
   const prev = points >= 80 ? 80 : points >= 40 ? 40 : 0;
@@ -42,6 +47,7 @@ export default function Dashboard() {
   const xp = useMemo(() => tierProgress(points), [points]);
   const levelNum = { Beginner: 1, Intermediate: 2, Advanced: 3, Expert: 4 }[level] ?? 1;
 
+  // Linear unlock: module N opens only after module N−1 is marked complete in progress.completed.
   const isUnlocked = (key) => {
     const index = ORDER.indexOf(key);
     if (index === 0) return true;

@@ -1,3 +1,6 @@
+/**
+ * ESLint flat config: React Hooks + Refresh rules for Vite + browser globals.
+ */
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

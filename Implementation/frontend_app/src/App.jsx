@@ -1,3 +1,8 @@
+/**
+ * CyberAware SPA shell: React Router routes, global providers, and the signed-in layout.
+ * ProgressProvider = Supabase session + profile + one aggregated user_progress row.
+ * BadgeProvider = client-side badge rules + user_badges persistence (sits inside ProgressProvider).
+ */
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ProgressProvider, useProgress } from './lib/ProgressContext';
@@ -20,6 +25,7 @@ import ModuleSocial from './pages/ModuleSocial';
 import ModuleSafeBrowsing from './pages/ModuleSafeBrowsing';
 import ModuleIncident from './pages/ModuleIncident';
 
+/** Wraps children until auth finishes loading; redirects anonymous users to /login. */
 function PrivateRoute({ children }) {
   const { user, loading } = useProgress();
 
@@ -38,6 +44,7 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+/** Public marketing/auth routes + private learner area (dashboard, modules, profile, achievements). */
 function AppRoutes() {
   return (
     <Routes>
@@ -60,6 +67,7 @@ function AppRoutes() {
   );
 }
 
+/** Composes providers (innermost: router) so any route can use useProgress / useBadges. */
 function App() {
   return (
     <ProgressProvider>

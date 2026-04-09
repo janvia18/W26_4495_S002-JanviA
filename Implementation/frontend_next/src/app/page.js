@@ -1,3 +1,4 @@
+/** Default create-next-app landing — replace if this app becomes the primary CyberAware UI. */
 import Image from "next/image";
 
 export default function Home() {

@@ -1,3 +1,6 @@
+/**
+ * Registration form: client-side confirm password, then ProgressContext.signup → optional email confirm flow.
+ */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProgress } from '../lib/ProgressContext';
